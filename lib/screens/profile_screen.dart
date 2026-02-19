@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:criterium/screens/edit_profile_screen.dart';
 import 'package:criterium/screens/generic_info_screen.dart';
 import 'package:criterium/screens/login_screen.dart';
 import 'package:criterium/screens/student/attendance_screen.dart';
@@ -6,9 +7,63 @@ import 'package:criterium/screens/student/assignment_history_screen.dart';
 import 'package:criterium/screens/student/grades_summary_screen.dart';
 import 'package:criterium/theme/app_theme.dart';
 
-class ProfileScreen extends StatelessWidget {
+class ProfileScreen extends StatefulWidget {
   final bool isTeacher;
   const ProfileScreen({super.key, this.isTeacher = false});
+
+  @override
+  State<ProfileScreen> createState() => _ProfileScreenState();
+}
+
+class _ProfileScreenState extends State<ProfileScreen> {
+  late String _name;
+  late String _role;
+  late String _bio;
+  late String _phone;
+  late String _email;
+  late String _institution;
+
+  @override
+  void initState() {
+    super.initState();
+    if (widget.isTeacher) {
+      _name = 'Prof. Alex Rivera';
+      _role = 'Instructor Senior de Matemáticas';
+      _bio = 'Apasionado por las matemáticas y la enseñanza innovadora.';
+      _phone = '+52 55 1234 5678';
+      _email = 'alex.rivera@criterium.edu';
+    } else {
+      _name = 'Marlene López';
+      _role = 'Estudiante - 10mo Grado';
+      _bio = 'Me encanta aprender y superar retos académicos.';
+      _phone = '+52 55 9876 5432';
+      _email = 'marlene.lopez@criterium.edu';
+    }
+    _institution = 'Colegio Criterium Academy';
+  }
+
+  Future<void> _openEditProfile() async {
+    final result = await Navigator.push<Map<String, String>>(
+      context,
+      MaterialPageRoute(
+        builder: (_) => EditProfileScreen(
+          currentName: _name,
+          currentBio: _bio,
+          currentPhone: _phone,
+          email: _email,
+          role: _role,
+        ),
+      ),
+    );
+
+    if (result != null && mounted) {
+      setState(() {
+        _name = result['name'] ?? _name;
+        _bio = result['bio'] ?? _bio;
+        _phone = result['phone'] ?? _phone;
+      });
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -28,18 +83,9 @@ class ProfileScreen extends StatelessWidget {
         actions: [
           IconButton(
             icon: const Icon(Icons.edit, color: AppTheme.navyBlue),
-            onPressed: () {
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(
-                  content: Text('Edición de perfil próximamente'),
-                  duration: Duration(seconds: 2),
-                  behavior: SnackBarBehavior.floating,
-                ),
-              );
-            },
+            onPressed: _openEditProfile,
           ),
         ],
-        // Si es parte de un tab, el leading puede ser nulo o back si se navega
         automaticallyImplyLeading: false,
       ),
       body: SingleChildScrollView(
@@ -51,7 +97,7 @@ class ProfileScreen extends StatelessWidget {
               alignment: Alignment.bottomRight,
               children: [
                 Container(
-                  padding: const EdgeInsets.all(4), // Borde blanco
+                  padding: const EdgeInsets.all(4),
                   decoration: const BoxDecoration(
                     color: Colors.white,
                     shape: BoxShape.circle,
@@ -59,7 +105,7 @@ class ProfileScreen extends StatelessWidget {
                   child: CircleAvatar(
                     radius: 60,
                     backgroundImage: NetworkImage(
-                      isTeacher
+                      widget.isTeacher
                           ? 'https://i.pravatar.cc/150?img=11'
                           : 'https://i.pravatar.cc/150?img=5',
                     ),
@@ -73,7 +119,7 @@ class ProfileScreen extends StatelessWidget {
                     border: Border.all(color: Colors.white, width: 2),
                   ),
                   child: Icon(
-                    isTeacher ? Icons.verified_user : Icons.school,
+                    widget.isTeacher ? Icons.verified_user : Icons.school,
                     color: Colors.white,
                     size: 20,
                   ),
@@ -82,7 +128,7 @@ class ProfileScreen extends StatelessWidget {
             ),
             const SizedBox(height: 16),
             Text(
-              isTeacher ? 'Prof. Alex Rivera' : 'Marlene L\u00f3pez',
+              _name,
               style: const TextStyle(
                 fontSize: 24,
                 fontWeight: FontWeight.bold,
@@ -91,9 +137,7 @@ class ProfileScreen extends StatelessWidget {
             ),
             const SizedBox(height: 4),
             Text(
-              isTeacher
-                  ? 'Instructor Senior de Matem\u00e1ticas'
-                  : 'Estudiante - 10mo Grado',
+              _role,
               style: const TextStyle(
                 fontSize: 14,
                 fontWeight: FontWeight.bold,
@@ -101,15 +145,15 @@ class ProfileScreen extends StatelessWidget {
               ),
             ),
             Text(
-              'Colegio Criterium Academy',
+              _institution,
               style: TextStyle(fontSize: 14, color: Colors.grey[600]),
             ),
 
             const SizedBox(height: 32),
 
-            // Estad\u00edsticas din\u00e1micas seg\u00fan rol
+            // Estadísticas dinámicas según rol
             Row(
-              children: isTeacher
+              children: widget.isTeacher
                   ? [
                       _buildStatItem('CLASES', '6'),
                       const SizedBox(width: 12),

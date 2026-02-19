@@ -138,8 +138,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
     String stat2Val = widget.isTeacher ? '12' : '5';
     String stat2Label = widget.isTeacher ? 'PENDIENTES' : 'MEDIO';
 
-    String stat3Val = widget.isTeacher ? '154' : '2';
-    String stat3Label = widget.isTeacher ? 'ESTUDIANTES' : 'ATENCIÓN';
+    String stat3Val = widget.isTeacher ? '4' : '2';
+    String stat3Label = widget.isTeacher ? 'ATENCIÓN' : 'RIESGO';
 
     return SafeArea(
       child: SingleChildScrollView(
@@ -231,7 +231,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                               ? 'https://i.pravatar.cc/150?img=11'
                               : 'https://i.pravatar.cc/100?img=5',
                         ),
-                        backgroundColor: Colors.transparent,
+                        backgroundColor: const Color(0xFFE8EAF0),
                       ),
                     ),
                   ],
@@ -250,6 +250,56 @@ class _DashboardScreenState extends State<DashboardScreen> {
                   stat1Label,
                   widget.isTeacher ? Icons.class_ : Icons.trending_up,
                   const Color(0xFF2EC4B6),
+                  onTap: () {
+                    _showStatDetails(
+                      title: widget.isTeacher
+                          ? 'Cuadro de Honor'
+                          : 'Materias Excelentes',
+                      color: const Color(0xFF2EC4B6),
+                      icon: widget.isTeacher ? Icons.emoji_events : Icons.star,
+                      items: widget.isTeacher
+                          ? [
+                              {'name': 'Ana García', 'detail': 'Promedio: 9.8'},
+                              {
+                                'name': 'Luis Mendoza',
+                                'detail': 'Promedio: 9.7',
+                              },
+                              {
+                                'name': 'Sofía Hernández',
+                                'detail': 'Promedio: 9.6',
+                              },
+                              {
+                                'name': 'Marco Torres',
+                                'detail': 'Promedio: 9.5',
+                              },
+                              {
+                                'name': 'Valentina Díaz',
+                                'detail': 'Promedio: 9.5',
+                              },
+                              {
+                                'name': 'Diego Ramírez',
+                                'detail': 'Promedio: 9.4',
+                              },
+                            ]
+                          : [
+                              {'name': 'Matemáticas', 'detail': '10/10'},
+                              {
+                                'name': 'Historia Universal',
+                                'detail': '9.8/10',
+                              },
+                              {'name': 'Lengua Española', 'detail': '9.7/10'},
+                              {'name': 'Biología', 'detail': '9.5/10'},
+                              {'name': 'Educación Física', 'detail': '9.5/10'},
+                              {'name': 'Ética y Valores', 'detail': '9.4/10'},
+                              {'name': 'Artes Visuales', 'detail': '9.4/10'},
+                              {'name': 'Tecnología', 'detail': '9.3/10'},
+                              {'name': 'Música', 'detail': '9.3/10'},
+                              {'name': 'Civismo', 'detail': '9.2/10'},
+                              {'name': 'Tutoría', 'detail': '9.1/10'},
+                              {'name': 'Lectura', 'detail': '9.0/10'},
+                            ],
+                    );
+                  },
                 ),
                 const SizedBox(width: 12),
                 _buildStatCard(
@@ -258,6 +308,81 @@ class _DashboardScreenState extends State<DashboardScreen> {
                   stat2Label,
                   widget.isTeacher ? Icons.assignment_late : Icons.remove,
                   const Color(0xFFF39C12),
+                  onTap: () {
+                    _showStatDetails(
+                      title: widget.isTeacher
+                          ? 'Rendimiento Regular'
+                          : 'Materias Regulares',
+                      color: const Color(0xFFF39C12),
+                      icon: widget.isTeacher
+                          ? Icons.trending_flat
+                          : Icons.schedule,
+                      items: widget.isTeacher
+                          ? [
+                              {
+                                'name': 'Carlos Ruiz',
+                                'detail': 'Promedio: 8.0',
+                              },
+                              {
+                                'name': 'María López',
+                                'detail': 'Promedio: 7.8',
+                              },
+                              {
+                                'name': 'Jorge Vargas',
+                                'detail': 'Promedio: 7.5',
+                              },
+                              {
+                                'name': 'Lucía Romero',
+                                'detail': 'Promedio: 7.3',
+                              },
+                              {
+                                'name': 'Pablo Moreno',
+                                'detail': 'Promedio: 7.2',
+                              },
+                              {
+                                'name': 'Camila Ríos',
+                                'detail': 'Promedio: 7.1',
+                              },
+                              {
+                                'name': 'Tomás Herrera',
+                                'detail': 'Promedio: 7.0',
+                              },
+                              {
+                                'name': 'Isabella Cruz',
+                                'detail': 'Promedio: 7.0',
+                              },
+                              {
+                                'name': 'Mateo Salazar',
+                                'detail': 'Promedio: 6.9',
+                              },
+                              {
+                                'name': 'Renata Flores',
+                                'detail': 'Promedio: 6.8',
+                              },
+                              {
+                                'name': 'Emilio Ortega',
+                                'detail': 'Promedio: 6.7',
+                              },
+                              {
+                                'name': 'Daniela Peña',
+                                'detail': 'Promedio: 6.5',
+                              },
+                            ]
+                          : [
+                              {
+                                'name': 'Ciencias Naturales',
+                                'detail': '8.0/10',
+                              },
+                              {'name': 'Educación Física', 'detail': '7.8/10'},
+                              {
+                                'name': 'Historia',
+                                'detail': 'Tarea para mañana',
+                              },
+                              {'name': 'Geografía', 'detail': '7.5/10'},
+                              {'name': 'Inglés', 'detail': 'Examen pendiente'},
+                            ],
+                    );
+                  },
                 ),
                 const SizedBox(width: 12),
                 _buildStatCard(
@@ -266,6 +391,43 @@ class _DashboardScreenState extends State<DashboardScreen> {
                   stat3Label,
                   widget.isTeacher ? Icons.people : Icons.priority_high,
                   const Color(0xFFE74C3C),
+                  onTap: () {
+                    _showStatDetails(
+                      title: widget.isTeacher
+                          ? 'Riesgo Académico'
+                          : 'Materias en Riesgo',
+                      color: const Color(0xFFE74C3C),
+                      icon: widget.isTeacher
+                          ? Icons.warning_amber_rounded
+                          : Icons.trending_down,
+                      items: widget.isTeacher
+                          ? [
+                              {
+                                'name': 'Elena Soto',
+                                'detail': '3 Faltas - Promedio: 6.2',
+                              },
+                              {
+                                'name': 'Andrés López',
+                                'detail': '5 Faltas - Promedio: 5.8',
+                              },
+                              {
+                                'name': 'Fernanda Mora',
+                                'detail': '4 Faltas - Promedio: 5.5',
+                              },
+                              {
+                                'name': 'Ricardo Navarro',
+                                'detail': '6 Faltas - Promedio: 4.9',
+                              },
+                            ]
+                          : [
+                              {'name': 'Química', 'detail': '6.5/10'},
+                              {
+                                'name': 'Física',
+                                'detail': '6.0/10 - 2 tareas sin entregar',
+                              },
+                            ],
+                    );
+                  },
                 ),
               ],
             ),
@@ -439,48 +601,185 @@ class _DashboardScreenState extends State<DashboardScreen> {
     String value,
     String label,
     IconData icon,
-    Color color,
-  ) {
+    Color color, {
+    VoidCallback? onTap,
+  }) {
     return Expanded(
-      child: Container(
-        height: 140,
-        padding: const EdgeInsets.all(16),
-        decoration: BoxDecoration(
-          color: color,
-          borderRadius: BorderRadius.circular(20),
-        ),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Container(
-              padding: const EdgeInsets.all(8),
-              decoration: BoxDecoration(
-                color: Colors.white.withOpacity(0.2),
-                shape: BoxShape.circle,
+      child: GestureDetector(
+        onTap: onTap,
+        child: Container(
+          height: 140,
+          padding: const EdgeInsets.all(16),
+          decoration: BoxDecoration(
+            color: color,
+            borderRadius: BorderRadius.circular(20),
+          ),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Container(
+                padding: const EdgeInsets.all(8),
+                decoration: BoxDecoration(
+                  color: Colors.white.withOpacity(0.2),
+                  shape: BoxShape.circle,
+                ),
+                child: Icon(icon, color: Colors.white, size: 20),
               ),
-              child: Icon(icon, color: Colors.white, size: 20),
-            ),
-            const SizedBox(height: 8),
-            Text(
-              value,
-              style: GoogleFonts.poppins(
-                color: Colors.white,
-                fontSize: 24,
-                fontWeight: FontWeight.w700,
+              const SizedBox(height: 8),
+              Text(
+                value,
+                style: GoogleFonts.poppins(
+                  color: Colors.white,
+                  fontSize: 24,
+                  fontWeight: FontWeight.w700,
+                ),
               ),
-            ),
-            Text(
-              label,
-              style: const TextStyle(
-                color: Colors.white70,
-                fontSize: 10,
-                fontWeight: FontWeight.bold,
-                letterSpacing: 1.0,
+              Text(
+                label,
+                style: const TextStyle(
+                  color: Colors.white70,
+                  fontSize: 10,
+                  fontWeight: FontWeight.bold,
+                  letterSpacing: 1.0,
+                ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
+    );
+  }
+
+  // ── Bottom Sheet para detalles del semáforo ──
+  void _showStatDetails({
+    required String title,
+    required Color color,
+    required IconData icon,
+    required List<Map<String, String>> items,
+  }) {
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.transparent,
+      isScrollControlled: true,
+      builder: (context) {
+        return Container(
+          constraints: BoxConstraints(
+            maxHeight: MediaQuery.of(context).size.height * 0.55,
+          ),
+          decoration: const BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.only(
+              topLeft: Radius.circular(30),
+              topRight: Radius.circular(30),
+            ),
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              // Handle bar
+              Container(
+                margin: const EdgeInsets.only(top: 12),
+                width: 40,
+                height: 4,
+                decoration: BoxDecoration(
+                  color: Colors.grey[300],
+                  borderRadius: BorderRadius.circular(10),
+                ),
+              ),
+              const SizedBox(height: 20),
+              // Header
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 24),
+                child: Row(
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.all(10),
+                      decoration: BoxDecoration(
+                        color: color.withOpacity(0.1),
+                        borderRadius: BorderRadius.circular(14),
+                      ),
+                      child: Icon(icon, color: color, size: 22),
+                    ),
+                    const SizedBox(width: 14),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            title,
+                            style: GoogleFonts.poppins(
+                              fontSize: 18,
+                              fontWeight: FontWeight.w700,
+                              color: AppTheme.navyBlue,
+                            ),
+                          ),
+                          Text(
+                            '${items.length} ${widget.isTeacher ? "estudiantes" : "materias"}',
+                            style: TextStyle(
+                              fontSize: 13,
+                              color: Colors.grey[500],
+                              fontWeight: FontWeight.w500,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(height: 16),
+              Divider(color: Colors.grey[200], height: 1),
+              // List
+              Flexible(
+                child: ListView.separated(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 24,
+                    vertical: 12,
+                  ),
+                  shrinkWrap: true,
+                  itemCount: items.length,
+                  separatorBuilder: (_, __) => const SizedBox(height: 4),
+                  itemBuilder: (context, index) {
+                    final item = items[index];
+                    final initial = item['name']![0].toUpperCase();
+                    return ListTile(
+                      contentPadding: EdgeInsets.zero,
+                      leading: CircleAvatar(
+                        backgroundColor: color.withOpacity(0.12),
+                        child: Text(
+                          initial,
+                          style: TextStyle(
+                            color: color,
+                            fontWeight: FontWeight.bold,
+                            fontSize: 16,
+                          ),
+                        ),
+                      ),
+                      title: Text(
+                        item['name']!,
+                        style: const TextStyle(
+                          fontWeight: FontWeight.w600,
+                          color: AppTheme.navyBlue,
+                          fontSize: 15,
+                        ),
+                      ),
+                      subtitle: Text(
+                        item['detail']!,
+                        style: TextStyle(color: Colors.grey[500], fontSize: 13),
+                      ),
+                      trailing: Icon(
+                        Icons.arrow_forward_ios,
+                        size: 14,
+                        color: Colors.grey[400],
+                      ),
+                    );
+                  },
+                ),
+              ),
+            ],
+          ),
+        );
+      },
     );
   }
 
