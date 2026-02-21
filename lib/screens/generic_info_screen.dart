@@ -15,21 +15,23 @@ class GenericInfoScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final bgColor = Theme.of(context).scaffoldBackgroundColor;
+    final cardColor = Theme.of(context).cardColor;
+    final textColor = isDark ? Colors.white : AppTheme.navyBlue;
+
     return Scaffold(
-      backgroundColor: const Color(0xFFF8F9FA),
+      backgroundColor: bgColor,
       appBar: AppBar(
         title: Text(
           title,
-          style: const TextStyle(
-            color: AppTheme.navyBlue,
-            fontWeight: FontWeight.bold,
-          ),
+          style: TextStyle(color: textColor, fontWeight: FontWeight.bold),
         ),
         centerTitle: true,
         backgroundColor: Colors.transparent,
         elevation: 0,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back_ios, color: AppTheme.navyBlue),
+          icon: Icon(Icons.arrow_back_ios, color: textColor),
           onPressed: () => Navigator.pop(context),
         ),
       ),
@@ -42,10 +44,10 @@ class GenericInfoScreen extends StatelessWidget {
             Container(
               padding: const EdgeInsets.all(24),
               decoration: BoxDecoration(
-                color: AppTheme.navyBlue.withOpacity(0.05),
+                color: textColor.withOpacity(0.05),
                 shape: BoxShape.circle,
               ),
-              child: Icon(icon, size: 48, color: AppTheme.navyBlue),
+              child: Icon(icon, size: 48, color: textColor),
             ),
             const SizedBox(height: 24),
 
@@ -54,11 +56,13 @@ class GenericInfoScreen extends StatelessWidget {
               width: double.infinity,
               padding: const EdgeInsets.all(24.0),
               decoration: BoxDecoration(
-                color: Colors.white,
+                color: cardColor,
                 borderRadius: BorderRadius.circular(20),
                 boxShadow: [
                   BoxShadow(
-                    color: Colors.grey.withOpacity(0.08),
+                    color: isDark
+                        ? Colors.transparent
+                        : Colors.grey.withOpacity(0.08),
                     blurRadius: 15,
                     offset: const Offset(0, 5),
                   ),
@@ -70,14 +74,20 @@ class GenericInfoScreen extends StatelessWidget {
                   // Título dentro de la tarjeta
                   Text(
                     title,
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontSize: 20,
                       fontWeight: FontWeight.bold,
-                      color: AppTheme.navyBlue,
+                      color: textColor,
                     ),
                   ),
                   const SizedBox(height: 16),
-                  Divider(color: Colors.grey[200], thickness: 1, height: 1),
+                  Divider(
+                    color: isDark
+                        ? Colors.white.withOpacity(0.1)
+                        : Colors.grey[200],
+                    thickness: 1,
+                    height: 1,
+                  ),
                   const SizedBox(height: 16),
                   // Cuerpo del contenido
                   Text(
@@ -85,7 +95,7 @@ class GenericInfoScreen extends StatelessWidget {
                     style: TextStyle(
                       fontSize: 15,
                       height: 1.6,
-                      color: Colors.grey[700],
+                      color: isDark ? Colors.grey[400] : Colors.grey[700],
                     ),
                   ),
                 ],

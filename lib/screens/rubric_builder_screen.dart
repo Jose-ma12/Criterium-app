@@ -9,28 +9,296 @@ class RubricBuilderScreen extends StatefulWidget {
 }
 
 class _RubricBuilderScreenState extends State<RubricBuilderScreen> {
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Colors.grey[50], // Fondo muy claro
-      appBar: AppBar(
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back_ios, color: AppTheme.navyBlue),
-          onPressed: () => Navigator.pop(context),
-        ),
-        title: const Text(
-          'Constructor de Rúbrica',
+  final List<Map<String, dynamic>> _criteria = [
+    {
+      'title': 'Ortografía',
+      'score': 10,
+      'image':
+          'https://images.unsplash.com/photo-1455390582262-044cdead277a?auto=format&fit=crop&q=80&w=150&h=150',
+    },
+    {
+      'title': 'Contenido',
+      'score': 50,
+      'image':
+          'https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?auto=format&fit=crop&q=80&w=150&h=150',
+    },
+    {
+      'title': 'Creatividad',
+      'score': 20,
+      'image':
+          'https://images.unsplash.com/photo-1513364776144-60967b0f800f?auto=format&fit=crop&q=80&w=150&h=150',
+    },
+  ];
+
+  int get _totalScore =>
+      _criteria.fold<int>(0, (sum, c) => sum + (c['score'] as int));
+
+  // ── Eliminar criterio con confirmación ──
+  void _deleteCriterion(int index) {
+    final name = _criteria[index]['title'];
+    showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+        title: Text(
+          '¿Eliminar criterio?',
           style: TextStyle(
-            color: AppTheme.navyBlue,
             fontWeight: FontWeight.bold,
+            color: Theme.of(ctx).brightness == Brightness.dark
+                ? Colors.white
+                : AppTheme.navyBlue,
           ),
         ),
+        content: Text(
+          '¿Seguro que deseas eliminar "$name"? Esta acción no se puede deshacer.',
+          style: TextStyle(color: Colors.grey[600]),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx),
+            child: const Text('Cancelar', style: TextStyle(color: Colors.grey)),
+          ),
+          TextButton(
+            onPressed: () {
+              setState(() {
+                _criteria.removeAt(index);
+              });
+              Navigator.pop(ctx);
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                  content: Text('"$name" eliminado'),
+                  behavior: SnackBarBehavior.floating,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                ),
+              );
+            },
+            child: const Text(
+              'Eliminar',
+              style: TextStyle(color: Colors.red, fontWeight: FontWeight.bold),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  // ── Editar criterio ──
+  void _editCriterion(int index) {
+    final titleCtrl = TextEditingController(
+      text: _criteria[index]['title'] as String,
+    );
+    final scoreCtrl = TextEditingController(
+      text: '${_criteria[index]['score']}',
+    );
+    final formKey = GlobalKey<FormState>();
+
+    showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+        title: const Text(
+          'Editar criterio',
+          style: TextStyle(
+            fontWeight: FontWeight.bold,
+            color: AppTheme.navyBlue,
+          ),
+        ),
+        content: Form(
+          key: formKey,
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              TextFormField(
+                controller: titleCtrl,
+                decoration: InputDecoration(
+                  labelText: 'Título',
+                  labelStyle: const TextStyle(color: AppTheme.navyBlue),
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(14),
+                  ),
+                  focusedBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(14),
+                    borderSide: const BorderSide(color: AppTheme.navyBlue),
+                  ),
+                ),
+                validator: (v) =>
+                    (v == null || v.trim().isEmpty) ? 'Requerido' : null,
+              ),
+              const SizedBox(height: 16),
+              TextFormField(
+                controller: scoreCtrl,
+                keyboardType: TextInputType.number,
+                decoration: InputDecoration(
+                  labelText: 'Puntaje',
+                  labelStyle: const TextStyle(color: AppTheme.navyBlue),
+                  suffixText: 'pts',
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(14),
+                  ),
+                  focusedBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(14),
+                    borderSide: const BorderSide(color: AppTheme.navyBlue),
+                  ),
+                ),
+                validator: (v) {
+                  if (v == null || v.trim().isEmpty) return 'Requerido';
+                  final n = int.tryParse(v.trim());
+                  if (n == null || n <= 0) return 'Debe ser mayor a 0';
+                  return null;
+                },
+              ),
+            ],
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx),
+            child: const Text('Cancelar', style: TextStyle(color: Colors.grey)),
+          ),
+          TextButton(
+            onPressed: () {
+              if (formKey.currentState?.validate() ?? false) {
+                setState(() {
+                  _criteria[index]['title'] = titleCtrl.text.trim();
+                  _criteria[index]['score'] = int.parse(scoreCtrl.text.trim());
+                });
+                Navigator.pop(ctx);
+              }
+            },
+            child: const Text(
+              'Guardar',
+              style: TextStyle(
+                color: AppTheme.navyBlue,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  // ── Agregar nuevo criterio ──
+  void _addCriterion() {
+    final titleCtrl = TextEditingController();
+    final scoreCtrl = TextEditingController();
+    final formKey = GlobalKey<FormState>();
+
+    showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+        title: const Text(
+          'Nuevo criterio',
+          style: TextStyle(
+            fontWeight: FontWeight.bold,
+            color: AppTheme.navyBlue,
+          ),
+        ),
+        content: Form(
+          key: formKey,
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              TextFormField(
+                controller: titleCtrl,
+                decoration: InputDecoration(
+                  labelText: 'Título',
+                  labelStyle: const TextStyle(color: AppTheme.navyBlue),
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(14),
+                  ),
+                  focusedBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(14),
+                    borderSide: const BorderSide(color: AppTheme.navyBlue),
+                  ),
+                ),
+                validator: (v) =>
+                    (v == null || v.trim().isEmpty) ? 'Requerido' : null,
+              ),
+              const SizedBox(height: 16),
+              TextFormField(
+                controller: scoreCtrl,
+                keyboardType: TextInputType.number,
+                decoration: InputDecoration(
+                  labelText: 'Puntaje',
+                  labelStyle: const TextStyle(color: AppTheme.navyBlue),
+                  suffixText: 'pts',
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(14),
+                  ),
+                  focusedBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(14),
+                    borderSide: const BorderSide(color: AppTheme.navyBlue),
+                  ),
+                ),
+                validator: (v) {
+                  if (v == null || v.trim().isEmpty) return 'Requerido';
+                  final n = int.tryParse(v.trim());
+                  if (n == null || n <= 0) return 'Debe ser mayor a 0';
+                  return null;
+                },
+              ),
+            ],
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx),
+            child: const Text('Cancelar', style: TextStyle(color: Colors.grey)),
+          ),
+          TextButton(
+            onPressed: () {
+              if (formKey.currentState?.validate() ?? false) {
+                setState(() {
+                  _criteria.add({
+                    'title': titleCtrl.text.trim(),
+                    'score': int.parse(scoreCtrl.text.trim()),
+                    'image':
+                        'https://images.unsplash.com/photo-1456513080510-7bf3a84b82f8?auto=format&fit=crop&q=80&w=150&h=150',
+                  });
+                });
+                Navigator.pop(ctx);
+              }
+            },
+            child: const Text(
+              'Agregar',
+              style: TextStyle(
+                color: AppTheme.navyBlue,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final bgColor = Theme.of(context).scaffoldBackgroundColor;
+    final cardColor = Theme.of(context).cardColor;
+    final textColor = isDark ? Colors.white : AppTheme.navyBlue;
+    return Scaffold(
+      backgroundColor: bgColor,
+      appBar: AppBar(
+        leading: IconButton(
+          icon: Icon(Icons.arrow_back_ios, color: textColor),
+          onPressed: () => Navigator.pop(context),
+        ),
+        title: Text(
+          'Constructor de Rúbrica',
+          style: TextStyle(color: textColor, fontWeight: FontWeight.bold),
+        ),
         centerTitle: true,
-        backgroundColor: Colors.white,
+        backgroundColor: cardColor,
         elevation: 0,
         actions: [
           IconButton(
-            icon: const Icon(Icons.help, color: AppTheme.navyBlue),
+            icon: Icon(Icons.help, color: textColor),
             onPressed: () {
               ScaffoldMessenger.of(context).showSnackBar(
                 const SnackBar(
@@ -49,23 +317,23 @@ class _RubricBuilderScreenState extends State<RubricBuilderScreen> {
         children: [
           // Progreso
           Container(
-            color: Colors.white,
+            color: cardColor,
             padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
             child: Column(
               children: [
-                const Row(
+                Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     Text(
                       'Progreso de la tarea',
                       style: TextStyle(
                         fontWeight: FontWeight.bold,
-                        color: AppTheme.navyBlue,
+                        color: textColor,
                       ),
                     ),
                     Text(
                       'Paso 2 de 3',
-                      style: TextStyle(color: AppTheme.navyBlue, fontSize: 12),
+                      style: TextStyle(color: textColor, fontSize: 12),
                     ),
                   ],
                 ),
@@ -74,10 +342,12 @@ class _RubricBuilderScreenState extends State<RubricBuilderScreen> {
                   borderRadius: BorderRadius.circular(4),
                   child: LinearProgressIndicator(
                     value: 0.66,
-                    backgroundColor: Colors.grey[200],
+                    backgroundColor: isDark
+                        ? const Color(0xFF334155)
+                        : Colors.grey[200],
                     valueColor: const AlwaysStoppedAnimation<Color>(
                       Color(0xFF2ECC71),
-                    ), // Verde
+                    ),
                     minHeight: 6,
                   ),
                 ),
@@ -91,43 +361,105 @@ class _RubricBuilderScreenState extends State<RubricBuilderScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Text(
-                    'Criterios de evaluación',
-                    style: TextStyle(
-                      fontSize: 22,
-                      fontWeight: FontWeight.bold,
-                      color: AppTheme.navyBlue,
-                    ),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(
+                        'Criterios de evaluación',
+                        style: TextStyle(
+                          fontSize: 22,
+                          fontWeight: FontWeight.bold,
+                          color: textColor,
+                        ),
+                      ),
+                      // Botón agregar criterio
+                      GestureDetector(
+                        onTap: _addCriterion,
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 14,
+                            vertical: 8,
+                          ),
+                          decoration: BoxDecoration(
+                            color: AppTheme.navyBlue,
+                            borderRadius: BorderRadius.circular(20),
+                          ),
+                          child: const Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Icon(Icons.add, color: Colors.white, size: 18),
+                              SizedBox(width: 4),
+                              Text(
+                                'Agregar',
+                                style: TextStyle(
+                                  color: Colors.white,
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 13,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ],
                   ),
                   const SizedBox(height: 8),
                   Text(
                     'Define los criterios y el puntaje máximo para esta tarea.',
-                    style: TextStyle(color: Colors.grey[600], fontSize: 14),
+                    style: TextStyle(
+                      color: isDark ? Colors.grey[400] : Colors.grey[600],
+                      fontSize: 14,
+                    ),
                   ),
 
                   const SizedBox(height: 24),
 
-                  // Cards de Criterios
-                  _buildCriterionCard(
-                    title: 'Ortografía',
-                    score: 10,
-                    imageUrl:
-                        'https://images.unsplash.com/photo-1455390582262-044cdead277a?auto=format&fit=crop&q=80&w=150&h=150', // Escribiendo
-                  ),
-                  const SizedBox(height: 16),
-                  _buildCriterionCard(
-                    title: 'Contenido',
-                    score: 50,
-                    imageUrl:
-                        'https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?auto=format&fit=crop&q=80&w=150&h=150', // Libro abierto
-                  ),
-                  const SizedBox(height: 16),
-                  _buildCriterionCard(
-                    title: 'Creatividad',
-                    score: 20,
-                    imageUrl:
-                        'https://images.unsplash.com/photo-1513364776144-60967b0f800f?auto=format&fit=crop&q=80&w=150&h=150', // Abstracto colorido
-                  ),
+                  // Cards de Criterios dinámicas
+                  ..._criteria.asMap().entries.map((entry) {
+                    final index = entry.key;
+                    final criterion = entry.value;
+                    return Padding(
+                      padding: const EdgeInsets.only(bottom: 16),
+                      child: _buildCriterionCard(
+                        index: index,
+                        title: criterion['title'] as String,
+                        score: criterion['score'] as int,
+                        imageUrl: criterion['image'] as String,
+                      ),
+                    );
+                  }),
+
+                  if (_criteria.isEmpty)
+                    Container(
+                      padding: const EdgeInsets.symmetric(vertical: 48),
+                      width: double.infinity,
+                      child: Column(
+                        children: [
+                          Icon(
+                            Icons.playlist_add,
+                            size: 56,
+                            color: Colors.grey[300],
+                          ),
+                          const SizedBox(height: 16),
+                          Text(
+                            'Sin criterios aún',
+                            style: TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.w600,
+                              color: Colors.grey[400],
+                            ),
+                          ),
+                          const SizedBox(height: 4),
+                          Text(
+                            'Toca "Agregar" para crear un criterio',
+                            style: TextStyle(
+                              fontSize: 13,
+                              color: Colors.grey[400],
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
 
                   const SizedBox(
                     height: 100,
@@ -141,10 +473,12 @@ class _RubricBuilderScreenState extends State<RubricBuilderScreen> {
           Container(
             padding: const EdgeInsets.all(24),
             decoration: BoxDecoration(
-              color: Colors.white,
+              color: cardColor,
               boxShadow: [
                 BoxShadow(
-                  color: Colors.grey.withOpacity(0.1),
+                  color: isDark
+                      ? Colors.transparent
+                      : Colors.grey.withOpacity(0.1),
                   blurRadius: 10,
                   offset: const Offset(0, -5),
                 ),
@@ -205,23 +539,23 @@ class _RubricBuilderScreenState extends State<RubricBuilderScreen> {
 
                 const SizedBox(height: 16),
 
-                // Total Score
+                // Total Score — dinámico
                 Container(
                   padding: const EdgeInsets.symmetric(
                     horizontal: 20,
                     vertical: 12,
                   ),
                   decoration: BoxDecoration(
-                    color: Colors.grey[100],
+                    color: isDark ? const Color(0xFF334155) : Colors.grey[100],
                     borderRadius: BorderRadius.circular(20),
                   ),
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      const Text(
+                      Text(
                         'Puntaje Total\nacumulado',
                         style: TextStyle(
-                          color: AppTheme.navyBlue,
+                          color: textColor,
                           fontWeight: FontWeight.bold,
                           height: 1.2,
                         ),
@@ -232,13 +566,15 @@ class _RubricBuilderScreenState extends State<RubricBuilderScreen> {
                           vertical: 8,
                         ),
                         decoration: BoxDecoration(
-                          color: const Color(0xFF2ECC71),
+                          color: _totalScore > 100
+                              ? const Color(0xFFE74C3C)
+                              : const Color(0xFF2ECC71),
                           borderRadius: BorderRadius.circular(20),
                         ),
-                        child: const Text(
-                          '80 / 100\npts',
+                        child: Text(
+                          '$_totalScore / 100\npts',
                           textAlign: TextAlign.center,
-                          style: TextStyle(
+                          style: const TextStyle(
                             color: Colors.white,
                             fontWeight: FontWeight.bold,
                             height: 1.1,
@@ -257,18 +593,22 @@ class _RubricBuilderScreenState extends State<RubricBuilderScreen> {
   }
 
   Widget _buildCriterionCard({
+    required int index,
     required String title,
     required int score,
     required String imageUrl,
   }) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final cardColor = Theme.of(context).cardColor;
+    final textColor = isDark ? Colors.white : AppTheme.navyBlue;
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: cardColor,
         borderRadius: BorderRadius.circular(20),
         boxShadow: [
           BoxShadow(
-            color: Colors.grey.withOpacity(0.05),
+            color: isDark ? Colors.transparent : Colors.grey.withOpacity(0.05),
             blurRadius: 10,
             offset: const Offset(0, 5),
           ),
@@ -281,35 +621,38 @@ class _RubricBuilderScreenState extends State<RubricBuilderScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Text(
+                Text(
                   'NOMBRE DEL CRITERIO',
                   style: TextStyle(
                     fontSize: 10,
                     fontWeight: FontWeight.bold,
-                    color: AppTheme.navyBlue,
+                    color: textColor,
                     letterSpacing: 1.0,
                   ),
                 ),
                 const SizedBox(height: 4),
                 Text(
                   title,
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 18,
                     fontWeight: FontWeight.bold,
-                    color: AppTheme.navyBlue,
+                    color: textColor,
                   ),
                 ),
                 const SizedBox(height: 8),
-
                 Row(
                   children: [
-                    Icon(Icons.stars, size: 14, color: Colors.grey[400]),
+                    Icon(
+                      Icons.stars,
+                      size: 14,
+                      color: isDark ? Colors.grey[500] : Colors.grey[400],
+                    ),
                     const SizedBox(width: 4),
                     Text(
-                      'Puntaje: ${score} pts',
-                      style: const TextStyle(
+                      'Puntaje: $score pts',
+                      style: TextStyle(
                         fontWeight: FontWeight.bold,
-                        color: AppTheme.navyBlue,
+                        color: textColor,
                       ),
                     ),
                   ],
@@ -322,30 +665,14 @@ class _RubricBuilderScreenState extends State<RubricBuilderScreen> {
                     _buildActionButton(
                       Icons.edit,
                       'Editar',
-                      onTap: () {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(
-                            content: Text('Editando criterio: $title'),
-                            duration: const Duration(seconds: 2),
-                            behavior: SnackBarBehavior.floating,
-                          ),
-                        );
-                      },
+                      onTap: () => _editCriterion(index),
                     ),
                     const SizedBox(width: 8),
                     _buildIconButton(
                       Icons.delete,
                       const Color(0xFFFFEBEE),
                       Colors.red,
-                      onTap: () {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(
-                            content: Text('Eliminar criterio: $title'),
-                            duration: const Duration(seconds: 2),
-                            behavior: SnackBarBehavior.floating,
-                          ),
-                        );
-                      },
+                      onTap: () => _deleteCriterion(index),
                     ),
                   ],
                 ),
@@ -387,25 +714,24 @@ class _RubricBuilderScreenState extends State<RubricBuilderScreen> {
     String label, {
     VoidCallback? onTap,
   }) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final textColor = isDark ? Colors.white : AppTheme.navyBlue;
     return InkWell(
       onTap: onTap,
       borderRadius: BorderRadius.circular(20),
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
         decoration: BoxDecoration(
-          color: Colors.grey[100],
+          color: isDark ? const Color(0xFF334155) : Colors.grey[100],
           borderRadius: BorderRadius.circular(20),
         ),
         child: Row(
           children: [
-            Icon(icon, size: 16, color: AppTheme.navyBlue),
+            Icon(icon, size: 16, color: textColor),
             const SizedBox(width: 4),
             Text(
               label,
-              style: const TextStyle(
-                fontWeight: FontWeight.bold,
-                color: AppTheme.navyBlue,
-              ),
+              style: TextStyle(fontWeight: FontWeight.bold, color: textColor),
             ),
           ],
         ),

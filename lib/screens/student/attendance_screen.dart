@@ -12,21 +12,22 @@ class AttendanceScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final bgColor = Theme.of(context).scaffoldBackgroundColor;
+    final cardColor = Theme.of(context).cardColor;
+    final textColor = isDark ? Colors.white : AppTheme.navyBlue;
     return Scaffold(
-      backgroundColor: const Color(0xFFF8F9FA),
+      backgroundColor: bgColor,
       appBar: AppBar(
-        title: const Text(
+        title: Text(
           'Asistencia',
-          style: TextStyle(
-            color: AppTheme.navyBlue,
-            fontWeight: FontWeight.bold,
-          ),
+          style: TextStyle(color: textColor, fontWeight: FontWeight.bold),
         ),
         centerTitle: true,
         backgroundColor: Colors.transparent,
         elevation: 0,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back_ios, color: AppTheme.navyBlue),
+          icon: Icon(Icons.arrow_back_ios, color: textColor),
           onPressed: () => Navigator.pop(context),
         ),
       ),
@@ -38,11 +39,16 @@ class AttendanceScreen extends StatelessWidget {
             // ── Resumen rápido ──
             Row(
               children: [
-                _buildSummaryCard('Asistencia', '90%', _greenAttendance),
+                _buildSummaryCard(
+                  context,
+                  'Asistencia',
+                  '90%',
+                  _greenAttendance,
+                ),
                 const SizedBox(width: 10),
-                _buildSummaryCard('Faltas', '0', _redAbsence),
+                _buildSummaryCard(context, 'Faltas', '0', _redAbsence),
                 const SizedBox(width: 10),
-                _buildSummaryCard('Retardos', '2', _orangeTardy),
+                _buildSummaryCard(context, 'Retardos', '2', _orangeTardy),
               ],
             ),
             const SizedBox(height: 24),
@@ -51,11 +57,13 @@ class AttendanceScreen extends StatelessWidget {
             Container(
               padding: const EdgeInsets.all(20),
               decoration: BoxDecoration(
-                color: Colors.white,
+                color: cardColor,
                 borderRadius: BorderRadius.circular(20),
                 boxShadow: [
                   BoxShadow(
-                    color: Colors.grey.withOpacity(0.08),
+                    color: isDark
+                        ? Colors.transparent
+                        : Colors.grey.withOpacity(0.08),
                     blurRadius: 15,
                     offset: const Offset(0, 5),
                   ),
@@ -69,21 +77,21 @@ class AttendanceScreen extends StatelessWidget {
                     children: [
                       Icon(
                         Icons.chevron_left,
-                        color: AppTheme.navyBlue.withOpacity(0.4),
+                        color: textColor.withOpacity(0.4),
                       ),
                       const SizedBox(width: 16),
-                      const Text(
+                      Text(
                         'Febrero 2026',
                         style: TextStyle(
                           fontSize: 18,
                           fontWeight: FontWeight.bold,
-                          color: AppTheme.navyBlue,
+                          color: textColor,
                         ),
                       ),
                       const SizedBox(width: 16),
                       Icon(
                         Icons.chevron_right,
-                        color: AppTheme.navyBlue.withOpacity(0.4),
+                        color: textColor.withOpacity(0.4),
                       ),
                     ],
                   ),
@@ -102,7 +110,7 @@ class AttendanceScreen extends StatelessWidget {
                               style: TextStyle(
                                 fontSize: 12,
                                 fontWeight: FontWeight.w600,
-                                color: AppTheme.navyBlue.withOpacity(0.5),
+                                color: textColor.withOpacity(0.5),
                               ),
                             ),
                           ),
@@ -112,7 +120,7 @@ class AttendanceScreen extends StatelessWidget {
                   const SizedBox(height: 8),
 
                   // Grid de días — Febrero 2026 empieza Domingo
-                  _buildCalendarGrid(),
+                  _buildCalendarGrid(textColor),
                 ],
               ),
             ),
@@ -122,11 +130,13 @@ class AttendanceScreen extends StatelessWidget {
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
               decoration: BoxDecoration(
-                color: Colors.white,
+                color: cardColor,
                 borderRadius: BorderRadius.circular(16),
                 boxShadow: [
                   BoxShadow(
-                    color: Colors.grey.withOpacity(0.06),
+                    color: isDark
+                        ? Colors.transparent
+                        : Colors.grey.withOpacity(0.06),
                     blurRadius: 10,
                     offset: const Offset(0, 3),
                   ),
@@ -145,12 +155,12 @@ class AttendanceScreen extends StatelessWidget {
             const SizedBox(height: 24),
 
             // ── Incidentes recientes ──
-            const Text(
+            Text(
               'Incidentes recientes',
               style: TextStyle(
                 fontSize: 18,
                 fontWeight: FontWeight.bold,
-                color: AppTheme.navyBlue,
+                color: textColor,
               ),
             ),
             const SizedBox(height: 12),
@@ -160,6 +170,7 @@ class AttendanceScreen extends StatelessWidget {
               'Matemáticas',
               _orangeTardy,
               Icons.access_time,
+              context,
             ),
             const SizedBox(height: 10),
             _buildIncidentTile(
@@ -168,6 +179,7 @@ class AttendanceScreen extends StatelessWidget {
               'Historia',
               _orangeTardy,
               Icons.access_time,
+              context,
             ),
             const SizedBox(height: 24),
           ],
@@ -177,12 +189,17 @@ class AttendanceScreen extends StatelessWidget {
   }
 
   // ── Summary Card ──
-  Widget _buildSummaryCard(String label, String value, Color color) {
+  Widget _buildSummaryCard(
+    BuildContext context,
+    String label,
+    String value,
+    Color color,
+  ) {
     return Expanded(
       child: Container(
         padding: const EdgeInsets.symmetric(vertical: 18, horizontal: 8),
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: Theme.of(context).cardColor,
           borderRadius: BorderRadius.circular(16),
           boxShadow: [
             BoxShadow(
@@ -208,7 +225,9 @@ class AttendanceScreen extends StatelessWidget {
               style: TextStyle(
                 fontSize: 11,
                 fontWeight: FontWeight.w600,
-                color: AppTheme.navyBlue.withOpacity(0.6),
+                color: Theme.of(context).brightness == Brightness.dark
+                    ? Colors.grey[400]
+                    : AppTheme.navyBlue.withOpacity(0.6),
                 letterSpacing: 0.5,
               ),
             ),
@@ -220,7 +239,7 @@ class AttendanceScreen extends StatelessWidget {
 
   // ── Calendar Grid ──
   // Febrero 2026: empieza Domingo (offset 6 en lun-dom), 28 días
-  Widget _buildCalendarGrid() {
+  Widget _buildCalendarGrid(Color textColor) {
     // Mock data de asistencia para febrero 2026
     // 0=Asistencia, 1=Falta, 2=Retardo, 3=Inhábil (fin de semana)
     final Map<int, int> attendance = {
@@ -289,7 +308,7 @@ class AttendanceScreen extends StatelessWidget {
                       ? Colors.white
                       : status == 3
                       ? Colors.grey[400]
-                      : AppTheme.navyBlue,
+                      : textColor,
                 ),
               ),
             ),
@@ -346,15 +365,17 @@ class AttendanceScreen extends StatelessWidget {
     String subject,
     Color color,
     IconData icon,
+    BuildContext context,
   ) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: Theme.of(context).cardColor,
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
-            color: Colors.grey.withOpacity(0.06),
+            color: isDark ? Colors.transparent : Colors.grey.withOpacity(0.06),
             blurRadius: 10,
             offset: const Offset(0, 3),
           ),
@@ -377,10 +398,12 @@ class AttendanceScreen extends StatelessWidget {
               children: [
                 Text(
                   '$type — $subject',
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 15,
                     fontWeight: FontWeight.w600,
-                    color: AppTheme.navyBlue,
+                    color: Theme.of(context).brightness == Brightness.dark
+                        ? Colors.white
+                        : AppTheme.navyBlue,
                   ),
                 ),
                 const SizedBox(height: 3),

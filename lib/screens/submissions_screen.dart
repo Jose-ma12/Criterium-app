@@ -75,7 +75,6 @@ class _SubmissionsScreenState extends State<SubmissionsScreen> {
   List<Map<String, dynamic>> get _filteredStudents {
     List<Map<String, dynamic>> result;
 
-    // Filtrar por estado
     switch (_selectedFilter) {
       case 'Pendientes':
         result = _students
@@ -91,11 +90,10 @@ class _SubmissionsScreenState extends State<SubmissionsScreen> {
       case 'Tardías':
         result = _students.where((s) => s['status'] == 'Tardía').toList();
         break;
-      default: // 'Todos'
+      default:
         result = List.from(_students);
     }
 
-    // Filtrar por búsqueda de nombre
     if (_searchQuery.isNotEmpty) {
       result = result
           .where(
@@ -109,28 +107,33 @@ class _SubmissionsScreenState extends State<SubmissionsScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final bgColor = Theme.of(context).scaffoldBackgroundColor;
+    final cardColor = Theme.of(context).cardColor;
+    final textColor = isDark ? Colors.white : AppTheme.navyBlue;
+
     return Scaffold(
-      backgroundColor: Colors.grey[50],
+      backgroundColor: bgColor,
       appBar: AppBar(
         title: Text(
           widget.isTeacher ? 'Entregas: ${widget.className}' : 'Mis Tareas',
-          style: const TextStyle(
-            color: AppTheme.navyBlue,
+          style: TextStyle(
+            color: textColor,
             fontWeight: FontWeight.bold,
             fontSize: 16,
           ),
         ),
         centerTitle: true,
-        backgroundColor: Colors.white,
+        backgroundColor: cardColor,
         elevation: 0,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back_ios, color: AppTheme.navyBlue),
+          icon: Icon(Icons.arrow_back_ios, color: textColor),
           onPressed: () => Navigator.pop(context),
         ),
         actions: [
           IconButton(
-            icon: const Icon(Icons.more_horiz, color: AppTheme.navyBlue),
-            onPressed: () {},
+            icon: Icon(Icons.more_horiz, color: textColor),
+            onPressed: () => _showOptionsMenu(context),
           ),
         ],
       ),
@@ -139,7 +142,7 @@ class _SubmissionsScreenState extends State<SubmissionsScreen> {
           // Barra de búsqueda y Filtros
           Container(
             padding: const EdgeInsets.all(16),
-            color: Colors.white,
+            color: cardColor,
             child: Column(
               children: [
                 TextField(
@@ -148,15 +151,24 @@ class _SubmissionsScreenState extends State<SubmissionsScreen> {
                       _searchQuery = value;
                     });
                   },
+                  style: TextStyle(color: textColor),
                   decoration: InputDecoration(
                     hintText: 'Buscar estudiantes o estados',
-                    prefixIcon: const Icon(Icons.search, color: Colors.grey),
+                    hintStyle: TextStyle(
+                      color: isDark ? Colors.grey[500] : Colors.grey,
+                    ),
+                    prefixIcon: Icon(
+                      Icons.search,
+                      color: isDark ? Colors.grey[500] : Colors.grey,
+                    ),
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(30),
                       borderSide: BorderSide.none,
                     ),
                     filled: true,
-                    fillColor: Colors.grey[100],
+                    fillColor: isDark
+                        ? const Color(0xFF334155)
+                        : Colors.grey[100],
                     contentPadding: const EdgeInsets.symmetric(horizontal: 20),
                   ),
                 ),
@@ -165,13 +177,13 @@ class _SubmissionsScreenState extends State<SubmissionsScreen> {
                   scrollDirection: Axis.horizontal,
                   child: Row(
                     children: [
-                      _buildFilterChip('Todos'),
+                      _buildFilterChip(context, 'Todos'),
                       const SizedBox(width: 12),
-                      _buildFilterChip('Pendientes'),
+                      _buildFilterChip(context, 'Pendientes'),
                       const SizedBox(width: 12),
-                      _buildFilterChip('Calificadas'),
+                      _buildFilterChip(context, 'Calificadas'),
                       const SizedBox(width: 12),
-                      _buildFilterChip('Tardías'),
+                      _buildFilterChip(context, 'Tardías'),
                     ],
                   ),
                 ),
@@ -185,7 +197,7 @@ class _SubmissionsScreenState extends State<SubmissionsScreen> {
               itemCount: _filteredStudents.length,
               itemBuilder: (context, index) {
                 final student = _filteredStudents[index];
-                return _buildStudentCard(student);
+                return _buildStudentCard(context, student);
               },
             ),
           ),
@@ -193,7 +205,7 @@ class _SubmissionsScreenState extends State<SubmissionsScreen> {
       ),
       floatingActionButton: widget.isTeacher
           ? FloatingActionButton(
-              onPressed: () {},
+              onPressed: () => _showEditSheet(context),
               backgroundColor: AppTheme.navyBlue,
               child: const Icon(Icons.edit, color: Colors.white),
             )
@@ -201,21 +213,245 @@ class _SubmissionsScreenState extends State<SubmissionsScreen> {
     );
   }
 
-  Widget _buildFilterChip(String label) {
+  void _showEditSheet(BuildContext context) {
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.transparent,
+      builder: (ctx) {
+        final isDark = Theme.of(ctx).brightness == Brightness.dark;
+        final cardColor = Theme.of(ctx).cardColor;
+        final textColor = isDark ? Colors.white : AppTheme.navyBlue;
+        return Container(
+          decoration: BoxDecoration(
+            color: cardColor,
+            borderRadius: const BorderRadius.only(
+              topLeft: Radius.circular(28),
+              topRight: Radius.circular(28),
+            ),
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Container(
+                margin: const EdgeInsets.only(top: 12),
+                width: 40,
+                height: 4,
+                decoration: BoxDecoration(
+                  color: isDark ? Colors.grey[700] : Colors.grey[300],
+                  borderRadius: BorderRadius.circular(10),
+                ),
+              ),
+              const SizedBox(height: 20),
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 24),
+                child: Text(
+                  'Editar Tarea',
+                  style: TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                    color: textColor,
+                  ),
+                ),
+              ),
+              const SizedBox(height: 12),
+              _buildSheetOption(
+                ctx,
+                Icons.description_outlined,
+                'Editar descripción de la tarea',
+                const Color(0xFF3B82F6),
+              ),
+              _buildSheetOption(
+                ctx,
+                Icons.calendar_month,
+                'Cambiar fecha de entrega',
+                const Color(0xFFF39C12),
+                onTap: () {
+                  Navigator.pop(ctx);
+                  showDatePicker(
+                    context: context,
+                    initialDate: DateTime.now(),
+                    firstDate: DateTime.now(),
+                    lastDate: DateTime(2027),
+                    builder: (context, child) {
+                      return Theme(
+                        data: Theme.of(context).copyWith(
+                          colorScheme: const ColorScheme.light(
+                            primary: AppTheme.navyBlue,
+                            onSurface: AppTheme.navyBlue,
+                          ),
+                        ),
+                        child: child!,
+                      );
+                    },
+                  ).then((date) {
+                    if (date != null && mounted) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                          content: Text(
+                            'Fecha cambiada a ${date.day}/${date.month}/${date.year}',
+                          ),
+                          behavior: SnackBarBehavior.floating,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                        ),
+                      );
+                    }
+                  });
+                },
+              ),
+              _buildSheetOption(
+                ctx,
+                Icons.grading,
+                'Modificar Rúbrica',
+                const Color(0xFF8B5CF6),
+              ),
+              const SizedBox(height: 20),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
+  void _showOptionsMenu(BuildContext context) {
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.transparent,
+      builder: (ctx) {
+        final isDark = Theme.of(ctx).brightness == Brightness.dark;
+        final cardColor = Theme.of(ctx).cardColor;
+        final textColor = isDark ? Colors.white : AppTheme.navyBlue;
+        return Container(
+          decoration: BoxDecoration(
+            color: cardColor,
+            borderRadius: const BorderRadius.only(
+              topLeft: Radius.circular(28),
+              topRight: Radius.circular(28),
+            ),
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Container(
+                margin: const EdgeInsets.only(top: 12),
+                width: 40,
+                height: 4,
+                decoration: BoxDecoration(
+                  color: isDark ? Colors.grey[700] : Colors.grey[300],
+                  borderRadius: BorderRadius.circular(10),
+                ),
+              ),
+              const SizedBox(height: 20),
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 24),
+                child: Text(
+                  'Opciones',
+                  style: TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                    color: textColor,
+                  ),
+                ),
+              ),
+              const SizedBox(height: 12),
+              _buildSheetOption(
+                ctx,
+                Icons.file_download_outlined,
+                'Exportar calificaciones a Excel',
+                const Color(0xFF2EC4B6),
+              ),
+              _buildSheetOption(
+                ctx,
+                Icons.notifications_active_outlined,
+                'Enviar recordatorio a pendientes',
+                const Color(0xFFF39C12),
+              ),
+              _buildSheetOption(
+                ctx,
+                Icons.archive_outlined,
+                'Archivar tarea',
+                const Color(0xFFE74C3C),
+              ),
+              const SizedBox(height: 20),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
+  Widget _buildSheetOption(
+    BuildContext ctx,
+    IconData icon,
+    String label,
+    Color color, {
+    VoidCallback? onTap,
+  }) {
+    final isDark = Theme.of(ctx).brightness == Brightness.dark;
+    final textColor = isDark ? Colors.white : AppTheme.navyBlue;
+
+    return ListTile(
+      contentPadding: const EdgeInsets.symmetric(horizontal: 24),
+      leading: Container(
+        padding: const EdgeInsets.all(10),
+        decoration: BoxDecoration(
+          color: color.withOpacity(0.1),
+          borderRadius: BorderRadius.circular(14),
+        ),
+        child: Icon(icon, color: color, size: 22),
+      ),
+      title: Text(
+        label,
+        style: TextStyle(fontWeight: FontWeight.w600, color: textColor),
+      ),
+      trailing: Icon(
+        Icons.chevron_right,
+        color: isDark ? Colors.grey[500] : Colors.grey,
+      ),
+      onTap:
+          onTap ??
+          () {
+            Navigator.pop(ctx);
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text('$label — acción completada'),
+                behavior: SnackBarBehavior.floating,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
+              ),
+            );
+          },
+    );
+  }
+
+  Widget _buildFilterChip(BuildContext context, String label) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     bool isSelected = _selectedFilter == label;
     return GestureDetector(
       onTap: () => setState(() => _selectedFilter = label),
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
         decoration: BoxDecoration(
-          color: isSelected ? AppTheme.navyBlue : Colors.white,
+          color: isSelected
+              ? AppTheme.navyBlue
+              : (isDark ? const Color(0xFF334155) : Colors.white),
           borderRadius: BorderRadius.circular(20),
-          border: isSelected ? null : Border.all(color: Colors.grey[300]!),
+          border: isSelected
+              ? null
+              : Border.all(
+                  color: isDark
+                      ? Colors.white.withOpacity(0.12)
+                      : Colors.grey[300]!,
+                ),
         ),
         child: Text(
           label,
           style: TextStyle(
-            color: isSelected ? Colors.white : AppTheme.navyBlue,
+            color: isSelected
+                ? Colors.white
+                : (isDark ? Colors.grey[300] : AppTheme.navyBlue),
             fontWeight: FontWeight.bold,
           ),
         ),
@@ -223,7 +459,11 @@ class _SubmissionsScreenState extends State<SubmissionsScreen> {
     );
   }
 
-  Widget _buildStudentCard(Map<String, dynamic> student) {
+  Widget _buildStudentCard(BuildContext context, Map<String, dynamic> student) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final cardColor = Theme.of(context).cardColor;
+    final textColor = isDark ? Colors.white : AppTheme.navyBlue;
+
     bool isPending = student['status'] == 'Pendiente';
     bool isGraded = student['status'] == 'Calificado';
     bool isMissing = student['status'] == 'Sin Entregar';
@@ -260,19 +500,20 @@ class _SubmissionsScreenState extends State<SubmissionsScreen> {
         margin: const EdgeInsets.only(bottom: 12),
         padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: cardColor,
           borderRadius: BorderRadius.circular(16),
-          // Borde azul si está pendiente para resaltar
           border: (isPending || isLate)
               ? Border.all(
                   color: (isLate ? Colors.purple : AppTheme.navyBlue)
-                      .withOpacity(0.1),
+                      .withOpacity(isDark ? 0.2 : 0.1),
                   width: 1,
                 )
               : null,
           boxShadow: [
             BoxShadow(
-              color: Colors.grey.withOpacity(0.05),
+              color: isDark
+                  ? Colors.transparent
+                  : Colors.grey.withOpacity(0.05),
               blurRadius: 5,
               offset: const Offset(0, 2),
             ),
@@ -294,10 +535,10 @@ class _SubmissionsScreenState extends State<SubmissionsScreen> {
                     children: [
                       Text(
                         student['name'],
-                        style: const TextStyle(
+                        style: TextStyle(
                           fontWeight: FontWeight.bold,
                           fontSize: 16,
-                          color: AppTheme.navyBlue,
+                          color: textColor,
                         ),
                       ),
                       if ((isPending || isLate) && student['time'] != null)
@@ -307,7 +548,9 @@ class _SubmissionsScreenState extends State<SubmissionsScreen> {
                             fontSize: 12,
                             color: isLate
                                 ? Colors.purple[300]
-                                : Colors.grey[500],
+                                : (isDark
+                                      ? Colors.grey[400]
+                                      : Colors.grey[500]),
                             fontWeight: FontWeight.bold,
                           ),
                         ),
@@ -348,12 +591,12 @@ class _SubmissionsScreenState extends State<SubmissionsScreen> {
                 ],
               ),
             ),
-            const Padding(
-              padding: EdgeInsets.only(left: 8.0),
+            Padding(
+              padding: const EdgeInsets.only(left: 8.0),
               child: Icon(
                 Icons.arrow_forward_ios,
                 size: 16,
-                color: Colors.grey,
+                color: isDark ? Colors.grey[500] : Colors.grey,
               ),
             ),
           ],

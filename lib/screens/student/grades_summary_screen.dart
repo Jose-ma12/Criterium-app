@@ -78,12 +78,14 @@ class GradesSummaryScreen extends StatelessWidget {
         _subjects.length;
 
     return Scaffold(
-      backgroundColor: const Color(0xFFF8F9FA),
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       appBar: AppBar(
-        title: const Text(
+        title: Text(
           'Boleta de Calificaciones',
           style: TextStyle(
-            color: AppTheme.navyBlue,
+            color: Theme.of(context).brightness == Brightness.dark
+                ? Colors.white
+                : AppTheme.navyBlue,
             fontWeight: FontWeight.bold,
           ),
         ),
@@ -91,7 +93,12 @@ class GradesSummaryScreen extends StatelessWidget {
         backgroundColor: Colors.transparent,
         elevation: 0,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back_ios, color: AppTheme.navyBlue),
+          icon: Icon(
+            Icons.arrow_back_ios,
+            color: Theme.of(context).brightness == Brightness.dark
+                ? Colors.white
+                : AppTheme.navyBlue,
+          ),
           onPressed: () => Navigator.pop(context),
         ),
       ),
@@ -210,7 +217,7 @@ class GradesSummaryScreen extends StatelessWidget {
               final subject = _subjects[index];
               return Padding(
                 padding: const EdgeInsets.only(bottom: 12),
-                child: _buildSubjectCard(subject),
+                child: _buildSubjectCard(context, subject),
               );
             }),
 
@@ -230,11 +237,13 @@ class GradesSummaryScreen extends StatelessWidget {
             Container(
               padding: const EdgeInsets.all(20),
               decoration: BoxDecoration(
-                color: Colors.white,
+                color: Theme.of(context).cardColor,
                 borderRadius: BorderRadius.circular(20),
                 boxShadow: [
                   BoxShadow(
-                    color: Colors.grey.withOpacity(0.08),
+                    color: Theme.of(context).brightness == Brightness.dark
+                        ? Colors.transparent
+                        : Colors.grey.withOpacity(0.08),
                     blurRadius: 15,
                     offset: const Offset(0, 5),
                   ),
@@ -247,7 +256,11 @@ class GradesSummaryScreen extends StatelessWidget {
                     padding: EdgeInsets.only(
                       bottom: index < _softSkills.length - 1 ? 16 : 0,
                     ),
-                    child: _buildSoftSkillRow(skill['name'], skill['stars']),
+                    child: _buildSoftSkillRow(
+                      context,
+                      skill['name'],
+                      skill['stars'],
+                    ),
                   );
                 }),
               ),
@@ -260,7 +273,9 @@ class GradesSummaryScreen extends StatelessWidget {
   }
 
   // ── Subject Card ──
-  Widget _buildSubjectCard(Map<String, dynamic> subject) {
+  Widget _buildSubjectCard(BuildContext context, Map<String, dynamic> subject) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final textColor = isDark ? Colors.white : AppTheme.navyBlue;
     final double grade = subject['grade'];
     final double progress = grade / 10;
 
@@ -279,11 +294,11 @@ class GradesSummaryScreen extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: Theme.of(context).cardColor,
         borderRadius: BorderRadius.circular(18),
         boxShadow: [
           BoxShadow(
-            color: Colors.grey.withOpacity(0.07),
+            color: isDark ? Colors.transparent : Colors.grey.withOpacity(0.07),
             blurRadius: 12,
             offset: const Offset(0, 4),
           ),
@@ -306,10 +321,10 @@ class GradesSummaryScreen extends StatelessWidget {
               children: [
                 Text(
                   subject['name'],
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 15,
                     fontWeight: FontWeight.w600,
-                    color: AppTheme.navyBlue,
+                    color: textColor,
                   ),
                 ),
                 const SizedBox(height: 2),
@@ -324,7 +339,9 @@ class GradesSummaryScreen extends StatelessWidget {
                   child: LinearProgressIndicator(
                     value: progress,
                     minHeight: 6,
-                    backgroundColor: Colors.grey[200],
+                    backgroundColor: isDark
+                        ? const Color(0xFF334155)
+                        : Colors.grey[200],
                     valueColor: AlwaysStoppedAnimation<Color>(gradeColor),
                   ),
                 ),
@@ -346,16 +363,17 @@ class GradesSummaryScreen extends StatelessWidget {
   }
 
   // ── Soft Skill Row ──
-  Widget _buildSoftSkillRow(String name, int stars) {
+  Widget _buildSoftSkillRow(BuildContext context, String name, int stars) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     return Row(
       children: [
         Expanded(
           child: Text(
             name,
-            style: const TextStyle(
+            style: TextStyle(
               fontSize: 14,
               fontWeight: FontWeight.w500,
-              color: AppTheme.navyBlue,
+              color: isDark ? Colors.white : AppTheme.navyBlue,
             ),
           ),
         ),

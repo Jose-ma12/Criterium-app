@@ -7,8 +7,13 @@ class SuccessScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final bgColor = Theme.of(context).scaffoldBackgroundColor;
+    final cardColor = Theme.of(context).cardColor;
+    final textColor = isDark ? Colors.white : AppTheme.navyBlue;
+
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: bgColor,
       body: Center(
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 24.0),
@@ -16,13 +21,13 @@ class SuccessScreen extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               // Logo superior pequeño
-              const Icon(Icons.check_box, color: AppTheme.navyBlue, size: 40),
+              Icon(Icons.check_box, color: textColor, size: 40),
               const SizedBox(height: 8),
-              const Text(
+              Text(
                 'Criterium',
                 style: TextStyle(
                   fontWeight: FontWeight.bold,
-                  color: AppTheme.navyBlue,
+                  color: textColor,
                   fontSize: 18,
                 ),
               ),
@@ -38,22 +43,20 @@ class SuccessScreen extends StatelessWidget {
                     height: 200,
                     decoration: BoxDecoration(
                       shape: BoxShape.circle,
-                      color: const Color(
-                        0xFF2EC4B6,
-                      ).withOpacity(0.05), // Fondo verde muy claro
+                      color: const Color(0xFF2EC4B6).withOpacity(0.05),
                     ),
                   ),
                   Container(
                     width: 140,
                     height: 140,
-                    decoration: const BoxDecoration(
+                    decoration: BoxDecoration(
                       shape: BoxShape.circle,
-                      color: Colors.white,
+                      color: cardColor,
                       boxShadow: [
                         BoxShadow(
-                          color: Colors.black12,
+                          color: isDark ? Colors.transparent : Colors.black12,
                           blurRadius: 20,
-                          offset: Offset(0, 10),
+                          offset: const Offset(0, 10),
                         ),
                       ],
                     ),
@@ -65,7 +68,6 @@ class SuccessScreen extends StatelessWidget {
                       ),
                     ),
                   ),
-                  // Decoracion puntos (simulada)
                   Positioned(
                     top: 40,
                     right: 40,
@@ -111,7 +113,7 @@ class SuccessScreen extends StatelessWidget {
                 'Tu evaluación ha sido encriptada. Tus respuestas son 100% anónimas para garantizar la justicia académica.',
                 textAlign: TextAlign.center,
                 style: TextStyle(
-                  color: Colors.grey[600],
+                  color: isDark ? Colors.grey[400] : Colors.grey[600],
                   fontSize: 14,
                   height: 1.5,
                 ),
@@ -125,20 +127,26 @@ class SuccessScreen extends StatelessWidget {
                   vertical: 8,
                 ),
                 decoration: BoxDecoration(
-                  color: const Color(0xFFF1F3F5),
+                  color: isDark
+                      ? const Color(0xFF334155)
+                      : const Color(0xFFF1F3F5),
                   borderRadius: BorderRadius.circular(20),
                 ),
                 child: Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    Icon(Icons.lock, size: 14, color: Colors.grey[600]),
+                    Icon(
+                      Icons.lock,
+                      size: 14,
+                      color: isDark ? Colors.grey[400] : Colors.grey[600],
+                    ),
                     const SizedBox(width: 8),
                     Text(
-                      'Encriptación de extremo a extremo', // Texto original parecia este
+                      'Encriptación de extremo a extremo',
                       style: TextStyle(
                         fontSize: 12,
                         fontWeight: FontWeight.bold,
-                        color: Colors.grey[600],
+                        color: isDark ? Colors.grey[400] : Colors.grey[600],
                       ),
                     ),
                   ],
@@ -160,10 +168,7 @@ class SuccessScreen extends StatelessWidget {
                     ),
                   ],
                   gradient: const LinearGradient(
-                    colors: [
-                      Color(0xFF0D47A1),
-                      Color(0xFF1976D2),
-                    ], // Azul oscuro
+                    colors: [Color(0xFF0D47A1), Color(0xFF1976D2)],
                   ),
                 ),
                 child: ElevatedButton(
@@ -173,8 +178,7 @@ class SuccessScreen extends StatelessWidget {
                       MaterialPageRoute(
                         builder: (context) => const DashboardScreen(),
                       ),
-                      (Route<dynamic> route) =>
-                          false, // Elimina el historial para volver al inicio "real"
+                      (Route<dynamic> route) => false,
                     );
                   },
                   style: ElevatedButton.styleFrom(

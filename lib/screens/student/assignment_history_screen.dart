@@ -140,12 +140,14 @@ class _AssignmentHistoryScreenState extends State<AssignmentHistoryScreen> {
     final filtered = _filteredAssignments;
 
     return Scaffold(
-      backgroundColor: const Color(0xFFF8F9FA),
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       appBar: AppBar(
-        title: const Text(
+        title: Text(
           'Mis Entregas',
           style: TextStyle(
-            color: AppTheme.navyBlue,
+            color: Theme.of(context).brightness == Brightness.dark
+                ? Colors.white
+                : AppTheme.navyBlue,
             fontWeight: FontWeight.bold,
           ),
         ),
@@ -153,7 +155,12 @@ class _AssignmentHistoryScreenState extends State<AssignmentHistoryScreen> {
         backgroundColor: Colors.transparent,
         elevation: 0,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back_ios, color: AppTheme.navyBlue),
+          icon: Icon(
+            Icons.arrow_back_ios,
+            color: Theme.of(context).brightness == Brightness.dark
+                ? Colors.white
+                : AppTheme.navyBlue,
+          ),
           onPressed: () => Navigator.pop(context),
         ),
       ),
@@ -228,15 +235,18 @@ class _AssignmentHistoryScreenState extends State<AssignmentHistoryScreen> {
 
   // ── Mini Stat ──
   Widget _buildMiniStat(String value, String label, Color color) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     return Expanded(
       child: Container(
         padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 4),
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: Theme.of(context).cardColor,
           borderRadius: BorderRadius.circular(14),
           boxShadow: [
             BoxShadow(
-              color: Colors.grey.withOpacity(0.07),
+              color: isDark
+                  ? Colors.transparent
+                  : Colors.grey.withOpacity(0.07),
               blurRadius: 10,
               offset: const Offset(0, 3),
             ),
@@ -272,6 +282,7 @@ class _AssignmentHistoryScreenState extends State<AssignmentHistoryScreen> {
 
   // ── Filter Chip ──
   Widget _buildFilterChip(String label, int index) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     final bool isSelected = _selectedFilter == index;
     return GestureDetector(
       onTap: () => setState(() => _selectedFilter = index),
@@ -279,10 +290,12 @@ class _AssignmentHistoryScreenState extends State<AssignmentHistoryScreen> {
         duration: const Duration(milliseconds: 200),
         padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
         decoration: BoxDecoration(
-          color: isSelected ? AppTheme.navyBlue : Colors.white,
+          color: isSelected ? AppTheme.navyBlue : Theme.of(context).cardColor,
           borderRadius: BorderRadius.circular(30),
           border: Border.all(
-            color: isSelected ? AppTheme.navyBlue : Colors.grey[300]!,
+            color: isSelected
+                ? AppTheme.navyBlue
+                : (isDark ? Colors.grey[700]! : Colors.grey[300]!),
           ),
           boxShadow: isSelected
               ? [
@@ -299,7 +312,9 @@ class _AssignmentHistoryScreenState extends State<AssignmentHistoryScreen> {
           style: TextStyle(
             fontSize: 13,
             fontWeight: FontWeight.w600,
-            color: isSelected ? Colors.white : Colors.grey[600],
+            color: isSelected
+                ? Colors.white
+                : (isDark ? Colors.grey[300] : Colors.grey[600]),
           ),
         ),
       ),
@@ -333,11 +348,13 @@ class _AssignmentHistoryScreenState extends State<AssignmentHistoryScreen> {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: Theme.of(context).cardColor,
         borderRadius: BorderRadius.circular(20),
         boxShadow: [
           BoxShadow(
-            color: Colors.grey.withOpacity(0.07),
+            color: Theme.of(context).brightness == Brightness.dark
+                ? Colors.transparent
+                : Colors.grey.withOpacity(0.07),
             blurRadius: 12,
             offset: const Offset(0, 4),
           ),
@@ -369,10 +386,12 @@ class _AssignmentHistoryScreenState extends State<AssignmentHistoryScreen> {
                   children: [
                     Text(
                       assignment['name'],
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontSize: 15,
                         fontWeight: FontWeight.w600,
-                        color: AppTheme.navyBlue,
+                        color: Theme.of(context).brightness == Brightness.dark
+                            ? Colors.white
+                            : AppTheme.navyBlue,
                       ),
                       maxLines: 2,
                       overflow: TextOverflow.ellipsis,

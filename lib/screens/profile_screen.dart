@@ -1,11 +1,15 @@
 import 'package:flutter/material.dart';
-import 'package:criterium/screens/edit_profile_screen.dart';
 import 'package:criterium/screens/generic_info_screen.dart';
 import 'package:criterium/screens/login_screen.dart';
+import 'package:criterium/screens/edit_profile_screen.dart';
+import 'package:criterium/screens/submissions_screen.dart';
+import 'package:criterium/screens/teacher/teacher_classes_screen.dart';
+import 'package:criterium/screens/teacher/student_directory_screen.dart';
 import 'package:criterium/screens/student/attendance_screen.dart';
 import 'package:criterium/screens/student/assignment_history_screen.dart';
 import 'package:criterium/screens/student/grades_summary_screen.dart';
 import 'package:criterium/theme/app_theme.dart';
+import 'package:criterium/main.dart';
 
 class ProfileScreen extends StatefulWidget {
   final bool isTeacher;
@@ -67,22 +71,23 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final cardColor = Theme.of(context).cardColor;
+    final textColor = isDark ? Colors.white : AppTheme.navyBlue;
+
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: cardColor,
       appBar: AppBar(
-        title: const Text(
+        title: Text(
           'Perfil',
-          style: TextStyle(
-            color: AppTheme.navyBlue,
-            fontWeight: FontWeight.bold,
-          ),
+          style: TextStyle(color: textColor, fontWeight: FontWeight.bold),
         ),
         centerTitle: true,
-        backgroundColor: Colors.white,
+        backgroundColor: cardColor,
         elevation: 0,
         actions: [
           IconButton(
-            icon: const Icon(Icons.edit, color: AppTheme.navyBlue),
+            icon: Icon(Icons.edit, color: textColor),
             onPressed: _openEditProfile,
           ),
         ],
@@ -98,8 +103,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
               children: [
                 Container(
                   padding: const EdgeInsets.all(4),
-                  decoration: const BoxDecoration(
-                    color: Colors.white,
+                  decoration: BoxDecoration(
+                    color: cardColor,
                     shape: BoxShape.circle,
                   ),
                   child: CircleAvatar(
@@ -116,7 +121,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   decoration: BoxDecoration(
                     color: AppTheme.navyBlue,
                     shape: BoxShape.circle,
-                    border: Border.all(color: Colors.white, width: 2),
+                    border: Border.all(color: cardColor, width: 2),
                   ),
                   child: Icon(
                     widget.isTeacher ? Icons.verified_user : Icons.school,
@@ -129,24 +134,27 @@ class _ProfileScreenState extends State<ProfileScreen> {
             const SizedBox(height: 16),
             Text(
               _name,
-              style: const TextStyle(
+              style: TextStyle(
                 fontSize: 24,
                 fontWeight: FontWeight.bold,
-                color: AppTheme.navyBlue,
+                color: textColor,
               ),
             ),
             const SizedBox(height: 4),
             Text(
               _role,
-              style: const TextStyle(
+              style: TextStyle(
                 fontSize: 14,
                 fontWeight: FontWeight.bold,
-                color: AppTheme.navyBlue,
+                color: textColor,
               ),
             ),
             Text(
               _institution,
-              style: TextStyle(fontSize: 14, color: Colors.grey[600]),
+              style: TextStyle(
+                fontSize: 14,
+                color: isDark ? Colors.grey[400] : Colors.grey[600],
+              ),
             ),
 
             const SizedBox(height: 32),
@@ -155,14 +163,54 @@ class _ProfileScreenState extends State<ProfileScreen> {
             Row(
               children: widget.isTeacher
                   ? [
-                      _buildStatItem('CLASES', '6'),
+                      _buildStatItem(
+                        context,
+                        'CLASES',
+                        '6',
+                        onTap: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (_) => const TeacherClassesScreen(),
+                            ),
+                          );
+                        },
+                      ),
                       const SizedBox(width: 12),
-                      _buildStatItem('PENDIENTES', '12'),
+                      _buildStatItem(
+                        context,
+                        'PENDIENTES',
+                        '12',
+                        onTap: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (_) => SubmissionsScreen(
+                                className: 'Todas',
+                                isTeacher: true,
+                              ),
+                            ),
+                          );
+                        },
+                      ),
                       const SizedBox(width: 12),
-                      _buildStatItem('ESTUDIANTES', '154'),
+                      _buildStatItem(
+                        context,
+                        'ESTUDIANTES',
+                        '154',
+                        onTap: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (_) => const StudentDirectoryScreen(),
+                            ),
+                          );
+                        },
+                      ),
                     ]
                   : [
                       _buildStatItem(
+                        context,
                         'PROMEDIO',
                         '9.8',
                         onTap: () {
@@ -176,6 +224,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       ),
                       const SizedBox(width: 12),
                       _buildStatItem(
+                        context,
                         'ENTREGAS',
                         '12',
                         onTap: () {
@@ -189,6 +238,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       ),
                       const SizedBox(width: 12),
                       _buildStatItem(
+                        context,
                         'FALTAS',
                         '0',
                         onTap: () {
@@ -213,13 +263,77 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 style: TextStyle(
                   fontSize: 18,
                   fontWeight: FontWeight.bold,
-                  color: AppTheme.navyBlue,
+                  color: textColor,
                 ),
               ),
             ),
             const SizedBox(height: 16),
 
+            // ── Modo Oscuro ──
+            ValueListenableBuilder<ThemeMode>(
+              valueListenable: themeNotifier,
+              builder: (_, currentMode, __) {
+                final isDarkOn = currentMode == ThemeMode.dark;
+                return Container(
+                  decoration: BoxDecoration(
+                    color: cardColor,
+                    borderRadius: BorderRadius.circular(16),
+                    border: Border.all(
+                      color: isDark
+                          ? Colors.white.withOpacity(0.08)
+                          : Colors.grey[200]!,
+                    ),
+                    boxShadow: [
+                      BoxShadow(
+                        color: isDark
+                            ? Colors.transparent
+                            : Colors.grey.withOpacity(0.05),
+                        blurRadius: 5,
+                        offset: const Offset(0, 2),
+                      ),
+                    ],
+                  ),
+                  child: SwitchListTile(
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(16),
+                    ),
+                    secondary: Container(
+                      padding: const EdgeInsets.all(8),
+                      decoration: BoxDecoration(
+                        color: isDark
+                            ? Colors.white.withOpacity(0.1)
+                            : Colors.grey[200],
+                        shape: BoxShape.circle,
+                      ),
+                      child: Icon(
+                        isDarkOn ? Icons.dark_mode : Icons.light_mode,
+                        color: textColor,
+                        size: 20,
+                      ),
+                    ),
+                    title: Text(
+                      'Modo Oscuro',
+                      style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        color: textColor,
+                        fontSize: 16,
+                      ),
+                    ),
+                    value: isDarkOn,
+                    activeColor: const Color(0xFF2EC4B6),
+                    onChanged: (value) {
+                      themeNotifier.value = value
+                          ? ThemeMode.dark
+                          : ThemeMode.light;
+                    },
+                  ),
+                );
+              },
+            ),
+            const SizedBox(height: 12),
+
             _buildSettingItem(
+              context,
               Icons.notifications,
               'Notificaciones',
               onTap: () {
@@ -241,6 +355,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
             ),
             const SizedBox(height: 12),
             _buildSettingItem(
+              context,
               Icons.lock,
               'Privacidad y Seguridad',
               onTap: () {
@@ -262,6 +377,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
             ),
             const SizedBox(height: 12),
             _buildSettingItem(
+              context,
               Icons.help,
               'Ayuda y Soporte',
               onTap: () {
@@ -291,13 +407,14 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 style: TextStyle(
                   fontSize: 12,
                   fontWeight: FontWeight.bold,
-                  color: Colors.grey[500],
+                  color: isDark ? Colors.grey[400] : Colors.grey[500],
                   letterSpacing: 1.2,
                 ),
               ),
             ),
             const SizedBox(height: 12),
             _buildSettingItem(
+              context,
               Icons.description,
               'Términos de servicio',
               onTap: () {
@@ -348,7 +465,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 ),
                 style: TextButton.styleFrom(
                   padding: const EdgeInsets.symmetric(vertical: 16),
-                  backgroundColor: const Color(0xFFFFEBEE),
+                  backgroundColor: isDark
+                      ? Colors.red.withOpacity(0.15)
+                      : const Color(0xFFFFEBEE),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(16),
                   ),
@@ -368,14 +487,22 @@ class _ProfileScreenState extends State<ProfileScreen> {
     );
   }
 
-  Widget _buildStatItem(String label, String value, {VoidCallback? onTap}) {
+  Widget _buildStatItem(
+    BuildContext context,
+    String label,
+    String value, {
+    VoidCallback? onTap,
+  }) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final textColor = isDark ? Colors.white : AppTheme.navyBlue;
+
     return Expanded(
       child: GestureDetector(
         onTap: onTap,
         child: Container(
           padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 8),
           decoration: BoxDecoration(
-            color: const Color(0xFFF1F3F5),
+            color: isDark ? const Color(0xFF334155) : const Color(0xFFF1F3F5),
             borderRadius: BorderRadius.circular(16),
           ),
           child: Column(
@@ -385,7 +512,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 style: TextStyle(
                   fontSize: 10,
                   fontWeight: FontWeight.bold,
-                  color: AppTheme.navyBlue.withOpacity(0.7),
+                  color: textColor.withOpacity(0.7),
                   letterSpacing: 1.0,
                 ),
                 textAlign: TextAlign.center,
@@ -395,10 +522,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
               const SizedBox(height: 8),
               Text(
                 value,
-                style: const TextStyle(
+                style: TextStyle(
                   fontSize: 28,
                   fontWeight: FontWeight.bold,
-                  color: AppTheme.navyBlue,
+                  color: textColor,
                 ),
               ),
             ],
@@ -408,15 +535,26 @@ class _ProfileScreenState extends State<ProfileScreen> {
     );
   }
 
-  Widget _buildSettingItem(IconData icon, String title, {VoidCallback? onTap}) {
+  Widget _buildSettingItem(
+    BuildContext context,
+    IconData icon,
+    String title, {
+    VoidCallback? onTap,
+  }) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final cardColor = Theme.of(context).cardColor;
+    final textColor = isDark ? Colors.white : AppTheme.navyBlue;
+
     return Container(
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: cardColor,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: Colors.grey[200]!),
+        border: Border.all(
+          color: isDark ? Colors.white.withOpacity(0.08) : Colors.grey[200]!,
+        ),
         boxShadow: [
           BoxShadow(
-            color: Colors.grey.withOpacity(0.05),
+            color: isDark ? Colors.transparent : Colors.grey.withOpacity(0.05),
             blurRadius: 5,
             offset: const Offset(0, 2),
           ),
@@ -426,23 +564,23 @@ class _ProfileScreenState extends State<ProfileScreen> {
         leading: Container(
           padding: const EdgeInsets.all(8),
           decoration: BoxDecoration(
-            color: Colors.grey[200],
+            color: isDark ? Colors.white.withOpacity(0.1) : Colors.grey[200],
             shape: BoxShape.circle,
           ),
-          child: Icon(icon, color: AppTheme.navyBlue, size: 20),
+          child: Icon(icon, color: textColor, size: 20),
         ),
         title: Text(
           title,
-          style: const TextStyle(
+          style: TextStyle(
             fontWeight: FontWeight.bold,
-            color: AppTheme.navyBlue,
+            color: textColor,
             fontSize: 16,
           ),
         ),
         trailing: Icon(
           Icons.arrow_forward_ios,
           size: 16,
-          color: Colors.grey[400],
+          color: isDark ? Colors.grey[500] : Colors.grey[400],
         ),
         onTap: onTap,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),

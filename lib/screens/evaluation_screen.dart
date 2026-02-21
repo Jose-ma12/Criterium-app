@@ -40,13 +40,16 @@ class _EvaluationScreenState extends State<EvaluationScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final bgColor = Theme.of(context).scaffoldBackgroundColor;
+    final textColor = isDark ? Colors.white : AppTheme.navyBlue;
     return Scaffold(
-      backgroundColor: const Color(0xFFF8F9FA),
+      backgroundColor: bgColor,
       appBar: AppBar(
-        title: const Text(
+        title: Text(
           'Evaluación de Compañeros',
           style: TextStyle(
-            color: AppTheme.navyBlue,
+            color: textColor,
             fontWeight: FontWeight.bold,
             fontSize: 18,
           ),
@@ -55,7 +58,7 @@ class _EvaluationScreenState extends State<EvaluationScreen> {
         backgroundColor: Colors.transparent,
         elevation: 0,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: AppTheme.navyBlue),
+          icon: Icon(Icons.arrow_back, color: textColor),
           onPressed: () => Navigator.of(context).pop(),
         ),
       ),
@@ -65,18 +68,21 @@ class _EvaluationScreenState extends State<EvaluationScreen> {
             child: ListView(
               padding: const EdgeInsets.all(24.0),
               children: [
-                const Text(
+                Text(
                   'Evalúa a tu equipo',
                   style: TextStyle(
                     fontSize: 24,
                     fontWeight: FontWeight.bold,
-                    color: AppTheme.navyBlue,
+                    color: textColor,
                   ),
                 ),
                 const SizedBox(height: 8),
                 Text(
                   'Califica el desempeño de tus compañeros de forma anónima.',
-                  style: TextStyle(fontSize: 14, color: Colors.grey[600]),
+                  style: TextStyle(
+                    fontSize: 14,
+                    color: isDark ? Colors.grey[400] : Colors.grey[600],
+                  ),
                 ),
                 const SizedBox(height: 24),
 
@@ -91,10 +97,12 @@ class _EvaluationScreenState extends State<EvaluationScreen> {
           Container(
             padding: const EdgeInsets.all(24),
             decoration: BoxDecoration(
-              color: Colors.white,
+              color: isDark ? Theme.of(context).cardColor : Colors.white,
               boxShadow: [
                 BoxShadow(
-                  color: Colors.grey.withOpacity(0.1),
+                  color: isDark
+                      ? Colors.transparent
+                      : Colors.grey.withOpacity(0.1),
                   blurRadius: 10,
                   offset: const Offset(0, -5),
                 ),
@@ -151,15 +159,18 @@ class _EvaluationScreenState extends State<EvaluationScreen> {
   }
 
   Widget _buildMemberCard(Map<String, dynamic> member) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final cardColor = Theme.of(context).cardColor;
+    final textColor = isDark ? Colors.white : AppTheme.navyBlue;
     return Container(
       margin: const EdgeInsets.only(bottom: 24),
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: cardColor,
         borderRadius: BorderRadius.circular(20),
         boxShadow: [
           BoxShadow(
-            color: Colors.grey.withOpacity(0.05),
+            color: isDark ? Colors.transparent : Colors.grey.withOpacity(0.05),
             blurRadius: 10,
             offset: const Offset(0, 4),
           ),
@@ -181,10 +192,10 @@ class _EvaluationScreenState extends State<EvaluationScreen> {
                 children: [
                   Text(
                     member['name'],
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontWeight: FontWeight.bold,
                       fontSize: 18,
-                      color: AppTheme.navyBlue,
+                      color: textColor,
                     ),
                   ),
                   Text(
@@ -204,16 +215,21 @@ class _EvaluationScreenState extends State<EvaluationScreen> {
           const SizedBox(height: 24),
 
           // Slider Responsabilidad
-          _buildSliderSection('Responsabilidad', member['responsibility'], (
-            val,
-          ) {
-            setState(() => member['responsibility'] = val);
-          }),
+          _buildSliderSection(
+            context,
+            'Responsabilidad',
+            member['responsibility'],
+            (val) {
+              setState(() => member['responsibility'] = val);
+            },
+          ),
 
           const SizedBox(height: 16),
 
           // Slider Aporte Técnico
-          _buildSliderSection('Aporte Técnico', member['technical'], (val) {
+          _buildSliderSection(context, 'Aporte Técnico', member['technical'], (
+            val,
+          ) {
             setState(() => member['technical'] = val);
           }),
 
@@ -225,7 +241,7 @@ class _EvaluationScreenState extends State<EvaluationScreen> {
             style: TextStyle(
               fontSize: 10,
               fontWeight: FontWeight.bold,
-              color: Colors.grey[400],
+              color: isDark ? Colors.grey[500] : Colors.grey[400],
               letterSpacing: 1.0,
             ),
           ),
@@ -235,18 +251,21 @@ class _EvaluationScreenState extends State<EvaluationScreen> {
             runSpacing: 8,
             children: [
               _buildChip(
+                context,
                 'Liderazgo',
                 Icons.check_circle,
                 Colors.blue,
                 member['selectedChips'],
               ),
               _buildChip(
+                context,
                 'Puntualidad',
                 Icons.access_time_filled,
                 Colors.green,
                 member['selectedChips'],
               ),
               _buildChip(
+                context,
                 'Falta de comunicación',
                 Icons.error_outline,
                 Colors.red,
@@ -260,10 +279,12 @@ class _EvaluationScreenState extends State<EvaluationScreen> {
   }
 
   Widget _buildSliderSection(
+    BuildContext context,
     String label,
     double value,
     Function(double) onChanged,
   ) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     Color activeColor = const Color(0xFF2EC4B6); // Turquesa por defecto
     if (value < 70) activeColor = Colors.grey;
 
@@ -274,9 +295,9 @@ class _EvaluationScreenState extends State<EvaluationScreen> {
           children: [
             Text(
               label,
-              style: const TextStyle(
+              style: TextStyle(
                 fontWeight: FontWeight.bold,
-                color: AppTheme.navyBlue,
+                color: isDark ? Colors.white : AppTheme.navyBlue,
                 fontSize: 14,
               ),
             ),
@@ -284,8 +305,7 @@ class _EvaluationScreenState extends State<EvaluationScreen> {
               '${value.toInt()}%',
               style: TextStyle(
                 fontWeight: FontWeight.bold,
-                color:
-                    activeColor, // El color cambia según el valor si se quisiera lógica más compleja
+                color: activeColor,
                 fontSize: 14,
               ),
             ),
@@ -294,10 +314,10 @@ class _EvaluationScreenState extends State<EvaluationScreen> {
         SliderTheme(
           data: SliderTheme.of(context).copyWith(
             trackHeight: 6,
-            activeTrackColor: const Color(
-              0xFF2EC4B6,
-            ), // Degradado no soportado nativamente en Slider simple, usaremos solido
-            inactiveTrackColor: Colors.grey[200],
+            activeTrackColor: const Color(0xFF2EC4B6),
+            inactiveTrackColor: isDark
+                ? const Color(0xFF334155)
+                : Colors.grey[200],
             thumbColor: Colors.white,
             thumbShape: const RoundSliderThumbShape(
               enabledThumbRadius: 12,
@@ -312,16 +332,20 @@ class _EvaluationScreenState extends State<EvaluationScreen> {
   }
 
   Widget _buildChip(
+    BuildContext context,
     String label,
     IconData icon,
     Color color,
     List<dynamic> selectedList,
   ) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     bool isSelected = selectedList.contains(label);
 
     // Logica visual especifica para "Falta de comunicación" (rojo claro fondo, rojo texto)
-    Color backgroundColor = const Color(0xFFF1F3F5);
-    Color textColor = Colors.grey[600]!;
+    Color backgroundColor = isDark
+        ? const Color(0xFF334155)
+        : const Color(0xFFF1F3F5);
+    Color textColor = isDark ? Colors.grey[300]! : Colors.grey[600]!;
     Color iconColor = Colors.transparent; // oculto si no seleccionado
 
     if (isSelected) {
@@ -373,7 +397,13 @@ class _EvaluationScreenState extends State<EvaluationScreen> {
       ),
       selected: isSelected,
       onSelected: (bool selected) {
-        // En una app real actualizariamos el estado, aqui es visual
+        setState(() {
+          if (selected) {
+            selectedList.add(label);
+          } else {
+            selectedList.remove(label);
+          }
+        });
       },
       backgroundColor: const Color(0xFFF8F9FA),
       selectedColor: backgroundColor,

@@ -14,29 +14,142 @@ class _NewAssignmentScreenState extends State<NewAssignmentScreen> {
     text: "11/15/2023",
   );
 
+  String _selectedClass = 'Seleccionar clase...';
+
+  static const List<Map<String, String>> _availableClasses = [
+    {'name': 'Matemáticas 101', 'icon': '📐'},
+    {'name': 'Biología - 10mo A', 'icon': '🧬'},
+    {'name': 'Historia Universal', 'icon': '📜'},
+    {'name': 'Ciencias Naturales', 'icon': '🔬'},
+  ];
+
+  void _showClassSelector(BuildContext context) {
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.transparent,
+      builder: (ctx) {
+        final isDark = Theme.of(ctx).brightness == Brightness.dark;
+        final cardColor = Theme.of(ctx).cardColor;
+        final textColor = isDark ? Colors.white : AppTheme.navyBlue;
+        return Container(
+          decoration: BoxDecoration(
+            color: cardColor,
+            borderRadius: const BorderRadius.only(
+              topLeft: Radius.circular(28),
+              topRight: Radius.circular(28),
+            ),
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              // Handle
+              Container(
+                margin: const EdgeInsets.only(top: 12),
+                width: 40,
+                height: 4,
+                decoration: BoxDecoration(
+                  color: isDark ? Colors.grey[700] : Colors.grey[300],
+                  borderRadius: BorderRadius.circular(10),
+                ),
+              ),
+              const SizedBox(height: 20),
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 24),
+                child: Text(
+                  'Selecciona una clase',
+                  style: TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                    color: textColor,
+                  ),
+                ),
+              ),
+              const SizedBox(height: 16),
+              ListView.separated(
+                shrinkWrap: true,
+                physics: const NeverScrollableScrollPhysics(),
+                padding: const EdgeInsets.symmetric(horizontal: 16),
+                itemCount: _availableClasses.length,
+                separatorBuilder: (_, __) => const SizedBox(height: 4),
+                itemBuilder: (context, index) {
+                  final cls = _availableClasses[index];
+                  final isSelected = _selectedClass == cls['name'];
+                  return ListTile(
+                    leading: Container(
+                      width: 44,
+                      height: 44,
+                      decoration: BoxDecoration(
+                        color: isSelected
+                            ? AppTheme.navyBlue.withOpacity(0.1)
+                            : (isDark
+                                  ? const Color(0xFF334155)
+                                  : Colors.grey[100]),
+                        borderRadius: BorderRadius.circular(14),
+                      ),
+                      child: Center(
+                        child: Text(
+                          cls['icon']!,
+                          style: const TextStyle(fontSize: 22),
+                        ),
+                      ),
+                    ),
+                    title: Text(
+                      cls['name']!,
+                      style: TextStyle(
+                        fontWeight: FontWeight.w600,
+                        color: isSelected
+                            ? textColor
+                            : (isDark ? Colors.grey[300] : Colors.grey[800]),
+                      ),
+                    ),
+                    trailing: isSelected
+                        ? const Icon(
+                            Icons.check_circle,
+                            color: Color(0xFF2ECC71),
+                          )
+                        : null,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(16),
+                    ),
+                    onTap: () {
+                      setState(() {
+                        _selectedClass = cls['name']!;
+                      });
+                      Navigator.pop(ctx);
+                    },
+                  );
+                },
+              ),
+              const SizedBox(height: 24),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final cardColor = Theme.of(context).cardColor;
+    final textColor = isDark ? Colors.white : AppTheme.navyBlue;
+    final hasClass = _selectedClass != 'Seleccionar clase...';
+
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: cardColor,
       appBar: AppBar(
-        title: const Text(
+        title: Text(
           'Nueva Tarea',
-          style: TextStyle(
-            color: AppTheme.navyBlue,
-            fontWeight: FontWeight.bold,
-          ),
+          style: TextStyle(color: textColor, fontWeight: FontWeight.bold),
         ),
         centerTitle: true,
-        backgroundColor: Colors.white,
+        backgroundColor: cardColor,
         elevation: 0,
         leading: TextButton(
           onPressed: () => Navigator.pop(context),
-          child: const Text(
+          child: Text(
             'Cancelar',
-            style: TextStyle(
-              color: AppTheme.navyBlue,
-              fontWeight: FontWeight.bold,
-            ),
+            style: TextStyle(color: textColor, fontWeight: FontWeight.bold),
           ),
         ),
         leadingWidth: 100,
@@ -85,13 +198,16 @@ class _NewAssignmentScreenState extends State<NewAssignmentScreen> {
               style: TextStyle(
                 fontSize: 28,
                 fontWeight: FontWeight.bold,
-                color: AppTheme.navyBlue,
+                color: textColor,
               ),
             ),
             const SizedBox(height: 8),
             Text(
               'Paso 1: Ingresa la información básica de la asignación para tus alumnos.',
-              style: TextStyle(color: Colors.grey[600], fontSize: 16),
+              style: TextStyle(
+                color: isDark ? Colors.grey[400] : Colors.grey[600],
+                fontSize: 16,
+              ),
             ),
 
             const SizedBox(height: 32),
@@ -163,27 +279,33 @@ class _NewAssignmentScreenState extends State<NewAssignmentScreen> {
             const SizedBox(height: 8),
             Container(
               decoration: BoxDecoration(
-                border: Border.all(color: Colors.grey[300]!),
+                border: Border.all(
+                  color: hasClass
+                      ? AppTheme.navyBlue.withOpacity(0.3)
+                      : (isDark ? Colors.grey[700]! : Colors.grey[300]!),
+                ),
                 borderRadius: BorderRadius.circular(30),
               ),
               child: ListTile(
                 leading: Container(
                   padding: const EdgeInsets.all(8),
                   decoration: BoxDecoration(
-                    color: Colors.indigo[50],
+                    color: hasClass
+                        ? Colors.indigo[50]
+                        : (isDark ? const Color(0xFF334155) : Colors.grey[100]),
                     shape: BoxShape.circle,
                   ),
-                  child: const Icon(
+                  child: Icon(
                     Icons.school,
-                    color: AppTheme.navyBlue,
+                    color: hasClass ? AppTheme.navyBlue : Colors.grey,
                     size: 20,
                   ),
                 ),
-                title: const Text(
-                  'Biología - 10mo A',
+                title: Text(
+                  _selectedClass,
                   style: TextStyle(
                     fontWeight: FontWeight.bold,
-                    color: AppTheme.navyBlue,
+                    color: hasClass ? AppTheme.navyBlue : Colors.grey,
                   ),
                 ),
                 trailing: const Icon(
@@ -191,7 +313,7 @@ class _NewAssignmentScreenState extends State<NewAssignmentScreen> {
                   size: 16,
                   color: Colors.grey,
                 ),
-                onTap: () {},
+                onTap: () => _showClassSelector(context),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(30),
                 ),
@@ -261,12 +383,13 @@ class _NewAssignmentScreenState extends State<NewAssignmentScreen> {
   }
 
   Widget _buildLabel(String text) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     return Text(
       text,
-      style: const TextStyle(
+      style: TextStyle(
         fontSize: 16,
         fontWeight: FontWeight.bold,
-        color: AppTheme.navyBlue,
+        color: isDark ? Colors.white : AppTheme.navyBlue,
       ),
     );
   }

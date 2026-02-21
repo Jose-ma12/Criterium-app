@@ -18,20 +18,20 @@ class _LoginScreenState extends State<LoginScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final bgColor = Theme.of(context).scaffoldBackgroundColor;
+    final textColor = isDark ? Colors.white : AppTheme.navyBlue;
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: bgColor,
       appBar: AppBar(
-        title: const Text(
+        title: Text(
           'Criterium',
-          style: TextStyle(
-            color: AppTheme.navyBlue,
-            fontWeight: FontWeight.bold,
-          ),
+          style: TextStyle(color: textColor, fontWeight: FontWeight.bold),
         ),
         centerTitle: true,
         backgroundColor: Colors.transparent,
         elevation: 0,
-        automaticallyImplyLeading: false, // Sin botón de retroceso en Login
+        automaticallyImplyLeading: false,
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(24.0),
@@ -41,27 +41,32 @@ class _LoginScreenState extends State<LoginScreen> {
             const SizedBox(height: 20),
             const Center(child: CriteriumLogo(size: 80)),
             const SizedBox(height: 20),
-            const Text(
+            Text(
               'Bienvenido a\nCriterium',
               textAlign: TextAlign.center,
               style: TextStyle(
                 fontSize: 32,
                 fontWeight: FontWeight.bold,
-                color: AppTheme.navyBlue,
+                color: textColor,
               ),
             ),
             const SizedBox(height: 10),
-            const Text(
+            Text(
               'Gestiona tus clases de forma eficiente',
               textAlign: TextAlign.center,
-              style: TextStyle(color: Colors.grey, fontSize: 16),
+              style: TextStyle(
+                color: isDark ? Colors.grey[400] : Colors.grey,
+                fontSize: 16,
+              ),
             ),
             const SizedBox(height: 40),
 
             // Selector Maestro / Alumno
             Container(
               decoration: BoxDecoration(
-                color: const Color(0xFFF1F3F5),
+                color: isDark
+                    ? const Color(0xFF1E293B)
+                    : const Color(0xFFF1F3F5),
                 borderRadius: BorderRadius.circular(30),
               ),
               child: Row(
@@ -73,7 +78,9 @@ class _LoginScreenState extends State<LoginScreen> {
                         padding: const EdgeInsets.symmetric(vertical: 12),
                         decoration: BoxDecoration(
                           color: !_isStudent
-                              ? Colors.white
+                              ? (isDark
+                                    ? Theme.of(context).cardColor
+                                    : Colors.white)
                               : Colors.transparent,
                           borderRadius: BorderRadius.circular(30),
                           boxShadow: !_isStudent
@@ -91,9 +98,7 @@ class _LoginScreenState extends State<LoginScreen> {
                           textAlign: TextAlign.center,
                           style: TextStyle(
                             fontWeight: FontWeight.bold,
-                            color: !_isStudent
-                                ? AppTheme.navyBlue
-                                : Colors.grey,
+                            color: !_isStudent ? textColor : Colors.grey,
                           ),
                         ),
                       ),
@@ -105,7 +110,11 @@ class _LoginScreenState extends State<LoginScreen> {
                       child: Container(
                         padding: const EdgeInsets.symmetric(vertical: 12),
                         decoration: BoxDecoration(
-                          color: _isStudent ? Colors.white : Colors.transparent,
+                          color: _isStudent
+                              ? (isDark
+                                    ? Theme.of(context).cardColor
+                                    : Colors.white)
+                              : Colors.transparent,
                           borderRadius: BorderRadius.circular(30),
                           boxShadow: _isStudent
                               ? [
@@ -122,7 +131,7 @@ class _LoginScreenState extends State<LoginScreen> {
                           textAlign: TextAlign.center,
                           style: TextStyle(
                             fontWeight: FontWeight.bold,
-                            color: _isStudent ? AppTheme.navyBlue : Colors.grey,
+                            color: _isStudent ? textColor : Colors.grey,
                           ),
                         ),
                       ),
@@ -135,12 +144,9 @@ class _LoginScreenState extends State<LoginScreen> {
             const SizedBox(height: 30),
 
             // Campos de texto
-            const Text(
+            Text(
               'Correo electrónico',
-              style: TextStyle(
-                fontWeight: FontWeight.bold,
-                color: AppTheme.navyBlue,
-              ),
+              style: TextStyle(fontWeight: FontWeight.bold, color: textColor),
             ),
             const SizedBox(height: 8),
             TextField(
@@ -153,12 +159,9 @@ class _LoginScreenState extends State<LoginScreen> {
 
             const SizedBox(height: 20),
 
-            const Text(
+            Text(
               'Contraseña',
-              style: TextStyle(
-                fontWeight: FontWeight.bold,
-                color: AppTheme.navyBlue,
-              ),
+              style: TextStyle(fontWeight: FontWeight.bold, color: textColor),
             ),
             const SizedBox(height: 8),
             TextField(

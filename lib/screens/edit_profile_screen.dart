@@ -1,4 +1,6 @@
+import 'dart:io';
 import 'package:flutter/material.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:criterium/theme/app_theme.dart';
 
 class EditProfileScreen extends StatefulWidget {
@@ -26,6 +28,21 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
   late final TextEditingController _nameController;
   late final TextEditingController _bioController;
   late final TextEditingController _phoneController;
+  File? _imageFile;
+
+  Future<void> _pickImage() async {
+    final picker = ImagePicker();
+    final picked = await picker.pickImage(
+      source: ImageSource.gallery,
+      maxWidth: 600,
+      imageQuality: 85,
+    );
+    if (picked != null) {
+      setState(() {
+        _imageFile = File(picked.path);
+      });
+    }
+  }
 
   @override
   void initState() {
@@ -55,25 +72,27 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final bgColor = Theme.of(context).scaffoldBackgroundColor;
+    final cardColor = Theme.of(context).cardColor;
+    final textColor = isDark ? Colors.white : AppTheme.navyBlue;
+
     return Scaffold(
-      backgroundColor: const Color(0xFFF8F9FA),
+      backgroundColor: bgColor,
       appBar: AppBar(
-        title: const Text(
+        title: Text(
           'Editar Perfil',
-          style: TextStyle(
-            color: AppTheme.navyBlue,
-            fontWeight: FontWeight.bold,
-          ),
+          style: TextStyle(color: textColor, fontWeight: FontWeight.bold),
         ),
         centerTitle: true,
         backgroundColor: Colors.transparent,
         elevation: 0,
         leading: TextButton(
           onPressed: () => Navigator.pop(context),
-          child: const Text(
+          child: Text(
             'Cancelar',
             style: TextStyle(
-              color: AppTheme.navyBlue,
+              color: textColor,
               fontSize: 14,
               fontWeight: FontWeight.w500,
             ),
@@ -110,25 +129,16 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
               // ── Avatar con icono de cámara ──
               const SizedBox(height: 8),
               GestureDetector(
-                onTap: () {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(
-                      content: const Text('Cambiar foto próximamente'),
-                      duration: const Duration(seconds: 2),
-                      behavior: SnackBarBehavior.floating,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                    ),
-                  );
-                },
+                onTap: _pickImage,
                 child: Stack(
                   children: [
-                    const CircleAvatar(
+                    CircleAvatar(
                       radius: 55,
-                      backgroundImage: NetworkImage(
-                        'https://i.pravatar.cc/150?img=5',
-                      ),
+                      backgroundImage: _imageFile != null
+                          ? FileImage(_imageFile!) as ImageProvider
+                          : const NetworkImage(
+                              'https://i.pravatar.cc/150?img=5',
+                            ),
                     ),
                     Positioned(
                       bottom: 0,
@@ -138,7 +148,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                         decoration: BoxDecoration(
                           color: AppTheme.navyBlue,
                           shape: BoxShape.circle,
-                          border: Border.all(color: Colors.white, width: 3),
+                          border: Border.all(color: cardColor, width: 3),
                         ),
                         child: const Icon(
                           Icons.camera_alt,
@@ -154,6 +164,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
 
               // ── Campos del formulario ──
               _buildField(
+                context,
                 label: 'Nombre completo',
                 controller: _nameController,
                 icon: Icons.person_outline,
@@ -167,6 +178,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
               const SizedBox(height: 16),
 
               _buildField(
+                context,
                 label: 'Teléfono',
                 controller: _phoneController,
                 icon: Icons.phone_outlined,
@@ -175,6 +187,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
               const SizedBox(height: 16),
 
               _buildField(
+                context,
                 label: 'Acerca de mí',
                 controller: _bioController,
                 icon: Icons.info_outline,
@@ -184,6 +197,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
 
               // ── Campos deshabilitados (institucionales) ──
               _buildDisabledField(
+                context,
                 label: 'Correo institucional',
                 value: widget.email,
                 icon: Icons.email_outlined,
@@ -191,6 +205,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
               const SizedBox(height: 16),
 
               _buildDisabledField(
+                context,
                 label: 'Rol',
                 value: widget.role,
                 icon: Icons.badge_outlined,
@@ -225,7 +240,8 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
   }
 
   // ── Campo editable ──
-  Widget _buildField({
+  Widget _buildField(
+    BuildContext context, {
     required String label,
     required TextEditingController controller,
     required IconData icon,
@@ -233,6 +249,10 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     TextInputType keyboardType = TextInputType.text,
     String? Function(String?)? validator,
   }) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final cardColor = Theme.of(context).cardColor;
+    final textColor = isDark ? Colors.white : AppTheme.navyBlue;
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -241,7 +261,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
           style: TextStyle(
             fontSize: 13,
             fontWeight: FontWeight.w600,
-            color: AppTheme.navyBlue.withOpacity(0.7),
+            color: textColor.withOpacity(0.7),
           ),
         ),
         const SizedBox(height: 8),
@@ -250,26 +270,26 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
           maxLines: maxLines,
           keyboardType: keyboardType,
           validator: validator,
-          style: const TextStyle(
+          style: TextStyle(
             fontSize: 15,
-            color: AppTheme.navyBlue,
+            color: textColor,
             fontWeight: FontWeight.w500,
           ),
           decoration: InputDecoration(
-            prefixIcon: Icon(
-              icon,
-              color: AppTheme.navyBlue.withOpacity(0.5),
-              size: 20,
-            ),
+            prefixIcon: Icon(icon, color: textColor.withOpacity(0.5), size: 20),
             filled: true,
-            fillColor: Colors.white,
+            fillColor: cardColor,
             border: OutlineInputBorder(
               borderRadius: BorderRadius.circular(16),
               borderSide: BorderSide.none,
             ),
             enabledBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(16),
-              borderSide: BorderSide(color: Colors.grey[200]!),
+              borderSide: BorderSide(
+                color: isDark
+                    ? Colors.white.withOpacity(0.1)
+                    : Colors.grey[200]!,
+              ),
             ),
             focusedBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(16),
@@ -293,11 +313,15 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
   }
 
   // ── Campo deshabilitado ──
-  Widget _buildDisabledField({
+  Widget _buildDisabledField(
+    BuildContext context, {
     required String label,
     required String value,
     required IconData icon,
   }) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final textColor = isDark ? Colors.white : AppTheme.navyBlue;
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -308,7 +332,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
               style: TextStyle(
                 fontSize: 13,
                 fontWeight: FontWeight.w600,
-                color: AppTheme.navyBlue.withOpacity(0.7),
+                color: textColor.withOpacity(0.7),
               ),
             ),
             const SizedBox(width: 6),
@@ -320,9 +344,13 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
           width: double.infinity,
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
           decoration: BoxDecoration(
-            color: Colors.grey[100],
+            color: isDark ? const Color(0xFF334155) : Colors.grey[100],
             borderRadius: BorderRadius.circular(16),
-            border: Border.all(color: Colors.grey[200]!),
+            border: Border.all(
+              color: isDark
+                  ? Colors.white.withOpacity(0.08)
+                  : Colors.grey[200]!,
+            ),
           ),
           child: Row(
             children: [
@@ -332,7 +360,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                 value,
                 style: TextStyle(
                   fontSize: 15,
-                  color: Colors.grey[500],
+                  color: isDark ? Colors.grey[400] : Colors.grey[500],
                   fontWeight: FontWeight.w500,
                 ),
               ),

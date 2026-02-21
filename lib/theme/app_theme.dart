@@ -30,15 +30,19 @@ class AppTheme {
     ),
   ];
 
+  // ─────────────────────────── LIGHT THEME ───────────────────────────
   static ThemeData get lightTheme {
     return ThemeData(
+      brightness: Brightness.light,
       primaryColor: navyBlue,
       scaffoldBackgroundColor: scaffoldBg,
+      cardColor: Colors.white,
       colorScheme: ColorScheme.fromSeed(
+        brightness: Brightness.light,
         seedColor: navyBlue,
         primary: navyBlue,
         secondary: orange,
-        surface: white,
+        surface: Colors.white,
       ),
       useMaterial3: true,
 
@@ -78,7 +82,7 @@ class AppTheme {
 
       // ── AppBar ──
       appBarTheme: AppBarTheme(
-        backgroundColor: white,
+        backgroundColor: Colors.white,
         elevation: 0,
         centerTitle: true,
         titleTextStyle: GoogleFonts.poppins(
@@ -115,7 +119,110 @@ class AppTheme {
       cardTheme: CardThemeData(
         elevation: 0,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
-        color: white,
+        color: Colors.white,
+      ),
+    );
+  }
+
+  // ─────────────────────────── DARK THEME ───────────────────────────
+  static ThemeData get darkTheme {
+    const Color darkBg = Color(0xFF0F172A);
+    const Color darkCard = Color(0xFF1E293B);
+    const Color darkInput = Color(0xFF334155);
+    const Color darkText = Color(0xFFF1F5F9);
+
+    return ThemeData(
+      brightness: Brightness.dark,
+      primaryColor: electricBlue,
+      scaffoldBackgroundColor: darkBg,
+      cardColor: darkCard,
+      colorScheme: ColorScheme.fromSeed(
+        brightness: Brightness.dark,
+        seedColor: electricBlue,
+        primary: electricBlue,
+        secondary: orange,
+        surface: darkCard,
+      ),
+      useMaterial3: true,
+
+      // ── Tipografía ──
+      textTheme: GoogleFonts.interTextTheme(
+        TextTheme(
+          displayLarge: const TextStyle(
+            fontSize: 32,
+            fontWeight: FontWeight.bold,
+            color: darkText,
+          ),
+          titleLarge: const TextStyle(
+            fontSize: 22,
+            fontWeight: FontWeight.bold,
+            color: darkText,
+          ),
+          bodyLarge: TextStyle(fontSize: 16, color: darkText.withOpacity(0.87)),
+          bodyMedium: TextStyle(
+            fontSize: 14,
+            color: darkText.withOpacity(0.87),
+          ),
+        ),
+      ),
+
+      // ── Botones ──
+      elevatedButtonTheme: ElevatedButtonThemeData(
+        style: ElevatedButton.styleFrom(
+          backgroundColor: green,
+          foregroundColor: Colors.white,
+          padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 32),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(30),
+          ),
+          textStyle: GoogleFonts.poppins(
+            fontSize: 16,
+            fontWeight: FontWeight.w600,
+          ),
+        ),
+      ),
+
+      // ── AppBar ──
+      appBarTheme: AppBarTheme(
+        backgroundColor: darkCard,
+        elevation: 0,
+        centerTitle: true,
+        titleTextStyle: GoogleFonts.poppins(
+          fontSize: 18,
+          fontWeight: FontWeight.w600,
+          color: darkText,
+        ),
+        iconTheme: const IconThemeData(color: darkText),
+      ),
+
+      // ── Input Decoration ──
+      inputDecorationTheme: InputDecorationTheme(
+        filled: true,
+        fillColor: darkInput,
+        hintStyle: TextStyle(color: darkText.withOpacity(0.4)),
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(16),
+          borderSide: BorderSide.none,
+        ),
+        enabledBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(16),
+          borderSide: BorderSide.none,
+        ),
+        focusedBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(16),
+          borderSide: const BorderSide(color: electricBlue, width: 2),
+        ),
+        contentPadding: const EdgeInsets.symmetric(
+          horizontal: 24,
+          vertical: 18,
+        ),
+      ),
+
+      // ── Card Theme ──
+      cardTheme: CardThemeData(
+        elevation: 0,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
+        color: darkCard,
       ),
     );
   }

@@ -29,8 +29,11 @@ class _SplashScreenState extends State<SplashScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final bgColor = Theme.of(context).scaffoldBackgroundColor;
+    final textColor = isDark ? Colors.white : AppTheme.navyBlue;
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: bgColor,
       body: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
@@ -42,7 +45,7 @@ class _SplashScreenState extends State<SplashScreen> {
               'Criterium',
               style: Theme.of(
                 context,
-              ).textTheme.displayLarge?.copyWith(color: AppTheme.navyBlue),
+              ).textTheme.displayLarge?.copyWith(color: textColor),
             ),
             Text(
               'EDUCATION MANAGEMENT',
@@ -53,18 +56,18 @@ class _SplashScreenState extends State<SplashScreen> {
               ),
             ),
             const SizedBox(height: 100),
-            const SizedBox(
+            SizedBox(
               width: 40,
               height: 40,
               child: CircularProgressIndicator(
-                color: AppTheme.navyBlue,
+                color: textColor,
                 strokeWidth: 3,
               ),
             ),
             const SizedBox(height: 20),
-            const Text(
+            Text(
               'Syncing classroom data...',
-              style: TextStyle(color: AppTheme.navyBlue),
+              style: TextStyle(color: textColor),
             ),
             const Spacer(),
             const Padding(

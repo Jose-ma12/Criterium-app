@@ -7,6 +7,10 @@ class GradeSuccessScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final cardColor = Theme.of(context).cardColor;
+    final textColor = isDark ? Colors.white : AppTheme.navyBlue;
+
     return Dialog(
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30)),
       elevation: 0,
@@ -14,7 +18,7 @@ class GradeSuccessScreen extends StatelessWidget {
       child: Container(
         padding: const EdgeInsets.all(24),
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: cardColor,
           borderRadius: BorderRadius.circular(30),
         ),
         child: Column(
@@ -24,13 +28,13 @@ class GradeSuccessScreen extends StatelessWidget {
               width: 40,
               height: 4,
               decoration: BoxDecoration(
-                color: Colors.grey[200],
+                color: isDark ? Colors.grey[700] : Colors.grey[200],
                 borderRadius: BorderRadius.circular(2),
               ),
             ),
             const SizedBox(height: 24),
 
-            // Círculo central con check (más pequeño que la pantalla completa)
+            // Círculo central con check
             Container(
               width: 100,
               height: 100,
@@ -52,10 +56,10 @@ class GradeSuccessScreen extends StatelessWidget {
             Text(
               'Calificación enviada a\n$studentName',
               textAlign: TextAlign.center,
-              style: const TextStyle(
+              style: TextStyle(
                 fontSize: 22,
                 fontWeight: FontWeight.bold,
-                color: AppTheme.navyBlue,
+                color: textColor,
                 height: 1.2,
               ),
             ),
@@ -65,7 +69,10 @@ class GradeSuccessScreen extends StatelessWidget {
             Text(
               'El estudiante recibirá una notificación en su panel de Criterium en breve.',
               textAlign: TextAlign.center,
-              style: TextStyle(color: Colors.grey[600], fontSize: 14),
+              style: TextStyle(
+                color: isDark ? Colors.grey[400] : Colors.grey[600],
+                fontSize: 14,
+              ),
             ),
 
             const SizedBox(height: 32),
@@ -73,10 +80,7 @@ class GradeSuccessScreen extends StatelessWidget {
             SizedBox(
               width: double.infinity,
               child: ElevatedButton(
-                onPressed: () {
-                  // Acción simulada
-                  Navigator.pop(context);
-                },
+                onPressed: () => Navigator.pop(context),
                 style: ElevatedButton.styleFrom(
                   backgroundColor: AppTheme.navyBlue,
                   foregroundColor: Colors.white,
@@ -94,12 +98,12 @@ class GradeSuccessScreen extends StatelessWidget {
             SizedBox(
               width: double.infinity,
               child: OutlinedButton(
-                onPressed: () {
-                  Navigator.pop(context);
-                },
+                onPressed: () => Navigator.pop(context),
                 style: OutlinedButton.styleFrom(
-                  foregroundColor: AppTheme.navyBlue,
-                  side: const BorderSide(color: Colors.grey),
+                  foregroundColor: textColor,
+                  side: BorderSide(
+                    color: isDark ? Colors.grey[600]! : Colors.grey,
+                  ),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(30),
                   ),

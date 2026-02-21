@@ -4,6 +4,9 @@ import 'package:criterium/screens/evaluation_screen.dart';
 import 'package:criterium/screens/submissions_screen.dart';
 import 'package:criterium/screens/new_assignment_screen.dart';
 import 'package:criterium/screens/profile_screen.dart';
+import 'package:criterium/screens/qr_scanner_screen.dart';
+import 'package:criterium/screens/reports_screen.dart';
+import 'package:criterium/screens/notifications_screen.dart';
 import 'package:criterium/theme/app_theme.dart';
 
 class DashboardScreen extends StatefulWidget {
@@ -29,36 +32,31 @@ class _DashboardScreenState extends State<DashboardScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final bgColor = Theme.of(context).scaffoldBackgroundColor;
+    final textColor = isDark ? Colors.white : AppTheme.navyBlue;
+
     // Construir las páginas del BottomNav dinámicamente
     _pages = [
       _buildDashboardView(),
       widget.isTeacher
           ? SubmissionsScreen(className: 'Todas', isTeacher: true)
-          : const Center(
+          : Center(
               child: Text(
                 'Vista de Tareas del Alumno',
                 style: TextStyle(
                   fontSize: 24,
                   fontWeight: FontWeight.bold,
-                  color: AppTheme.navyBlue,
+                  color: textColor,
                 ),
               ),
             ),
-      const Center(
-        child: Text(
-          'Reportes',
-          style: TextStyle(
-            fontSize: 24,
-            fontWeight: FontWeight.bold,
-            color: AppTheme.navyBlue,
-          ),
-        ),
-      ),
+      ReportsScreen(isTeacher: widget.isTeacher),
       ProfileScreen(isTeacher: widget.isTeacher),
     ];
 
     return Scaffold(
-      backgroundColor: AppTheme.scaffoldBg,
+      backgroundColor: bgColor,
       body: _pages[_selectedIndex],
       bottomNavigationBar: Container(
         margin: const EdgeInsets.all(24),
@@ -125,6 +123,10 @@ class _DashboardScreenState extends State<DashboardScreen> {
   /// Vista principal del Dashboard (antes era todo el body).
   /// Se extrajo para poder usarla como una página dentro de _pages.
   Widget _buildDashboardView() {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final cardColor = Theme.of(context).cardColor;
+    final textColor = isDark ? Colors.white : AppTheme.navyBlue;
+
     // Configuración de textos según rol
     String userName = widget.isTeacher
         ? 'Prof. Alex\nRivera'
@@ -157,7 +159,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                     Text(
                       'MARTES, 24 OCT',
                       style: TextStyle(
-                        color: Colors.grey[600],
+                        color: isDark ? Colors.grey[400] : Colors.grey[600],
                         fontSize: 12,
                         fontWeight: FontWeight.bold,
                         letterSpacing: 1.0,
@@ -167,7 +169,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                     Text(
                       userName,
                       style: GoogleFonts.poppins(
-                        color: AppTheme.navyBlue,
+                        color: textColor,
                         fontSize: 28,
                         fontWeight: FontWeight.w700,
                         height: 1.1,
@@ -179,7 +181,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                         child: Text(
                           userRoleSubtitle,
                           style: TextStyle(
-                            color: AppTheme.navyBlue.withOpacity(0.7),
+                            color: textColor.withOpacity(0.7),
                             fontSize: 14,
                             fontWeight: FontWeight.bold,
                           ),
@@ -192,24 +194,20 @@ class _DashboardScreenState extends State<DashboardScreen> {
                     // ── Campana de Notificaciones → SnackBar ──
                     GestureDetector(
                       onTap: () {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(
-                            content: Text('Sin notificaciones nuevas'),
-                            duration: Duration(seconds: 2),
-                            behavior: SnackBarBehavior.floating,
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (_) => const NotificationsScreen(),
                           ),
                         );
                       },
                       child: Container(
-                        decoration: const BoxDecoration(
-                          color: Colors.white,
+                        decoration: BoxDecoration(
+                          color: cardColor,
                           shape: BoxShape.circle,
                         ),
                         padding: const EdgeInsets.all(8),
-                        child: const Icon(
-                          Icons.notifications_none,
-                          color: AppTheme.navyBlue,
-                        ),
+                        child: Icon(Icons.notifications_none, color: textColor),
                       ),
                     ),
                     const SizedBox(width: 12),
@@ -443,7 +441,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                   style: GoogleFonts.poppins(
                     fontSize: 20,
                     fontWeight: FontWeight.w600,
-                    color: AppTheme.navyBlue,
+                    color: textColor,
                   ),
                 ),
                 // ── "Ver todo" → solo para maestros ──
@@ -460,10 +458,10 @@ class _DashboardScreenState extends State<DashboardScreen> {
                         ),
                       );
                     },
-                    child: const Text(
+                    child: Text(
                       'Ver todo',
                       style: TextStyle(
-                        color: Colors.grey,
+                        color: isDark ? Colors.grey[400] : Colors.grey,
                         fontWeight: FontWeight.bold,
                       ),
                     ),
@@ -529,9 +527,17 @@ class _DashboardScreenState extends State<DashboardScreen> {
               width: double.infinity,
               padding: const EdgeInsets.all(20),
               decoration: BoxDecoration(
-                color: Colors.white,
+                color: cardColor,
                 borderRadius: BorderRadius.circular(24),
-                boxShadow: AppTheme.subtleShadow,
+                boxShadow: [
+                  BoxShadow(
+                    color: isDark
+                        ? Colors.transparent
+                        : const Color(0xFF0F172A).withValues(alpha: 0.05),
+                    blurRadius: 12,
+                    offset: const Offset(0, 4),
+                  ),
+                ],
               ),
               child: Row(
                 children: [
@@ -542,7 +548,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                         Text(
                           'COMPLETADA',
                           style: TextStyle(
-                            color: Colors.grey[400],
+                            color: isDark ? Colors.grey[600] : Colors.grey[400],
                             fontSize: 10,
                             fontWeight: FontWeight.bold,
                             letterSpacing: 1.0,
@@ -552,7 +558,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                         Text(
                           'Historia Universal',
                           style: GoogleFonts.poppins(
-                            color: Colors.grey,
+                            color: isDark ? Colors.grey[500] : Colors.grey,
                             fontSize: 18,
                             fontWeight: FontWeight.w600,
                           ),
@@ -561,14 +567,116 @@ class _DashboardScreenState extends State<DashboardScreen> {
                     ),
                   ),
                   ElevatedButton.icon(
-                    onPressed: () {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(
-                          content: Text('Función de escaneo QR próximamente'),
-                          duration: Duration(seconds: 2),
-                          behavior: SnackBarBehavior.floating,
+                    onPressed: () async {
+                      final scannedCode = await Navigator.push<String>(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) => const QRScannerScreen(),
                         ),
                       );
+                      if (scannedCode != null && mounted) {
+                        showDialog(
+                          context: context,
+                          builder: (ctx) => Dialog(
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(24),
+                            ),
+                            child: Padding(
+                              padding: const EdgeInsets.all(28),
+                              child: Column(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  Container(
+                                    padding: const EdgeInsets.all(16),
+                                    decoration: BoxDecoration(
+                                      color: const Color(
+                                        0xFF70C635,
+                                      ).withOpacity(0.1),
+                                      shape: BoxShape.circle,
+                                    ),
+                                    child: const Icon(
+                                      Icons.check_circle,
+                                      color: Color(0xFF70C635),
+                                      size: 56,
+                                    ),
+                                  ),
+                                  const SizedBox(height: 20),
+                                  Text(
+                                    'Asistencia Registrada',
+                                    style: GoogleFonts.poppins(
+                                      fontSize: 20,
+                                      fontWeight: FontWeight.w700,
+                                      color: isDark
+                                          ? Colors.white
+                                          : AppTheme.navyBlue,
+                                    ),
+                                  ),
+                                  const SizedBox(height: 12),
+                                  Text(
+                                    'Se ha registrado la asistencia correctamente.',
+                                    textAlign: TextAlign.center,
+                                    style: TextStyle(
+                                      fontSize: 14,
+                                      color: isDark
+                                          ? Colors.grey[400]
+                                          : Colors.grey[600],
+                                    ),
+                                  ),
+                                  const SizedBox(height: 8),
+                                  Container(
+                                    padding: const EdgeInsets.symmetric(
+                                      horizontal: 16,
+                                      vertical: 10,
+                                    ),
+                                    decoration: BoxDecoration(
+                                      color: isDark
+                                          ? const Color(0xFF334155)
+                                          : Colors.grey[100],
+                                      borderRadius: BorderRadius.circular(12),
+                                    ),
+                                    child: Text(
+                                      'Código: $scannedCode',
+                                      style: TextStyle(
+                                        fontSize: 13,
+                                        fontWeight: FontWeight.w600,
+                                        color: isDark
+                                            ? Colors.white
+                                            : AppTheme.navyBlue,
+                                      ),
+                                    ),
+                                  ),
+                                  const SizedBox(height: 24),
+                                  SizedBox(
+                                    width: double.infinity,
+                                    child: ElevatedButton(
+                                      onPressed: () => Navigator.pop(ctx),
+                                      style: ElevatedButton.styleFrom(
+                                        backgroundColor: AppTheme.navyBlue,
+                                        foregroundColor: Colors.white,
+                                        padding: const EdgeInsets.symmetric(
+                                          vertical: 14,
+                                        ),
+                                        shape: RoundedRectangleBorder(
+                                          borderRadius: BorderRadius.circular(
+                                            14,
+                                          ),
+                                        ),
+                                      ),
+                                      child: const Text(
+                                        'Aceptar',
+                                        style: TextStyle(
+                                          fontSize: 16,
+                                          fontWeight: FontWeight.bold,
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+                        );
+                      }
                     },
                     icon: const Icon(Icons.qr_code_scanner, size: 18),
                     label: const Text('Escanear'),
@@ -662,13 +770,16 @@ class _DashboardScreenState extends State<DashboardScreen> {
       backgroundColor: Colors.transparent,
       isScrollControlled: true,
       builder: (context) {
+        final isDark = Theme.of(context).brightness == Brightness.dark;
+        final cardColor = Theme.of(context).cardColor;
+        final textColor = isDark ? Colors.white : AppTheme.navyBlue;
         return Container(
           constraints: BoxConstraints(
             maxHeight: MediaQuery.of(context).size.height * 0.55,
           ),
-          decoration: const BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.only(
+          decoration: BoxDecoration(
+            color: cardColor,
+            borderRadius: const BorderRadius.only(
               topLeft: Radius.circular(30),
               topRight: Radius.circular(30),
             ),
@@ -682,7 +793,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                 width: 40,
                 height: 4,
                 decoration: BoxDecoration(
-                  color: Colors.grey[300],
+                  color: isDark ? Colors.grey[700] : Colors.grey[300],
                   borderRadius: BorderRadius.circular(10),
                 ),
               ),
@@ -710,14 +821,16 @@ class _DashboardScreenState extends State<DashboardScreen> {
                             style: GoogleFonts.poppins(
                               fontSize: 18,
                               fontWeight: FontWeight.w700,
-                              color: AppTheme.navyBlue,
+                              color: textColor,
                             ),
                           ),
                           Text(
                             '${items.length} ${widget.isTeacher ? "estudiantes" : "materias"}',
                             style: TextStyle(
                               fontSize: 13,
-                              color: Colors.grey[500],
+                              color: isDark
+                                  ? Colors.grey[400]
+                                  : Colors.grey[500],
                               fontWeight: FontWeight.w500,
                             ),
                           ),
@@ -728,7 +841,12 @@ class _DashboardScreenState extends State<DashboardScreen> {
                 ),
               ),
               const SizedBox(height: 16),
-              Divider(color: Colors.grey[200], height: 1),
+              Divider(
+                color: isDark
+                    ? Colors.white.withOpacity(0.1)
+                    : Colors.grey[200],
+                height: 1,
+              ),
               // List
               Flexible(
                 child: ListView.separated(
@@ -757,20 +875,23 @@ class _DashboardScreenState extends State<DashboardScreen> {
                       ),
                       title: Text(
                         item['name']!,
-                        style: const TextStyle(
+                        style: TextStyle(
                           fontWeight: FontWeight.w600,
-                          color: AppTheme.navyBlue,
+                          color: textColor,
                           fontSize: 15,
                         ),
                       ),
                       subtitle: Text(
                         item['detail']!,
-                        style: TextStyle(color: Colors.grey[500], fontSize: 13),
+                        style: TextStyle(
+                          color: isDark ? Colors.grey[400] : Colors.grey[500],
+                          fontSize: 13,
+                        ),
                       ),
                       trailing: Icon(
                         Icons.arrow_forward_ios,
                         size: 14,
-                        color: Colors.grey[400],
+                        color: isDark ? Colors.grey[500] : Colors.grey[400],
                       ),
                     );
                   },
