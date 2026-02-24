@@ -123,6 +123,30 @@ class _ChatScreenState extends State<ChatScreen> {
           Expanded(
             child: context.watch<AppProvider>().isLoading
                 ? const Center(child: CircularProgressIndicator())
+                : context.watch<AppProvider>().errorMessage != null
+                ? Center(
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Icon(
+                          Icons.wifi_off_rounded,
+                          size: 64,
+                          color: Colors.grey[400],
+                        ),
+                        const SizedBox(height: 16),
+                        Text(
+                          context.watch<AppProvider>().errorMessage!,
+                          style: TextStyle(color: Colors.grey[600]),
+                        ),
+                        const SizedBox(height: 16),
+                        ElevatedButton(
+                          onPressed: () =>
+                              context.read<AppProvider>().fetchAppData(),
+                          child: const Text('Reintentar'),
+                        ),
+                      ],
+                    ),
+                  )
                 : ListView.builder(
                     controller: _scrollController,
                     padding: const EdgeInsets.symmetric(

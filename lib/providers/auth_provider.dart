@@ -27,6 +27,8 @@ class AuthProvider extends ChangeNotifier {
           role: 'teacher',
           avatar: 'https://i.pravatar.cc/150?img=11',
           institution: 'Tecnológico de Monterrey',
+          bio: 'Profesor titular con 10 años de experiencia.',
+          phone: '+52 555 123 4567',
         );
       } else {
         _currentUser = UserModel(
@@ -36,6 +38,8 @@ class AuthProvider extends ChangeNotifier {
           role: 'student',
           avatar: 'https://i.pravatar.cc/150?img=5',
           institution: 'Tecnológico de Monterrey',
+          bio: 'Estudiante de 10mo grado.',
+          phone: '+52 555 987 6543',
         );
       }
 
@@ -71,8 +75,8 @@ class AuthProvider extends ChangeNotifier {
         role: _currentUser!.role,
         avatar: avatar ?? _currentUser!.avatar,
         institution: _currentUser!.institution,
-        // Nota: Si UserModel no tiene campos para bio y phone, se ignorarán por ahora,
-        // pero al menos el 'name' se actualizará en la UI.
+        bio: bio, // <-- ACTUALIZADO
+        phone: phone, // <-- ACTUALIZADO
       );
       notifyListeners();
     }
