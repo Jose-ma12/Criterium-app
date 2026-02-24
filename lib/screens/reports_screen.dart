@@ -117,6 +117,32 @@ class ReportsScreen extends StatelessWidget {
             // ── Barras de rendimiento ──
             if (dashboardProv.isLoading)
               const Center(child: CircularProgressIndicator())
+            else if (dashboardProv.errorMessage != null)
+              Center(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    const SizedBox(height: 20),
+                    Icon(
+                      Icons.wifi_off_rounded,
+                      size: 64,
+                      color: Colors.grey[400],
+                    ),
+                    const SizedBox(height: 16),
+                    Text(
+                      dashboardProv.errorMessage!,
+                      style: TextStyle(color: Colors.grey[600]),
+                    ),
+                    const SizedBox(height: 16),
+                    ElevatedButton(
+                      onPressed: () => context
+                          .read<DashboardProvider>()
+                          .fetchDashboardData(isTeacher),
+                      child: const Text('Reintentar'),
+                    ),
+                  ],
+                ),
+              )
             else
               ...dashboardProv.reportBars.map(
                 (bar) => _buildProgressRow(

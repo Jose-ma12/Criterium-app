@@ -26,6 +26,19 @@ class _RubricBuilderScreenState extends State<RubricBuilderScreen> {
   bool _isLoading = false;
 
   Future<void> _crearTarea() async {
+    // --- NUEVA VALIDACIÓN ---
+    if (_criteria.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Debes agregar al menos un criterio a la rúbrica.'),
+          backgroundColor: Colors.red,
+          behavior: SnackBarBehavior.floating,
+        ),
+      );
+      return; // Detenemos la ejecución aquí
+    }
+    // --- FIN DE LA VALIDACIÓN ---
+
     setState(() => _isLoading = true);
     try {
       final success = await context.read<TeacherProvider>().createAssignment(

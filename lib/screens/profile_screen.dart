@@ -13,6 +13,10 @@ import 'package:criterium/theme/app_theme.dart';
 import 'package:criterium/main.dart';
 import 'package:provider/provider.dart';
 import 'package:criterium/providers/auth_provider.dart';
+import 'package:criterium/providers/teacher_provider.dart';
+import 'package:criterium/providers/student_provider.dart';
+import 'package:criterium/providers/dashboard_provider.dart';
+import 'package:criterium/providers/app_provider.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 
 class ProfileScreen extends StatefulWidget {
@@ -30,8 +34,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
       MaterialPageRoute(
         builder: (_) => EditProfileScreen(
           currentName: user.name,
-          currentBio: 'Agrega tu biografía aquí...', // Mock temporal
-          currentPhone: 'Sin teléfono', // Mock temporal
+          currentBio: user.bio, // <-- REEMPLAZAR MOCK
+          currentPhone: user.phone, // <-- REEMPLAZAR MOCK
           email: user.email,
           role: user.role == 'teacher'
               ? 'Instructor Senior'
@@ -438,7 +442,13 @@ class _ProfileScreenState extends State<ProfileScreen> {
               width: double.infinity,
               child: TextButton.icon(
                 onPressed: () {
+                  // Limpiar la memoria de todos los Providers
+                  context.read<TeacherProvider>().clearData();
+                  context.read<StudentProvider>().clearData();
+                  context.read<DashboardProvider>().clearData();
+                  context.read<AppProvider>().clearData();
                   context.read<AuthProvider>().logout();
+
                   Navigator.pushAndRemoveUntil(
                     context,
                     MaterialPageRoute(

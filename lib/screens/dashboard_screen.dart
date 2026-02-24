@@ -1,15 +1,18 @@
+import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:criterium/screens/evaluation_screen.dart';
 import 'package:criterium/screens/submissions_screen.dart';
 import 'package:criterium/screens/new_assignment_screen.dart';
 import 'package:criterium/screens/profile_screen.dart';
+import 'package:criterium/screens/student/assignment_history_screen.dart';
 import 'package:criterium/screens/qr_scanner_screen.dart';
 import 'package:criterium/screens/reports_screen.dart';
 import 'package:criterium/screens/notifications_screen.dart';
 import 'package:criterium/theme/app_theme.dart';
 import 'package:provider/provider.dart';
 import 'package:criterium/providers/dashboard_provider.dart';
+import 'package:criterium/providers/auth_provider.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 
 class DashboardScreen extends StatefulWidget {
@@ -47,23 +50,13 @@ class _DashboardScreenState extends State<DashboardScreen> {
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final bgColor = Theme.of(context).scaffoldBackgroundColor;
-    final textColor = isDark ? Colors.white : AppTheme.navyBlue;
 
     // Construir las páginas del BottomNav dinámicamente
     _pages = [
       _buildDashboardView(),
       widget.isTeacher
           ? SubmissionsScreen(className: 'Todas', isTeacher: true)
-          : Center(
-              child: Text(
-                'Vista de Tareas del Alumno',
-                style: TextStyle(
-                  fontSize: 24,
-                  fontWeight: FontWeight.bold,
-                  color: textColor,
-                ),
-              ),
-            ),
+          : const AssignmentHistoryScreen(), // <-- PANTALLA REAL CONECTADA
       ReportsScreen(isTeacher: widget.isTeacher),
       ProfileScreen(isTeacher: widget.isTeacher),
     ];
@@ -186,10 +179,21 @@ class _DashboardScreenState extends State<DashboardScreen> {
     final cardColor = Theme.of(context).cardColor;
     final textColor = isDark ? Colors.white : AppTheme.navyBlue;
 
-    // Configuración de textos según rol
-    String userName = widget.isTeacher
-        ? 'Prof. Alex\nRivera'
-        : 'Hola,\nMarlene';
+    final authProv = context.watch<AuthProvider>();
+    final user = authProv.currentUser;
+
+    // Configuración de textos según rol leyendo del usuario real
+    String rawName = user?.name ?? (widget.isTeacher ? 'Profesor' : 'Alumno');
+    String userName;
+
+    // Formatear el nombre para mantener el diseño de dos líneas
+    if (rawName.contains(' ')) {
+      final parts = rawName.split(' ');
+      userName = '${parts[0]}\n${parts.sublist(1).join(' ')}';
+    } else {
+      userName = 'Hola,\n$rawName';
+    }
+
     String userRoleSubtitle = widget.isTeacher ? 'Instructor Senior' : '';
 
     // Stats
@@ -283,12 +287,16 @@ class _DashboardScreenState extends State<DashboardScreen> {
                       },
                       child: CircleAvatar(
                         radius: 20,
-                        backgroundImage: CachedNetworkImageProvider(
-                          widget.isTeacher
-                              ? 'https://i.pravatar.cc/150?img=11'
-                              : 'https://i.pravatar.cc/100?img=5',
-                        ),
                         backgroundColor: const Color(0xFFE8EAF0),
+                        backgroundImage: user != null && user.avatar.isNotEmpty
+                            ? (user.avatar.startsWith('http')
+                                  ? CachedNetworkImageProvider(user.avatar)
+                                        as ImageProvider
+                                  : FileImage(File(user.avatar)))
+                            : null,
+                        child: user == null || user.avatar.isEmpty
+                            ? const Icon(Icons.person, color: Colors.grey)
+                            : null,
                       ),
                     ),
                   ],

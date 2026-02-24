@@ -138,6 +138,32 @@ class _AttendanceScreenState extends State<AttendanceScreen> {
                           padding: EdgeInsets.all(20),
                           child: CircularProgressIndicator(),
                         )
+                      : context.watch<StudentProvider>().errorMessage != null
+                      ? Padding(
+                          padding: const EdgeInsets.all(20),
+                          child: Column(
+                            children: [
+                              Icon(
+                                Icons.wifi_off_rounded,
+                                size: 48,
+                                color: Colors.grey[400],
+                              ),
+                              const SizedBox(height: 16),
+                              Text(
+                                context.watch<StudentProvider>().errorMessage!,
+                                textAlign: TextAlign.center,
+                                style: TextStyle(color: Colors.grey[600]),
+                              ),
+                              const SizedBox(height: 16),
+                              ElevatedButton(
+                                onPressed: () => context
+                                    .read<StudentProvider>()
+                                    .fetchStudentData(),
+                                child: const Text('Reintentar'),
+                              ),
+                            ],
+                          ),
+                        )
                       : _buildCalendarGrid(
                           textColor,
                           context.watch<StudentProvider>().attendanceRecords,

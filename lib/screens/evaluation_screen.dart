@@ -70,6 +70,31 @@ class _EvaluationScreenState extends State<EvaluationScreen> {
 
                 if (appProv.isLoading)
                   const Center(child: CircularProgressIndicator())
+                else if (appProv.errorMessage != null)
+                  Center(
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        const SizedBox(height: 40),
+                        Icon(
+                          Icons.wifi_off_rounded,
+                          size: 64,
+                          color: Colors.grey[400],
+                        ),
+                        const SizedBox(height: 16),
+                        Text(
+                          appProv.errorMessage!,
+                          style: TextStyle(color: Colors.grey[600]),
+                        ),
+                        const SizedBox(height: 16),
+                        ElevatedButton(
+                          onPressed: () =>
+                              context.read<AppProvider>().fetchAppData(),
+                          child: const Text('Reintentar'),
+                        ),
+                      ],
+                    ),
+                  )
                 else
                   ...appProv.evaluationTeam
                       .asMap()
