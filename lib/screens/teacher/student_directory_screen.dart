@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:criterium/screens/chat_screen.dart';
 import 'package:criterium/theme/app_theme.dart';
+import 'package:provider/provider.dart';
+import 'package:criterium/providers/teacher_provider.dart';
 
 class StudentDirectoryScreen extends StatefulWidget {
   const StudentDirectoryScreen({super.key});
@@ -13,130 +16,34 @@ class StudentDirectoryScreen extends StatefulWidget {
 class _StudentDirectoryScreenState extends State<StudentDirectoryScreen> {
   String _searchQuery = '';
 
-  static final List<Map<String, String>> _students = [
-    {
-      'name': 'Ana García Martínez',
-      'id': 'MAT-2024-001',
-      'grade': '10-A',
-      'avg': '9.8',
-    },
-    {
-      'name': 'Luis Mendoza Rivera',
-      'id': 'MAT-2024-002',
-      'grade': '10-A',
-      'avg': '9.7',
-    },
-    {
-      'name': 'Sofía Hernández Díaz',
-      'id': 'MAT-2024-003',
-      'grade': '10-B',
-      'avg': '9.6',
-    },
-    {
-      'name': 'Marco Torres Vega',
-      'id': 'MAT-2024-004',
-      'grade': '10-A',
-      'avg': '9.5',
-    },
-    {
-      'name': 'Valentina Díaz López',
-      'id': 'MAT-2024-005',
-      'grade': '10-B',
-      'avg': '9.5',
-    },
-    {
-      'name': 'Diego Ramírez Soto',
-      'id': 'MAT-2024-006',
-      'grade': '10-C',
-      'avg': '9.4',
-    },
-    {
-      'name': 'Carlos Ruiz Peña',
-      'id': 'MAT-2024-007',
-      'grade': '10-A',
-      'avg': '8.0',
-    },
-    {
-      'name': 'María López Herrera',
-      'id': 'MAT-2024-008',
-      'grade': '10-B',
-      'avg': '7.8',
-    },
-    {
-      'name': 'Jorge Vargas Moreno',
-      'id': 'MAT-2024-009',
-      'grade': '10-C',
-      'avg': '7.5',
-    },
-    {
-      'name': 'Lucía Romero Cruz',
-      'id': 'MAT-2024-010',
-      'grade': '10-A',
-      'avg': '7.3',
-    },
-    {
-      'name': 'Pablo Moreno Silva',
-      'id': 'MAT-2024-011',
-      'grade': '10-B',
-      'avg': '7.2',
-    },
-    {
-      'name': 'Camila Ríos Navarro',
-      'id': 'MAT-2024-012',
-      'grade': '10-C',
-      'avg': '7.1',
-    },
-    {
-      'name': 'Tomás Herrera Flores',
-      'id': 'MAT-2024-013',
-      'grade': '10-A',
-      'avg': '7.0',
-    },
-    {
-      'name': 'Isabella Cruz Salazar',
-      'id': 'MAT-2024-014',
-      'grade': '10-B',
-      'avg': '7.0',
-    },
-    {
-      'name': 'Elena Soto Ramírez',
-      'id': 'MAT-2024-015',
-      'grade': '10-C',
-      'avg': '6.2',
-    },
-    {
-      'name': 'Andrés López Mora',
-      'id': 'MAT-2024-016',
-      'grade': '10-A',
-      'avg': '5.8',
-    },
-    {
-      'name': 'Fernanda Mora Ortega',
-      'id': 'MAT-2024-017',
-      'grade': '10-B',
-      'avg': '5.5',
-    },
-    {
-      'name': 'Ricardo Navarro Díaz',
-      'id': 'MAT-2024-018',
-      'grade': '10-C',
-      'avg': '4.9',
-    },
-  ];
+  @override
+  void initState() {
+    super.initState();
+    Future.microtask(() => context.read<TeacherProvider>().fetchTeacherData());
+  }
 
-  List<Map<String, String>> get _filteredStudents {
-    if (_searchQuery.isEmpty) return _students;
-    return _students
+  List<Map<String, dynamic>> _getFilteredStudents(
+    List<Map<String, dynamic>> allStudents,
+  ) {
+    if (_searchQuery.isEmpty) return allStudents;
+    return allStudents
         .where(
           (s) =>
-              s['name']!.toLowerCase().contains(_searchQuery.toLowerCase()) ||
-              s['id']!.toLowerCase().contains(_searchQuery.toLowerCase()),
+              s['name'].toString().toLowerCase().contains(
+                _searchQuery.toLowerCase(),
+              ) ||
+              s['id'].toString().toLowerCase().contains(
+                _searchQuery.toLowerCase(),
+              ),
         )
         .toList();
   }
 
   @override
   Widget build(BuildContext context) {
+    final provider = context.watch<TeacherProvider>();
+    final filteredList = _getFilteredStudents(provider.students);
+
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final bgColor = Theme.of(context).scaffoldBackgroundColor;
     final cardColor = Theme.of(context).cardColor;
@@ -190,41 +97,74 @@ class _StudentDirectoryScreenState extends State<StudentDirectoryScreen> {
           ),
 
           // Count
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 24),
-            child: Align(
-              alignment: Alignment.centerLeft,
-              child: Text(
-                '${_filteredStudents.length} alumnos',
-                style: TextStyle(
-                  fontSize: 13,
-                  fontWeight: FontWeight.w600,
-                  color: Colors.grey[500],
+          if (!provider.isLoading)
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 24),
+              child: Align(
+                alignment: Alignment.centerLeft,
+                child: Text(
+                  '${filteredList.length} alumnos',
+                  style: TextStyle(
+                    fontSize: 13,
+                    fontWeight: FontWeight.w600,
+                    color: Colors.grey[500],
+                  ),
                 ),
               ),
             ),
-          ),
           const SizedBox(height: 8),
 
           // List
           Expanded(
-            child: ListView.builder(
-              padding: const EdgeInsets.symmetric(horizontal: 20),
-              itemCount: _filteredStudents.length,
-              itemBuilder: (context, index) {
-                final student = _filteredStudents[index];
-                return _buildStudentTile(student, index);
-              },
-            ),
+            child: provider.isLoading
+                ? const Center(child: CircularProgressIndicator())
+                : provider.errorMessage != null
+                ? Center(
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Icon(
+                          Icons.cloud_off,
+                          size: 64,
+                          color: Colors.grey[400],
+                        ),
+                        const SizedBox(height: 16),
+                        Text(
+                          provider.errorMessage!,
+                          textAlign: TextAlign.center,
+                          style: TextStyle(color: Colors.grey[600]),
+                        ),
+                        const SizedBox(height: 16),
+                        ElevatedButton(
+                          onPressed: () => context
+                              .read<TeacherProvider>()
+                              .fetchTeacherData(),
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: AppTheme.navyBlue,
+                            foregroundColor: Colors.white,
+                          ),
+                          child: const Text('Reintentar'),
+                        ),
+                      ],
+                    ),
+                  )
+                : ListView.builder(
+                    padding: const EdgeInsets.symmetric(horizontal: 20),
+                    itemCount: filteredList.length,
+                    itemBuilder: (context, index) {
+                      final student = filteredList[index];
+                      return _buildStudentTile(student, index);
+                    },
+                  ),
           ),
         ],
       ),
     );
   }
 
-  Widget _buildStudentTile(Map<String, String> student, int index) {
+  Widget _buildStudentTile(Map<String, dynamic> student, int index) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    final double avgValue = double.tryParse(student['avg']!) ?? 0;
+    final double avgValue = double.tryParse(student['avg'].toString()) ?? 0;
     final Color avgColor = avgValue >= 9.0
         ? const Color(0xFF2EC4B6)
         : avgValue >= 7.0
@@ -251,7 +191,7 @@ class _StudentDirectoryScreenState extends State<StudentDirectoryScreen> {
           CircleAvatar(
             radius: 24,
             backgroundColor: AppTheme.navyBlue.withOpacity(0.08),
-            backgroundImage: NetworkImage(
+            backgroundImage: CachedNetworkImageProvider(
               'https://i.pravatar.cc/100?img=${(index % 70) + 1}',
             ),
           ),

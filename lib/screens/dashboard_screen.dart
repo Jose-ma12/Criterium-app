@@ -8,6 +8,9 @@ import 'package:criterium/screens/qr_scanner_screen.dart';
 import 'package:criterium/screens/reports_screen.dart';
 import 'package:criterium/screens/notifications_screen.dart';
 import 'package:criterium/theme/app_theme.dart';
+import 'package:provider/provider.dart';
+import 'package:criterium/providers/dashboard_provider.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 
 class DashboardScreen extends StatefulWidget {
   final bool isTeacher;
@@ -19,6 +22,16 @@ class DashboardScreen extends StatefulWidget {
 
 class _DashboardScreenState extends State<DashboardScreen> {
   int _selectedIndex = 0;
+
+  @override
+  void initState() {
+    super.initState();
+    Future.microtask(
+      () => context.read<DashboardProvider>().fetchDashboardData(
+        widget.isTeacher,
+      ),
+    );
+  }
 
   /// Lista de páginas que se muestran según el índice del BottomNavigationBar.
   /// Se construye en build() porque depende del contexto y del rol.
@@ -123,6 +136,52 @@ class _DashboardScreenState extends State<DashboardScreen> {
   /// Vista principal del Dashboard (antes era todo el body).
   /// Se extrajo para poder usarla como una página dentro de _pages.
   Widget _buildDashboardView() {
+    final dashboardProv = context.watch<DashboardProvider>();
+
+    if (dashboardProv.isLoading) {
+      return const Center(child: CircularProgressIndicator());
+    }
+
+    if (dashboardProv.errorMessage != null) {
+      return Center(
+        child: Padding(
+          padding: const EdgeInsets.all(32.0),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(Icons.wifi_off_rounded, size: 80, color: Colors.grey[400]),
+              const SizedBox(height: 16),
+              Text(
+                dashboardProv.errorMessage!,
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  fontSize: 16,
+                  color: Colors.grey[600],
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
+              const SizedBox(height: 24),
+              ElevatedButton.icon(
+                onPressed: () => context
+                    .read<DashboardProvider>()
+                    .fetchDashboardData(widget.isTeacher),
+                icon: const Icon(Icons.refresh),
+                label: const Text('Reintentar'),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: AppTheme.navyBlue,
+                  foregroundColor: Colors.white,
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 24,
+                    vertical: 12,
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+      );
+    }
+
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final cardColor = Theme.of(context).cardColor;
     final textColor = isDark ? Colors.white : AppTheme.navyBlue;
@@ -224,7 +283,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                       },
                       child: CircleAvatar(
                         radius: 20,
-                        backgroundImage: NetworkImage(
+                        backgroundImage: CachedNetworkImageProvider(
                           widget.isTeacher
                               ? 'https://i.pravatar.cc/150?img=11'
                               : 'https://i.pravatar.cc/100?img=5',
@@ -255,47 +314,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                           : 'Materias Excelentes',
                       color: const Color(0xFF2EC4B6),
                       icon: widget.isTeacher ? Icons.emoji_events : Icons.star,
-                      items: widget.isTeacher
-                          ? [
-                              {'name': 'Ana García', 'detail': 'Promedio: 9.8'},
-                              {
-                                'name': 'Luis Mendoza',
-                                'detail': 'Promedio: 9.7',
-                              },
-                              {
-                                'name': 'Sofía Hernández',
-                                'detail': 'Promedio: 9.6',
-                              },
-                              {
-                                'name': 'Marco Torres',
-                                'detail': 'Promedio: 9.5',
-                              },
-                              {
-                                'name': 'Valentina Díaz',
-                                'detail': 'Promedio: 9.5',
-                              },
-                              {
-                                'name': 'Diego Ramírez',
-                                'detail': 'Promedio: 9.4',
-                              },
-                            ]
-                          : [
-                              {'name': 'Matemáticas', 'detail': '10/10'},
-                              {
-                                'name': 'Historia Universal',
-                                'detail': '9.8/10',
-                              },
-                              {'name': 'Lengua Española', 'detail': '9.7/10'},
-                              {'name': 'Biología', 'detail': '9.5/10'},
-                              {'name': 'Educación Física', 'detail': '9.5/10'},
-                              {'name': 'Ética y Valores', 'detail': '9.4/10'},
-                              {'name': 'Artes Visuales', 'detail': '9.4/10'},
-                              {'name': 'Tecnología', 'detail': '9.3/10'},
-                              {'name': 'Música', 'detail': '9.3/10'},
-                              {'name': 'Civismo', 'detail': '9.2/10'},
-                              {'name': 'Tutoría', 'detail': '9.1/10'},
-                              {'name': 'Lectura', 'detail': '9.0/10'},
-                            ],
+                      items: dashboardProv.stat1List,
                     );
                   },
                 ),
@@ -315,70 +334,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                       icon: widget.isTeacher
                           ? Icons.trending_flat
                           : Icons.schedule,
-                      items: widget.isTeacher
-                          ? [
-                              {
-                                'name': 'Carlos Ruiz',
-                                'detail': 'Promedio: 8.0',
-                              },
-                              {
-                                'name': 'María López',
-                                'detail': 'Promedio: 7.8',
-                              },
-                              {
-                                'name': 'Jorge Vargas',
-                                'detail': 'Promedio: 7.5',
-                              },
-                              {
-                                'name': 'Lucía Romero',
-                                'detail': 'Promedio: 7.3',
-                              },
-                              {
-                                'name': 'Pablo Moreno',
-                                'detail': 'Promedio: 7.2',
-                              },
-                              {
-                                'name': 'Camila Ríos',
-                                'detail': 'Promedio: 7.1',
-                              },
-                              {
-                                'name': 'Tomás Herrera',
-                                'detail': 'Promedio: 7.0',
-                              },
-                              {
-                                'name': 'Isabella Cruz',
-                                'detail': 'Promedio: 7.0',
-                              },
-                              {
-                                'name': 'Mateo Salazar',
-                                'detail': 'Promedio: 6.9',
-                              },
-                              {
-                                'name': 'Renata Flores',
-                                'detail': 'Promedio: 6.8',
-                              },
-                              {
-                                'name': 'Emilio Ortega',
-                                'detail': 'Promedio: 6.7',
-                              },
-                              {
-                                'name': 'Daniela Peña',
-                                'detail': 'Promedio: 6.5',
-                              },
-                            ]
-                          : [
-                              {
-                                'name': 'Ciencias Naturales',
-                                'detail': '8.0/10',
-                              },
-                              {'name': 'Educación Física', 'detail': '7.8/10'},
-                              {
-                                'name': 'Historia',
-                                'detail': 'Tarea para mañana',
-                              },
-                              {'name': 'Geografía', 'detail': '7.5/10'},
-                              {'name': 'Inglés', 'detail': 'Examen pendiente'},
-                            ],
+                      items: dashboardProv.stat2List,
                     );
                   },
                 ),
@@ -398,32 +354,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                       icon: widget.isTeacher
                           ? Icons.warning_amber_rounded
                           : Icons.trending_down,
-                      items: widget.isTeacher
-                          ? [
-                              {
-                                'name': 'Elena Soto',
-                                'detail': '3 Faltas - Promedio: 6.2',
-                              },
-                              {
-                                'name': 'Andrés López',
-                                'detail': '5 Faltas - Promedio: 5.8',
-                              },
-                              {
-                                'name': 'Fernanda Mora',
-                                'detail': '4 Faltas - Promedio: 5.5',
-                              },
-                              {
-                                'name': 'Ricardo Navarro',
-                                'detail': '6 Faltas - Promedio: 4.9',
-                              },
-                            ]
-                          : [
-                              {'name': 'Química', 'detail': '6.5/10'},
-                              {
-                                'name': 'Física',
-                                'detail': '6.0/10 - 2 tareas sin entregar',
-                              },
-                            ],
+                      items: dashboardProv.stat3List,
                     );
                   },
                 ),
@@ -1029,7 +960,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                     children: [
                       const CircleAvatar(
                         radius: 12,
-                        backgroundImage: NetworkImage(
+                        backgroundImage: CachedNetworkImageProvider(
                           'https://i.pravatar.cc/100?img=1',
                         ),
                       ),
@@ -1037,7 +968,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                         offset: const Offset(-8, 0),
                         child: const CircleAvatar(
                           radius: 12,
-                          backgroundImage: NetworkImage(
+                          backgroundImage: CachedNetworkImageProvider(
                             'https://i.pravatar.cc/100?img=2',
                           ),
                         ),
@@ -1046,7 +977,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                         offset: const Offset(-16, 0),
                         child: const CircleAvatar(
                           radius: 12,
-                          backgroundImage: NetworkImage(
+                          backgroundImage: CachedNetworkImageProvider(
                             'https://i.pravatar.cc/100?img=3',
                           ),
                         ),

@@ -1,34 +1,59 @@
 import 'package:flutter/material.dart';
 import 'package:criterium/theme/app_theme.dart';
+import 'package:provider/provider.dart';
+import 'package:criterium/providers/teacher_provider.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 
 class RubricBuilderScreen extends StatefulWidget {
-  const RubricBuilderScreen({super.key});
+  final String title;
+  final String description;
+  final String dueDate;
+  final String className;
+
+  const RubricBuilderScreen({
+    super.key,
+    required this.title,
+    required this.description,
+    required this.dueDate,
+    required this.className,
+  });
 
   @override
   State<RubricBuilderScreen> createState() => _RubricBuilderScreenState();
 }
 
 class _RubricBuilderScreenState extends State<RubricBuilderScreen> {
-  final List<Map<String, dynamic>> _criteria = [
-    {
-      'title': 'Ortografía',
-      'score': 10,
-      'image':
-          'https://images.unsplash.com/photo-1455390582262-044cdead277a?auto=format&fit=crop&q=80&w=150&h=150',
-    },
-    {
-      'title': 'Contenido',
-      'score': 50,
-      'image':
-          'https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?auto=format&fit=crop&q=80&w=150&h=150',
-    },
-    {
-      'title': 'Creatividad',
-      'score': 20,
-      'image':
-          'https://images.unsplash.com/photo-1513364776144-60967b0f800f?auto=format&fit=crop&q=80&w=150&h=150',
-    },
-  ];
+  bool _isLoading = false;
+
+  Future<void> _crearTarea() async {
+    setState(() => _isLoading = true);
+    try {
+      final success = await context.read<TeacherProvider>().createAssignment(
+        title: widget.title,
+        description: widget.description,
+        dueDate: widget.dueDate,
+        className: widget.className,
+        rubric: _criteria,
+      );
+
+      if (!mounted) return;
+
+      if (success) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('✅ Tarea guardada exitosamente')),
+        );
+        Navigator.popUntil(context, (route) => route.isFirst);
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Error al conectar con el servidor')),
+        );
+      }
+    } finally {
+      if (mounted) setState(() => _isLoading = false);
+    }
+  }
+
+  final List<Map<String, dynamic>> _criteria = [];
 
   int get _totalScore =>
       _criteria.fold<int>(0, (sum, c) => sum + (c['score'] as int));
@@ -499,14 +524,7 @@ class _RubricBuilderScreenState extends State<RubricBuilderScreen> {
                     ),
                   ),
                   child: ElevatedButton(
-                    onPressed: () {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(
-                          content: Text('Tarea creada y publicada con éxito'),
-                        ),
-                      );
-                      Navigator.popUntil(context, (route) => route.isFirst);
-                    },
+                    onPressed: _isLoading ? null : _crearTarea,
                     style: ElevatedButton.styleFrom(
                       backgroundColor: Colors.transparent,
                       shadowColor: Colors.transparent,
@@ -515,25 +533,34 @@ class _RubricBuilderScreenState extends State<RubricBuilderScreen> {
                         borderRadius: BorderRadius.circular(30),
                       ),
                     ),
-                    child: const Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Text(
-                          'Guardar y publicar tarea',
-                          style: TextStyle(
-                            fontSize: 16,
-                            fontWeight: FontWeight.bold,
-                            color: Colors.white,
+                    child: _isLoading
+                        ? const SizedBox(
+                            width: 24,
+                            height: 24,
+                            child: CircularProgressIndicator(
+                              color: Colors.white,
+                              strokeWidth: 2,
+                            ),
+                          )
+                        : const Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Text(
+                                'Guardar y publicar tarea',
+                                style: TextStyle(
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.white,
+                                ),
+                              ),
+                              SizedBox(width: 8),
+                              Icon(
+                                Icons.rocket_launch,
+                                color: Colors.white,
+                                size: 20,
+                              ),
+                            ],
                           ),
-                        ),
-                        SizedBox(width: 8),
-                        Icon(
-                          Icons.rocket_launch,
-                          color: Colors.white,
-                          size: 20,
-                        ),
-                      ],
-                    ),
                   ),
                 ),
 
@@ -682,26 +709,39 @@ class _RubricBuilderScreenState extends State<RubricBuilderScreen> {
           const SizedBox(width: 16),
           ClipRRect(
             borderRadius: BorderRadius.circular(12),
-            child: Image.network(
-              imageUrl,
+            child: CachedNetworkImage(
+              imageUrl: imageUrl,
               width: 80,
               height: 80,
               fit: BoxFit.cover,
-              errorBuilder: (context, error, stackTrace) {
-                return Container(
-                  width: 80,
-                  height: 80,
-                  decoration: BoxDecoration(
-                    color: Colors.grey[200],
-                    borderRadius: BorderRadius.circular(12),
+              placeholder: (context, url) => Container(
+                width: 80,
+                height: 80,
+                decoration: BoxDecoration(
+                  color: Colors.grey[200],
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: const Center(
+                  child: SizedBox(
+                    width: 24,
+                    height: 24,
+                    child: CircularProgressIndicator(strokeWidth: 2),
                   ),
-                  child: const Icon(
-                    Icons.broken_image,
-                    color: Colors.grey,
-                    size: 32,
-                  ),
-                );
-              },
+                ),
+              ),
+              errorWidget: (context, url, error) => Container(
+                width: 80,
+                height: 80,
+                decoration: BoxDecoration(
+                  color: Colors.grey[200],
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: const Icon(
+                  Icons.broken_image,
+                  color: Colors.grey,
+                  size: 32,
+                ),
+              ),
             ),
           ),
         ],

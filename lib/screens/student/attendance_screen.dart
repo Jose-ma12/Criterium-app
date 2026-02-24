@@ -1,14 +1,27 @@
 import 'package:flutter/material.dart';
 import 'package:criterium/theme/app_theme.dart';
+import 'package:provider/provider.dart';
+import 'package:criterium/providers/student_provider.dart';
 
-class AttendanceScreen extends StatelessWidget {
+class AttendanceScreen extends StatefulWidget {
   const AttendanceScreen({super.key});
 
+  @override
+  State<AttendanceScreen> createState() => _AttendanceScreenState();
+}
+
+class _AttendanceScreenState extends State<AttendanceScreen> {
   // ── Colores del código de asistencia ──
   static const Color _greenAttendance = Color(0xFF2ECC71);
   static const Color _redAbsence = Color(0xFFE74C3C);
   static const Color _orangeTardy = Color(0xFFF39C12);
   static const Color _greyInactive = Color(0xFFD1D5DB);
+
+  @override
+  void initState() {
+    super.initState();
+    Future.microtask(() => context.read<StudentProvider>().fetchStudentData());
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -120,7 +133,15 @@ class AttendanceScreen extends StatelessWidget {
                   const SizedBox(height: 8),
 
                   // Grid de días — Febrero 2026 empieza Domingo
-                  _buildCalendarGrid(textColor),
+                  context.watch<StudentProvider>().isLoading
+                      ? const Padding(
+                          padding: EdgeInsets.all(20),
+                          child: CircularProgressIndicator(),
+                        )
+                      : _buildCalendarGrid(
+                          textColor,
+                          context.watch<StudentProvider>().attendanceRecords,
+                        ),
                 ],
               ),
             ),
@@ -239,21 +260,7 @@ class AttendanceScreen extends StatelessWidget {
 
   // ── Calendar Grid ──
   // Febrero 2026: empieza Domingo (offset 6 en lun-dom), 28 días
-  Widget _buildCalendarGrid(Color textColor) {
-    // Mock data de asistencia para febrero 2026
-    // 0=Asistencia, 1=Falta, 2=Retardo, 3=Inhábil (fin de semana)
-    final Map<int, int> attendance = {
-      1: 3, // Dom -> inhábil
-      2: 0, 3: 0, 4: 0, 5: 2, 6: 0, // Lun-Vie semana 1 (retardo día 5)
-      7: 3, 8: 3, // Sáb-Dom
-      9: 0, 10: 0, 11: 0, 12: 2, 13: 0, // Lun-Vie semana 2 (retardo día 12)
-      14: 3, 15: 3, // Sáb-Dom
-      16: 0, 17: 0, 18: 0, 19: 0, 20: 0, // semana 3
-      21: 3, 22: 3, // Sáb-Dom
-      23: 0, 24: 0, 25: 0, 26: 0, 27: 0, // semana 4
-      28: 3, // Sáb
-    };
-
+  Widget _buildCalendarGrid(Color textColor, Map<int, int> attendance) {
     // Febrero 2026 empieza Domingo → offset = 6 (6 celdas vacías antes del día 1 en grid Lun-Dom)
     const int offset = 6;
     const int daysInMonth = 28;

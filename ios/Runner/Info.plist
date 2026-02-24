@@ -46,8 +46,8 @@
 	<key>UIApplicationSupportsIndirectInputEvents</key>
 	<true/>
 	<key>NSCameraUsageDescription</key>
-	<string>Criterium necesita acceso a la cámara para escanear códigos QR de asistencia.</string>
+	<string>Criterium necesita acceso a la cámara para escanear los códigos QR de asistencia y actualizar la foto de perfil.</string>
 	<key>NSPhotoLibraryUsageDescription</key>
-	<string>Criterium necesita acceso a tu galería para cambiar la foto de perfil.</string>
+	<string>Criterium necesita acceso a la galería para que puedas seleccionar y actualizar tu foto de perfil.</string>
 </dict>
 </plist>

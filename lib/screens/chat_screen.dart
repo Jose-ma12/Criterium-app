@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:criterium/theme/app_theme.dart';
+import 'package:provider/provider.dart';
+import 'package:criterium/providers/app_provider.dart';
 
 class ChatScreen extends StatefulWidget {
   final String studentName;
@@ -20,51 +23,23 @@ class _ChatScreenState extends State<ChatScreen> {
   final TextEditingController _msgController = TextEditingController();
   final ScrollController _scrollController = ScrollController();
 
-  late final List<Map<String, dynamic>> _messages;
-
   @override
   void initState() {
     super.initState();
-    _messages = [
-      {
-        'text':
-            'Hola ${widget.studentName.split(' ').first}, noté que no entregaste la última tarea. ¿Todo bien?',
-        'isMe': true,
-        'time': '10:30 AM',
-      },
-      {
-        'text':
-            'Hola profe, tuve problemas con el internet. La subo hoy mismo, disculpe la demora.',
-        'isMe': false,
-        'time': '10:32 AM',
-      },
-      {
-        'text':
-            'No te preocupes, pero trata de entregarla antes de las 6 PM para que no afecte tu calificación.',
-        'isMe': true,
-        'time': '10:33 AM',
-      },
-      {
-        'text': '¡Perfecto! Muchas gracias por la comprensión. 🙏',
-        'isMe': false,
-        'time': '10:35 AM',
-      },
-    ];
+    Future.microtask(() => context.read<AppProvider>().fetchAppData());
   }
 
   void _sendMessage() {
     final text = _msgController.text.trim();
     if (text.isEmpty) return;
 
-    setState(() {
-      final now = TimeOfDay.now();
-      final hour = now.hourOfPeriod == 0 ? 12 : now.hourOfPeriod;
-      final period = now.period == DayPeriod.am ? 'AM' : 'PM';
-      final timeStr = '$hour:${now.minute.toString().padLeft(2, '0')} $period';
+    final now = TimeOfDay.now();
+    final hour = now.hourOfPeriod == 0 ? 12 : now.hourOfPeriod;
+    final period = now.period == DayPeriod.am ? 'AM' : 'PM';
+    final timeStr = '$hour:${now.minute.toString().padLeft(2, '0')} $period';
 
-      _messages.add({'text': text, 'isMe': true, 'time': timeStr});
-      _msgController.clear();
-    });
+    context.read<AppProvider>().sendMessage(widget.studentName, text, timeStr);
+    _msgController.clear();
 
     Future.delayed(const Duration(milliseconds: 100), () {
       if (_scrollController.hasClients) {
@@ -105,7 +80,7 @@ class _ChatScreenState extends State<ChatScreen> {
           children: [
             CircleAvatar(
               radius: 18,
-              backgroundImage: NetworkImage(widget.studentAvatar),
+              backgroundImage: CachedNetworkImageProvider(widget.studentAvatar),
               backgroundColor: AppTheme.navyBlue.withOpacity(0.08),
             ),
             const SizedBox(width: 12),
@@ -146,21 +121,32 @@ class _ChatScreenState extends State<ChatScreen> {
         children: [
           // Messages
           Expanded(
-            child: ListView.builder(
-              controller: _scrollController,
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-              itemCount: _messages.length,
-              itemBuilder: (context, index) {
-                final msg = _messages[index];
-                final isMe = msg['isMe'] as bool;
-                return _buildBubble(
-                  context,
-                  msg['text'] as String,
-                  msg['time'] as String,
-                  isMe,
-                );
-              },
-            ),
+            child: context.watch<AppProvider>().isLoading
+                ? const Center(child: CircularProgressIndicator())
+                : ListView.builder(
+                    controller: _scrollController,
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 16,
+                      vertical: 12,
+                    ),
+                    itemCount: context
+                        .watch<AppProvider>()
+                        .getChatFor(widget.studentName)
+                        .length,
+                    itemBuilder: (context, index) {
+                      final chatMessages = context
+                          .watch<AppProvider>()
+                          .getChatFor(widget.studentName);
+                      final msg = chatMessages[index];
+                      final isMe = msg['isMe'] as bool;
+                      return _buildBubble(
+                        context,
+                        msg['text'] as String,
+                        msg['time'] as String,
+                        isMe,
+                      );
+                    },
+                  ),
           ),
 
           // Input

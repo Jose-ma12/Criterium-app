@@ -1,6 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:criterium/screens/grade_success_screen.dart';
 import 'package:criterium/theme/app_theme.dart';
+import 'package:criterium/utils/pdf_generator.dart';
+import 'package:provider/provider.dart';
+import 'package:criterium/providers/teacher_provider.dart';
 
 class SubmissionsScreen extends StatefulWidget {
   final String className;
@@ -19,65 +23,25 @@ class _SubmissionsScreenState extends State<SubmissionsScreen> {
   String _selectedFilter = 'Todos';
   String _searchQuery = '';
 
-  // Datos simulados
-  final List<Map<String, dynamic>> _students = [
-    {
-      'name': 'Juan Pérez',
-      'avatar': 'https://i.pravatar.cc/150?img=12',
-      'status': 'Pendiente',
-      'time': 'Hace 2h',
-      'grade': null,
-    },
-    {
-      'name': 'María García',
-      'avatar': 'https://i.pravatar.cc/150?img=5',
-      'status': 'Calificado',
-      'time': null,
-      'grade': 95,
-    },
-    {
-      'name': 'Carlos Ruiz',
-      'avatar': 'https://i.pravatar.cc/150?img=3',
-      'status': 'Calificado',
-      'time': null,
-      'grade': 82,
-    },
-    {
-      'name': 'Elena Soto',
-      'avatar': 'https://i.pravatar.cc/150?img=9',
-      'status': 'Sin Entregar',
-      'time': null,
-      'grade': null,
-    },
-    {
-      'name': 'Diego Martínez',
-      'avatar': 'https://i.pravatar.cc/150?img=7',
-      'status': 'Tardía',
-      'time': 'Hace 1d',
-      'grade': null,
-    },
-    {
-      'name': 'Sofía Hernández',
-      'avatar': 'https://i.pravatar.cc/150?img=25',
-      'status': 'Tardía',
-      'time': 'Hace 3d',
-      'grade': null,
-    },
-    {
-      'name': 'Andrés López',
-      'avatar': 'https://i.pravatar.cc/150?img=14',
-      'status': 'Pendiente',
-      'time': 'Hace 5h',
-      'grade': null,
-    },
-  ];
+  @override
+  void initState() {
+    super.initState();
+    Future.microtask(() {
+      final provider = context.read<TeacherProvider>();
+      if (provider.submissions.isEmpty || provider.classes.isEmpty) {
+        provider.fetchTeacherData();
+      }
+    });
+  }
 
-  List<Map<String, dynamic>> get _filteredStudents {
+  List<Map<String, dynamic>> _filteredStudents(
+    List<Map<String, dynamic>> submissions,
+  ) {
     List<Map<String, dynamic>> result;
 
     switch (_selectedFilter) {
       case 'Pendientes':
-        result = _students
+        result = submissions
             .where(
               (s) =>
                   s['status'] == 'Pendiente' || s['status'] == 'Sin Entregar',
@@ -85,13 +49,13 @@ class _SubmissionsScreenState extends State<SubmissionsScreen> {
             .toList();
         break;
       case 'Calificadas':
-        result = _students.where((s) => s['status'] == 'Calificado').toList();
+        result = submissions.where((s) => s['status'] == 'Calificado').toList();
         break;
       case 'Tardías':
-        result = _students.where((s) => s['status'] == 'Tardía').toList();
+        result = submissions.where((s) => s['status'] == 'Tardía').toList();
         break;
       default:
-        result = List.from(_students);
+        result = List.from(submissions);
     }
 
     if (_searchQuery.isNotEmpty) {
@@ -107,6 +71,7 @@ class _SubmissionsScreenState extends State<SubmissionsScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final teacherProv = context.watch<TeacherProvider>();
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final bgColor = Theme.of(context).scaffoldBackgroundColor;
     final cardColor = Theme.of(context).cardColor;
@@ -133,7 +98,7 @@ class _SubmissionsScreenState extends State<SubmissionsScreen> {
         actions: [
           IconButton(
             icon: Icon(Icons.more_horiz, color: textColor),
-            onPressed: () => _showOptionsMenu(context),
+            onPressed: () => _showOptionsMenu(context, teacherProv),
           ),
         ],
       ),
@@ -192,14 +157,45 @@ class _SubmissionsScreenState extends State<SubmissionsScreen> {
           ),
 
           Expanded(
-            child: ListView.builder(
-              padding: const EdgeInsets.all(16),
-              itemCount: _filteredStudents.length,
-              itemBuilder: (context, index) {
-                final student = _filteredStudents[index];
-                return _buildStudentCard(context, student);
-              },
-            ),
+            child: teacherProv.isLoading
+                ? const Center(child: CircularProgressIndicator())
+                : teacherProv.errorMessage != null
+                ? Center(
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Icon(
+                          Icons.wifi_off_rounded,
+                          size: 64,
+                          color: Colors.grey[400],
+                        ),
+                        const SizedBox(height: 16),
+                        Text(
+                          teacherProv.errorMessage!,
+                          style: TextStyle(color: Colors.grey[600]),
+                        ),
+                        const SizedBox(height: 16),
+                        ElevatedButton(
+                          onPressed: () => context
+                              .read<TeacherProvider>()
+                              .fetchTeacherData(),
+                          child: const Text('Reintentar'),
+                        ),
+                      ],
+                    ),
+                  )
+                : ListView.builder(
+                    padding: const EdgeInsets.all(16),
+                    itemCount: _filteredStudents(
+                      teacherProv.submissions,
+                    ).length,
+                    itemBuilder: (context, index) {
+                      final student = _filteredStudents(
+                        teacherProv.submissions,
+                      )[index];
+                      return _buildStudentCard(context, student);
+                    },
+                  ),
           ),
         ],
       ),
@@ -314,7 +310,7 @@ class _SubmissionsScreenState extends State<SubmissionsScreen> {
     );
   }
 
-  void _showOptionsMenu(BuildContext context) {
+  void _showOptionsMenu(BuildContext context, TeacherProvider teacherProv) {
     showModalBottomSheet(
       context: context,
       backgroundColor: Colors.transparent,
@@ -357,9 +353,52 @@ class _SubmissionsScreenState extends State<SubmissionsScreen> {
               const SizedBox(height: 12),
               _buildSheetOption(
                 ctx,
-                Icons.file_download_outlined,
-                'Exportar calificaciones a Excel',
+                Icons.picture_as_pdf_outlined,
+                'Exportar reporte en PDF',
                 const Color(0xFF2EC4B6),
+                onTap: () async {
+                  Navigator.pop(ctx);
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: const Row(
+                        children: [
+                          SizedBox(
+                            width: 18,
+                            height: 18,
+                            child: CircularProgressIndicator(
+                              strokeWidth: 2,
+                              color: Colors.white,
+                            ),
+                          ),
+                          SizedBox(width: 12),
+                          Text('Generando reporte...'),
+                        ],
+                      ),
+                      duration: const Duration(seconds: 3),
+                      behavior: SnackBarBehavior.floating,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                    ),
+                  );
+                  await PdfGenerator.generateAndShareReport(
+                    widget.className,
+                    students: _filteredStudents(teacherProv.submissions),
+                  );
+                  if (mounted) {
+                    ScaffoldMessenger.of(context).hideCurrentSnackBar();
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        content: const Text('✅ Reporte generado con éxito'),
+                        behavior: SnackBarBehavior.floating,
+                        backgroundColor: const Color(0xFF2EC4B6),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                      ),
+                    );
+                  }
+                },
               ),
               _buildSheetOption(
                 ctx,
@@ -523,7 +562,7 @@ class _SubmissionsScreenState extends State<SubmissionsScreen> {
           children: [
             CircleAvatar(
               radius: 28,
-              backgroundImage: NetworkImage(student['avatar']),
+              backgroundImage: CachedNetworkImageProvider(student['avatar']),
             ),
             const SizedBox(width: 16),
             Expanded(

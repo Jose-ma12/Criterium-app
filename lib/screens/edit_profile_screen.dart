@@ -1,6 +1,7 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:criterium/theme/app_theme.dart';
 
 class EditProfileScreen extends StatefulWidget {
@@ -9,6 +10,7 @@ class EditProfileScreen extends StatefulWidget {
   final String currentPhone;
   final String email;
   final String role;
+  final String currentAvatar;
 
   const EditProfileScreen({
     super.key,
@@ -17,6 +19,7 @@ class EditProfileScreen extends StatefulWidget {
     required this.currentPhone,
     required this.email,
     required this.role,
+    required this.currentAvatar,
   });
 
   @override
@@ -66,6 +69,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
         'name': _nameController.text.trim(),
         'bio': _bioController.text.trim(),
         'phone': _phoneController.text.trim(),
+        'avatar': _imageFile?.path,
       });
     }
   }
@@ -136,9 +140,12 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                       radius: 55,
                       backgroundImage: _imageFile != null
                           ? FileImage(_imageFile!) as ImageProvider
-                          : const NetworkImage(
-                              'https://i.pravatar.cc/150?img=5',
-                            ),
+                          : (widget.currentAvatar.startsWith('http')
+                                ? CachedNetworkImageProvider(
+                                        widget.currentAvatar,
+                                      )
+                                      as ImageProvider
+                                : FileImage(File(widget.currentAvatar))),
                     ),
                     Positioned(
                       bottom: 0,

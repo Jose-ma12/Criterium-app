@@ -1,3 +1,4 @@
+import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:criterium/screens/generic_info_screen.dart';
 import 'package:criterium/screens/login_screen.dart';
@@ -10,6 +11,9 @@ import 'package:criterium/screens/student/assignment_history_screen.dart';
 import 'package:criterium/screens/student/grades_summary_screen.dart';
 import 'package:criterium/theme/app_theme.dart';
 import 'package:criterium/main.dart';
+import 'package:provider/provider.dart';
+import 'package:criterium/providers/auth_provider.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 
 class ProfileScreen extends StatefulWidget {
   final bool isTeacher;
@@ -20,57 +24,44 @@ class ProfileScreen extends StatefulWidget {
 }
 
 class _ProfileScreenState extends State<ProfileScreen> {
-  late String _name;
-  late String _role;
-  late String _bio;
-  late String _phone;
-  late String _email;
-  late String _institution;
-
-  @override
-  void initState() {
-    super.initState();
-    if (widget.isTeacher) {
-      _name = 'Prof. Alex Rivera';
-      _role = 'Instructor Senior de Matemáticas';
-      _bio = 'Apasionado por las matemáticas y la enseñanza innovadora.';
-      _phone = '+52 55 1234 5678';
-      _email = 'alex.rivera@criterium.edu';
-    } else {
-      _name = 'Marlene López';
-      _role = 'Estudiante - 10mo Grado';
-      _bio = 'Me encanta aprender y superar retos académicos.';
-      _phone = '+52 55 9876 5432';
-      _email = 'marlene.lopez@criterium.edu';
-    }
-    _institution = 'Colegio Criterium Academy';
-  }
-
-  Future<void> _openEditProfile() async {
+  Future<void> _openEditProfile(BuildContext context, user) async {
     final result = await Navigator.push<Map<String, String>>(
       context,
       MaterialPageRoute(
         builder: (_) => EditProfileScreen(
-          currentName: _name,
-          currentBio: _bio,
-          currentPhone: _phone,
-          email: _email,
-          role: _role,
+          currentName: user.name,
+          currentBio: 'Agrega tu biografía aquí...', // Mock temporal
+          currentPhone: 'Sin teléfono', // Mock temporal
+          email: user.email,
+          role: user.role == 'teacher'
+              ? 'Instructor Senior'
+              : 'Estudiante - 10mo Grado',
+          currentAvatar: user.avatar,
         ),
       ),
     );
 
-    if (result != null && mounted) {
-      setState(() {
-        _name = result['name'] ?? _name;
-        _bio = result['bio'] ?? _bio;
-        _phone = result['phone'] ?? _phone;
-      });
+    if (result != null && context.mounted) {
+      context.read<AuthProvider>().updateUser(
+        name: result['name'] ?? user.name,
+        bio: result['bio'] ?? '',
+        phone: result['phone'] ?? '',
+        avatar: result['avatar'],
+      );
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('✅ Perfil actualizado exitosamente')),
+      );
     }
   }
 
   @override
   Widget build(BuildContext context) {
+    final user = context.watch<AuthProvider>().currentUser;
+    if (user == null) {
+      return const Scaffold(body: Center(child: CircularProgressIndicator()));
+    }
+
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final cardColor = Theme.of(context).cardColor;
     final textColor = isDark ? Colors.white : AppTheme.navyBlue;
@@ -88,7 +79,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
         actions: [
           IconButton(
             icon: Icon(Icons.edit, color: textColor),
-            onPressed: _openEditProfile,
+            onPressed: () => _openEditProfile(context, user),
           ),
         ],
         automaticallyImplyLeading: false,
@@ -109,11 +100,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   ),
                   child: CircleAvatar(
                     radius: 60,
-                    backgroundImage: NetworkImage(
-                      widget.isTeacher
-                          ? 'https://i.pravatar.cc/150?img=11'
-                          : 'https://i.pravatar.cc/150?img=5',
-                    ),
+                    backgroundImage: user.avatar.startsWith('http')
+                        ? CachedNetworkImageProvider(user.avatar)
+                              as ImageProvider
+                        : FileImage(File(user.avatar)),
                   ),
                 ),
                 Container(
@@ -133,7 +123,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
             ),
             const SizedBox(height: 16),
             Text(
-              _name,
+              user.name,
               style: TextStyle(
                 fontSize: 24,
                 fontWeight: FontWeight.bold,
@@ -142,7 +132,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
             ),
             const SizedBox(height: 4),
             Text(
-              _role,
+              user.role == 'teacher'
+                  ? 'Instructor Senior'
+                  : 'Estudiante - 10mo Grado',
               style: TextStyle(
                 fontSize: 14,
                 fontWeight: FontWeight.bold,
@@ -150,7 +142,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
               ),
             ),
             Text(
-              _institution,
+              user.institution,
               style: TextStyle(
                 fontSize: 14,
                 color: isDark ? Colors.grey[400] : Colors.grey[600],
@@ -446,6 +438,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
               width: double.infinity,
               child: TextButton.icon(
                 onPressed: () {
+                  context.read<AuthProvider>().logout();
                   Navigator.pushAndRemoveUntil(
                     context,
                     MaterialPageRoute(

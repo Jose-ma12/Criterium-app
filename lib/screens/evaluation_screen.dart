@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:criterium/screens/success_screen.dart';
 import 'package:criterium/theme/app_theme.dart';
+import 'package:provider/provider.dart';
+import 'package:criterium/providers/app_provider.dart';
 
 class EvaluationScreen extends StatefulWidget {
   const EvaluationScreen({super.key});
@@ -10,36 +13,15 @@ class EvaluationScreen extends StatefulWidget {
 }
 
 class _EvaluationScreenState extends State<EvaluationScreen> {
-  // Estado simulado para 3 compañeros
-  final List<Map<String, dynamic>> _teamMembers = [
-    {
-      'name': 'Andrea Ruiz',
-      'role': 'DESARROLLO FRONTEND',
-      'avatar': 'https://i.pravatar.cc/100?img=5', // Mujer
-      'responsibility': 85.0,
-      'technical': 92.0,
-      'selectedChips': ['Liderazgo'],
-    },
-    {
-      'name': 'Carlos Sosa',
-      'role': 'DISEÑO UX/UI',
-      'avatar': 'https://i.pravatar.cc/100?img=11', // Hombre con lentes
-      'responsibility': 60.0,
-      'technical': 75.0,
-      'selectedChips': ['Falta de comunicación'], // Chip negativo
-    },
-    {
-      'name': 'Elena Méndez',
-      'role': 'GESTIÓN DE PROYECTOS',
-      'avatar': 'https://i.pravatar.cc/100?img=9', // Mujer
-      'responsibility': 100.0,
-      'technical': 88.0,
-      'selectedChips': ['Puntualidad'],
-    },
-  ];
+  @override
+  void initState() {
+    super.initState();
+    Future.microtask(() => context.read<AppProvider>().fetchAppData());
+  }
 
   @override
   Widget build(BuildContext context) {
+    final appProv = context.watch<AppProvider>();
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final bgColor = Theme.of(context).scaffoldBackgroundColor;
     final textColor = isDark ? Colors.white : AppTheme.navyBlue;
@@ -86,9 +68,14 @@ class _EvaluationScreenState extends State<EvaluationScreen> {
                 ),
                 const SizedBox(height: 24),
 
-                ..._teamMembers
-                    .map((member) => _buildMemberCard(member))
-                    .toList(),
+                if (appProv.isLoading)
+                  const Center(child: CircularProgressIndicator())
+                else
+                  ...appProv.evaluationTeam
+                      .asMap()
+                      .entries
+                      .map((entry) => _buildMemberCard(entry.key, entry.value))
+                      .toList(),
               ],
             ),
           ),
@@ -158,7 +145,7 @@ class _EvaluationScreenState extends State<EvaluationScreen> {
     );
   }
 
-  Widget _buildMemberCard(Map<String, dynamic> member) {
+  Widget _buildMemberCard(int index, Map<String, dynamic> member) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final cardColor = Theme.of(context).cardColor;
     final textColor = isDark ? Colors.white : AppTheme.navyBlue;
@@ -184,7 +171,7 @@ class _EvaluationScreenState extends State<EvaluationScreen> {
             children: [
               CircleAvatar(
                 radius: 24,
-                backgroundImage: NetworkImage(member['avatar']),
+                backgroundImage: CachedNetworkImageProvider(member['avatar']),
               ),
               const SizedBox(width: 16),
               Column(
@@ -220,7 +207,11 @@ class _EvaluationScreenState extends State<EvaluationScreen> {
             'Responsabilidad',
             member['responsibility'],
             (val) {
-              setState(() => member['responsibility'] = val);
+              context.read<AppProvider>().updateEvaluation(
+                index,
+                'responsibility',
+                val,
+              );
             },
           ),
 
@@ -230,7 +221,11 @@ class _EvaluationScreenState extends State<EvaluationScreen> {
           _buildSliderSection(context, 'Aporte Técnico', member['technical'], (
             val,
           ) {
-            setState(() => member['technical'] = val);
+            context.read<AppProvider>().updateEvaluation(
+              index,
+              'technical',
+              val,
+            );
           }),
 
           const SizedBox(height: 24),
@@ -255,6 +250,7 @@ class _EvaluationScreenState extends State<EvaluationScreen> {
                 'Liderazgo',
                 Icons.check_circle,
                 Colors.blue,
+                index,
                 member['selectedChips'],
               ),
               _buildChip(
@@ -262,6 +258,7 @@ class _EvaluationScreenState extends State<EvaluationScreen> {
                 'Puntualidad',
                 Icons.access_time_filled,
                 Colors.green,
+                index,
                 member['selectedChips'],
               ),
               _buildChip(
@@ -269,6 +266,7 @@ class _EvaluationScreenState extends State<EvaluationScreen> {
                 'Falta de comunicación',
                 Icons.error_outline,
                 Colors.red,
+                index,
                 member['selectedChips'],
               ),
             ],
@@ -336,6 +334,7 @@ class _EvaluationScreenState extends State<EvaluationScreen> {
     String label,
     IconData icon,
     Color color,
+    int memberIndex,
     List<dynamic> selectedList,
   ) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
@@ -397,13 +396,17 @@ class _EvaluationScreenState extends State<EvaluationScreen> {
       ),
       selected: isSelected,
       onSelected: (bool selected) {
-        setState(() {
-          if (selected) {
-            selectedList.add(label);
-          } else {
-            selectedList.remove(label);
-          }
-        });
+        final currentList = List<dynamic>.from(selectedList);
+        if (selected) {
+          currentList.add(label);
+        } else {
+          currentList.remove(label);
+        }
+        context.read<AppProvider>().updateEvaluation(
+          memberIndex,
+          'selectedChips',
+          currentList,
+        );
       },
       backgroundColor: const Color(0xFFF8F9FA),
       selectedColor: backgroundColor,

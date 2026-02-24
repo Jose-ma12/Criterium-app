@@ -1,67 +1,22 @@
 import 'package:flutter/material.dart';
 import 'dart:math' as math;
 import 'package:criterium/theme/app_theme.dart';
+import 'package:provider/provider.dart';
+import 'package:criterium/providers/student_provider.dart';
 
-class GradesSummaryScreen extends StatelessWidget {
+class GradesSummaryScreen extends StatefulWidget {
   const GradesSummaryScreen({super.key});
 
-  // ── Mock Data ──
-  static final List<Map<String, dynamic>> _subjects = [
-    {
-      'name': 'Matemáticas',
-      'teacher': 'Prof. Alex Rivera',
-      'grade': 9.8,
-      'icon': Icons.calculate,
-    },
-    {
-      'name': 'Historia',
-      'teacher': 'Prof. Carmen Vega',
-      'grade': 9.5,
-      'icon': Icons.menu_book,
-    },
-    {
-      'name': 'Ciencias',
-      'teacher': 'Prof. Daniel Ortiz',
-      'grade': 10.0,
-      'icon': Icons.science,
-    },
-    {
-      'name': 'Biología',
-      'teacher': 'Prof. Laura Méndez',
-      'grade': 9.7,
-      'icon': Icons.eco,
-    },
-    {
-      'name': 'Español',
-      'teacher': 'Prof. Sofía Reyes',
-      'grade': 10.0,
-      'icon': Icons.auto_stories,
-    },
-    {
-      'name': 'Inglés',
-      'teacher': 'Prof. James Smith',
-      'grade': 9.6,
-      'icon': Icons.translate,
-    },
-    {
-      'name': 'Física',
-      'teacher': 'Prof. Roberto Díaz',
-      'grade': 9.9,
-      'icon': Icons.bolt,
-    },
-    {
-      'name': 'Ética',
-      'teacher': 'Prof. María Torres',
-      'grade': 10.0,
-      'icon': Icons.balance,
-    },
-    {
-      'name': 'Geografía',
-      'teacher': 'Prof. Andrés Luna',
-      'grade': 9.3,
-      'icon': Icons.public,
-    },
-  ];
+  @override
+  State<GradesSummaryScreen> createState() => _GradesSummaryScreenState();
+}
+
+class _GradesSummaryScreenState extends State<GradesSummaryScreen> {
+  @override
+  void initState() {
+    super.initState();
+    Future.microtask(() => context.read<StudentProvider>().fetchStudentData());
+  }
 
   static final List<Map<String, dynamic>> _softSkills = [
     {'name': 'Participación en clase', 'stars': 5},
@@ -72,10 +27,93 @@ class GradesSummaryScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final provider = context.watch<StudentProvider>();
+
+    if (provider.errorMessage != null) {
+      return Scaffold(
+        backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+        appBar: AppBar(
+          title: Text(
+            'Boleta de Calificaciones',
+            style: TextStyle(
+              color: Theme.of(context).brightness == Brightness.dark
+                  ? Colors.white
+                  : AppTheme.navyBlue,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+          centerTitle: true,
+          backgroundColor: Colors.transparent,
+          elevation: 0,
+          leading: IconButton(
+            icon: Icon(
+              Icons.arrow_back_ios,
+              color: Theme.of(context).brightness == Brightness.dark
+                  ? Colors.white
+                  : AppTheme.navyBlue,
+            ),
+            onPressed: () => Navigator.pop(context),
+          ),
+        ),
+        body: Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(Icons.wifi_off_rounded, size: 64, color: Colors.grey[400]),
+              const SizedBox(height: 16),
+              Text(
+                provider.errorMessage!,
+                style: TextStyle(color: Colors.grey[600]),
+              ),
+              const SizedBox(height: 16),
+              ElevatedButton(
+                onPressed: () =>
+                    context.read<StudentProvider>().fetchStudentData(),
+                child: const Text('Reintentar'),
+              ),
+            ],
+          ),
+        ),
+      );
+    }
+
+    if (provider.isLoading || provider.subjects.isEmpty) {
+      return Scaffold(
+        backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+        appBar: AppBar(
+          title: Text(
+            'Boleta de Calificaciones',
+            style: TextStyle(
+              color: Theme.of(context).brightness == Brightness.dark
+                  ? Colors.white
+                  : AppTheme.navyBlue,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+          centerTitle: true,
+          backgroundColor: Colors.transparent,
+          elevation: 0,
+          leading: IconButton(
+            icon: Icon(
+              Icons.arrow_back_ios,
+              color: Theme.of(context).brightness == Brightness.dark
+                  ? Colors.white
+                  : AppTheme.navyBlue,
+            ),
+            onPressed: () => Navigator.pop(context),
+          ),
+        ),
+        body: const Center(child: CircularProgressIndicator()),
+      );
+    }
+
     // Calcular promedio
-    final double average =
-        _subjects.map((s) => s['grade'] as double).reduce((a, b) => a + b) /
-        _subjects.length;
+    final double average = provider.subjects.isEmpty
+        ? 0
+        : provider.subjects
+                  .map((s) => s['grade'] as double)
+                  .reduce((a, b) => a + b) /
+              provider.subjects.length;
 
     return Scaffold(
       backgroundColor: Theme.of(context).scaffoldBackgroundColor,
@@ -213,8 +251,8 @@ class GradesSummaryScreen extends StatelessWidget {
             ),
             const SizedBox(height: 14),
 
-            ...List.generate(_subjects.length, (index) {
-              final subject = _subjects[index];
+            ...List.generate(provider.subjects.length, (index) {
+              final subject = provider.subjects[index];
               return Padding(
                 padding: const EdgeInsets.only(bottom: 12),
                 child: _buildSubjectCard(context, subject),

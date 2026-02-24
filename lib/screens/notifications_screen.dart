@@ -1,90 +1,26 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:criterium/theme/app_theme.dart';
+import 'package:provider/provider.dart';
+import 'package:criterium/providers/app_provider.dart';
 
-class NotificationsScreen extends StatelessWidget {
+class NotificationsScreen extends StatefulWidget {
   const NotificationsScreen({super.key});
 
-  static final List<Map<String, dynamic>> _notifications = [
-    {
-      'type': 'urgent',
-      'title': 'Alerta de faltas',
-      'body': 'Elena Soto ha acumulado 3 faltas consecutivas sin justificante.',
-      'time': 'Hace 15 min',
-      'read': false,
-      'icon': Icons.warning_amber_rounded,
-      'color': const Color(0xFFE74C3C),
-    },
-    {
-      'type': 'academic',
-      'title': 'Entrega tardía',
-      'body':
-          'Juan Pérez entregó la tarea \"Ensayo de Biología\" fuera de tiempo.',
-      'time': 'Hace 1h',
-      'read': false,
-      'icon': Icons.assignment_late,
-      'color': const Color(0xFFF39C12),
-    },
-    {
-      'type': 'academic',
-      'title': 'Nueva entrega',
-      'body': 'María García envió su tarea de Álgebra Lineal para revisión.',
-      'time': 'Hace 2h',
-      'read': false,
-      'icon': Icons.assignment_turned_in,
-      'color': const Color(0xFF2EC4B6),
-    },
-    {
-      'type': 'system',
-      'title': 'Mantenimiento programado',
-      'body':
-          'El sistema estará en mantenimiento el domingo de 2:00 a 5:00 AM.',
-      'time': 'Hace 4h',
-      'read': true,
-      'icon': Icons.build_circle_outlined,
-      'color': const Color(0xFF3B82F6),
-    },
-    {
-      'type': 'academic',
-      'title': 'Calificación publicada',
-      'body': 'Se publicaron las calificaciones del examen parcial de Cálculo.',
-      'time': 'Ayer',
-      'read': true,
-      'icon': Icons.grading,
-      'color': const Color(0xFF8B5CF6),
-    },
-    {
-      'type': 'urgent',
-      'title': 'Baja de promedio',
-      'body': 'Andrés López Mora bajó su promedio a 5.8. Se requiere atención.',
-      'time': 'Ayer',
-      'read': true,
-      'icon': Icons.trending_down,
-      'color': const Color(0xFFE74C3C),
-    },
-    {
-      'type': 'system',
-      'title': 'Nueva función disponible',
-      'body':
-          'Ya puedes exportar reportes de calificaciones a Excel desde el panel.',
-      'time': 'Hace 2 días',
-      'read': true,
-      'icon': Icons.new_releases_outlined,
-      'color': const Color(0xFF70C635),
-    },
-    {
-      'type': 'academic',
-      'title': 'Recordatorio de entrega',
-      'body': '5 alumnos aún no entregan la tarea de Historia Universal.',
-      'time': 'Hace 3 días',
-      'read': true,
-      'icon': Icons.timer_outlined,
-      'color': const Color(0xFFF39C12),
-    },
-  ];
+  @override
+  State<NotificationsScreen> createState() => _NotificationsScreenState();
+}
+
+class _NotificationsScreenState extends State<NotificationsScreen> {
+  @override
+  void initState() {
+    super.initState();
+    Future.microtask(() => context.read<AppProvider>().fetchAppData());
+  }
 
   @override
   Widget build(BuildContext context) {
+    final appProv = context.watch<AppProvider>();
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final bgColor = Theme.of(context).scaffoldBackgroundColor;
     final textColor = isDark ? Colors.white : AppTheme.navyBlue;
@@ -130,14 +66,16 @@ class NotificationsScreen extends StatelessWidget {
           ),
         ],
       ),
-      body: ListView.builder(
-        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
-        itemCount: _notifications.length,
-        itemBuilder: (context, index) {
-          final n = _notifications[index];
-          return _buildNotificationTile(context, n);
-        },
-      ),
+      body: appProv.isLoading
+          ? const Center(child: CircularProgressIndicator())
+          : ListView.builder(
+              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
+              itemCount: appProv.notifications.length,
+              itemBuilder: (context, index) {
+                final n = appProv.notifications[index];
+                return _buildNotificationTile(context, n);
+              },
+            ),
     );
   }
 

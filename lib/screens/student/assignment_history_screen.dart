@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:criterium/theme/app_theme.dart';
+import 'package:provider/provider.dart';
+import 'package:criterium/providers/student_provider.dart';
 
 class AssignmentHistoryScreen extends StatefulWidget {
   const AssignmentHistoryScreen({super.key});
@@ -12,132 +14,29 @@ class AssignmentHistoryScreen extends StatefulWidget {
 class _AssignmentHistoryScreenState extends State<AssignmentHistoryScreen> {
   int _selectedFilter = 0; // 0=Todas, 1=Calificadas, 2=Pendientes
 
-  // ── Mock Data ──
-  final List<Map<String, dynamic>> _assignments = [
-    {
-      'name': 'Ensayo: Revolución Francesa',
-      'subject': 'Historia',
-      'icon': Icons.menu_book,
-      'date': '15 Feb 2026',
-      'status': 'graded', // graded, pending, late
-      'grade': '10/10',
-      'feedback': '¡Excelente trabajo, Marlene! Muy bien argumentado.',
-    },
-    {
-      'name': 'Ejercicios Cap. 5 — Ecuaciones',
-      'subject': 'Matemáticas',
-      'icon': Icons.calculate,
-      'date': '14 Feb 2026',
-      'status': 'graded',
-      'grade': '9/10',
-      'feedback': 'Buen trabajo. Revisa el ejercicio 3.',
-    },
-    {
-      'name': 'Informe de Laboratorio: Ácidos',
-      'subject': 'Ciencias',
-      'icon': Icons.science,
-      'date': '18 Feb 2026',
-      'status': 'pending',
-      'grade': null,
-      'feedback': null,
-    },
-    {
-      'name': 'Presentación: Ecosistemas',
-      'subject': 'Biología',
-      'icon': Icons.eco,
-      'date': '12 Feb 2026',
-      'status': 'graded',
-      'grade': '10/10',
-      'feedback': '¡Presentación impecable! Sigue así.',
-    },
-    {
-      'name': 'Cuestionario Unidad 3',
-      'subject': 'Geografía',
-      'icon': Icons.public,
-      'date': '10 Feb 2026',
-      'status': 'late',
-      'grade': null,
-      'feedback': null,
-    },
-    {
-      'name': 'Resumen: Don Quijote Cap. 1-5',
-      'subject': 'Español',
-      'icon': Icons.auto_stories,
-      'date': '20 Feb 2026',
-      'status': 'pending',
-      'grade': null,
-      'feedback': null,
-    },
-    {
-      'name': 'Mapa Conceptual: La Célula',
-      'subject': 'Biología',
-      'icon': Icons.eco,
-      'date': '08 Feb 2026',
-      'status': 'graded',
-      'grade': '9.5/10',
-      'feedback': 'Muy completo. Agrega la mitocondria en detalle.',
-    },
-    {
-      'name': 'Ejercicios de Trigonometría',
-      'subject': 'Matemáticas',
-      'icon': Icons.calculate,
-      'date': '06 Feb 2026',
-      'status': 'graded',
-      'grade': '10/10',
-      'feedback': '¡Perfecto! Dominas el tema.',
-    },
-    {
-      'name': 'Línea del Tiempo: WWII',
-      'subject': 'Historia',
-      'icon': Icons.menu_book,
-      'date': '04 Feb 2026',
-      'status': 'graded',
-      'grade': '9/10',
-      'feedback': 'Faltó la batalla de Stalingrado.',
-    },
-    {
-      'name': 'Vocabulario Unit 4',
-      'subject': 'Inglés',
-      'icon': Icons.translate,
-      'date': '22 Feb 2026',
-      'status': 'pending',
-      'grade': null,
-      'feedback': null,
-    },
-    {
-      'name': 'Proyecto: Circuitos Eléctricos',
-      'subject': 'Física',
-      'icon': Icons.bolt,
-      'date': '02 Feb 2026',
-      'status': 'graded',
-      'grade': '10/10',
-      'feedback': '¡Excelente demostración práctica!',
-    },
-    {
-      'name': 'Actividad: Valores Cívicos',
-      'subject': 'Ética',
-      'icon': Icons.balance,
-      'date': '01 Feb 2026',
-      'status': 'graded',
-      'grade': '10/10',
-      'feedback': 'Reflexión muy madura.',
-    },
-  ];
+  @override
+  void initState() {
+    super.initState();
+    Future.microtask(() => context.read<StudentProvider>().fetchStudentData());
+  }
 
-  List<Map<String, dynamic>> get _filteredAssignments {
+  List<Map<String, dynamic>> _getFilteredAssignments(
+    List<Map<String, dynamic>> allAssignments,
+  ) {
     if (_selectedFilter == 1) {
-      return _assignments.where((a) => a['status'] == 'graded').toList();
+      return allAssignments.where((a) => a['status'] == 'graded').toList();
     } else if (_selectedFilter == 2) {
-      return _assignments
+      return allAssignments
           .where((a) => a['status'] == 'pending' || a['status'] == 'late')
           .toList();
     }
-    return _assignments;
+    return allAssignments;
   }
 
   @override
   Widget build(BuildContext context) {
-    final filtered = _filteredAssignments;
+    final provider = context.watch<StudentProvider>();
+    final filtered = _getFilteredAssignments(provider.assignments);
 
     return Scaffold(
       backgroundColor: Theme.of(context).scaffoldBackgroundColor,
@@ -167,36 +66,37 @@ class _AssignmentHistoryScreenState extends State<AssignmentHistoryScreen> {
       body: Column(
         children: [
           // ── Resumen rápido ──
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 20),
-            child: Row(
-              children: [
-                _buildMiniStat(
-                  '${_assignments.length}',
-                  'Total',
-                  AppTheme.navyBlue,
-                ),
-                const SizedBox(width: 10),
-                _buildMiniStat(
-                  '${_assignments.where((a) => a['status'] == 'graded').length}',
-                  'Calificadas',
-                  const Color(0xFF2ECC71),
-                ),
-                const SizedBox(width: 10),
-                _buildMiniStat(
-                  '${_assignments.where((a) => a['status'] == 'pending').length}',
-                  'Pendientes',
-                  const Color(0xFFF39C12),
-                ),
-                const SizedBox(width: 10),
-                _buildMiniStat(
-                  '${_assignments.where((a) => a['status'] == 'late').length}',
-                  'Tardías',
-                  const Color(0xFFE74C3C),
-                ),
-              ],
+          if (!provider.isLoading)
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 20),
+              child: Row(
+                children: [
+                  _buildMiniStat(
+                    '${provider.assignments.length}',
+                    'Total',
+                    AppTheme.navyBlue,
+                  ),
+                  const SizedBox(width: 10),
+                  _buildMiniStat(
+                    '${provider.assignments.where((a) => a['status'] == 'graded').length}',
+                    'Calificadas',
+                    const Color(0xFF2ECC71),
+                  ),
+                  const SizedBox(width: 10),
+                  _buildMiniStat(
+                    '${provider.assignments.where((a) => a['status'] == 'pending').length}',
+                    'Pendientes',
+                    const Color(0xFFF39C12),
+                  ),
+                  const SizedBox(width: 10),
+                  _buildMiniStat(
+                    '${provider.assignments.where((a) => a['status'] == 'late').length}',
+                    'Tardías',
+                    const Color(0xFFE74C3C),
+                  ),
+                ],
+              ),
             ),
-          ),
           const SizedBox(height: 16),
 
           // ── Filtros ──
@@ -216,17 +116,44 @@ class _AssignmentHistoryScreenState extends State<AssignmentHistoryScreen> {
 
           // ── Lista de entregas ──
           Expanded(
-            child: ListView.separated(
-              padding: const EdgeInsets.symmetric(horizontal: 20),
-              itemCount: filtered.length + 1, // +1 for bottom padding
-              separatorBuilder: (_, __) => const SizedBox(height: 12),
-              itemBuilder: (context, index) {
-                if (index == filtered.length) {
-                  return const SizedBox(height: 24);
-                }
-                return _buildAssignmentCard(filtered[index]);
-              },
-            ),
+            child: provider.isLoading
+                ? const Center(child: CircularProgressIndicator())
+                : provider.errorMessage != null
+                ? Center(
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Icon(
+                          Icons.wifi_off_rounded,
+                          size: 64,
+                          color: Colors.grey[400],
+                        ),
+                        const SizedBox(height: 16),
+                        Text(
+                          provider.errorMessage!,
+                          style: TextStyle(color: Colors.grey[600]),
+                        ),
+                        const SizedBox(height: 16),
+                        ElevatedButton(
+                          onPressed: () => context
+                              .read<StudentProvider>()
+                              .fetchStudentData(),
+                          child: const Text('Reintentar'),
+                        ),
+                      ],
+                    ),
+                  )
+                : ListView.separated(
+                    padding: const EdgeInsets.symmetric(horizontal: 20),
+                    itemCount: filtered.length + 1, // +1 for bottom padding
+                    separatorBuilder: (_, __) => const SizedBox(height: 12),
+                    itemBuilder: (context, index) {
+                      if (index == filtered.length) {
+                        return const SizedBox(height: 24);
+                      }
+                      return _buildAssignmentCard(filtered[index]);
+                    },
+                  ),
           ),
         ],
       ),

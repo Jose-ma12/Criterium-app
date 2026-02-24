@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:criterium/theme/app_theme.dart';
+import 'package:provider/provider.dart';
+import 'package:criterium/providers/dashboard_provider.dart';
 
 class ReportsScreen extends StatelessWidget {
   final bool isTeacher;
@@ -8,6 +10,7 @@ class ReportsScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final dashboardProv = context.watch<DashboardProvider>();
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final bgColor = Theme.of(context).scaffoldBackgroundColor;
     final textColor = isDark ? Colors.white : AppTheme.navyBlue;
@@ -112,8 +115,18 @@ class ReportsScreen extends StatelessWidget {
             const SizedBox(height: 20),
 
             // ── Barras de rendimiento ──
-            if (isTeacher) ..._buildTeacherBars(context),
-            if (!isTeacher) ..._buildStudentBars(context),
+            if (dashboardProv.isLoading)
+              const Center(child: CircularProgressIndicator())
+            else
+              ...dashboardProv.reportBars.map(
+                (bar) => _buildProgressRow(
+                  context,
+                  bar['name'] as String,
+                  bar['value'] as double,
+                  bar['pct'] as String,
+                  bar['color'] as Color,
+                ),
+              ),
 
             const SizedBox(height: 28),
 
@@ -188,114 +201,6 @@ class ReportsScreen extends StatelessWidget {
         ),
       ),
     );
-  }
-
-  // ── Barras de rendimiento del maestro ──
-  List<Widget> _buildTeacherBars(BuildContext context) {
-    final classes = [
-      {
-        'name': 'Matemáticas Avanzadas',
-        'value': 0.85,
-        'pct': '85%',
-        'color': const Color(0xFF2EC4B6),
-      },
-      {
-        'name': 'Álgebra Lineal',
-        'value': 0.78,
-        'pct': '78%',
-        'color': const Color(0xFF3B82F6),
-      },
-      {
-        'name': 'Cálculo Diferencial',
-        'value': 0.92,
-        'pct': '92%',
-        'color': const Color(0xFF8B5CF6),
-      },
-      {
-        'name': 'Geometría Analítica',
-        'value': 0.74,
-        'pct': '74%',
-        'color': const Color(0xFFF39C12),
-      },
-      {
-        'name': 'Estadística',
-        'value': 0.88,
-        'pct': '88%',
-        'color': const Color(0xFFE74C3C),
-      },
-      {
-        'name': 'Trigonometría',
-        'value': 0.95,
-        'pct': '95%',
-        'color': const Color(0xFF70C635),
-      },
-    ];
-
-    return classes
-        .map(
-          (c) => _buildProgressRow(
-            context,
-            c['name'] as String,
-            c['value'] as double,
-            c['pct'] as String,
-            c['color'] as Color,
-          ),
-        )
-        .toList();
-  }
-
-  // ── Barras de progresión del alumno ──
-  List<Widget> _buildStudentBars(BuildContext context) {
-    final evaluations = [
-      {
-        'name': 'Ensayo - Biología',
-        'value': 0.98,
-        'pct': '9.8',
-        'color': const Color(0xFF2EC4B6),
-      },
-      {
-        'name': 'Examen - Matemáticas',
-        'value': 1.0,
-        'pct': '10.0',
-        'color': const Color(0xFF70C635),
-      },
-      {
-        'name': 'Proyecto - Historia',
-        'value': 0.92,
-        'pct': '9.2',
-        'color': const Color(0xFF3B82F6),
-      },
-      {
-        'name': 'Quiz - Ciencias',
-        'value': 0.85,
-        'pct': '8.5',
-        'color': const Color(0xFFF39C12),
-      },
-      {
-        'name': 'Tarea - Lengua',
-        'value': 0.97,
-        'pct': '9.7',
-        'color': const Color(0xFF8B5CF6),
-      },
-      {
-        'name': 'Laboratorio - Química',
-        'value': 0.76,
-        'pct': '7.6',
-        'color': const Color(0xFFE74C3C),
-      },
-    ];
-
-    return evaluations
-        .map(
-          (e) => _buildProgressRow(
-            context,
-            e['name'] as String,
-            e['value'] as double,
-            e['pct'] as String,
-            e['color'] as Color,
-          ),
-        )
-        .toList();
   }
 
   // ── Fila individual con barra de progreso ──
