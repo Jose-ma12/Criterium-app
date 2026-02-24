@@ -9,6 +9,7 @@ import 'package:criterium/providers/student_provider.dart';
 import 'package:criterium/providers/dashboard_provider.dart';
 import 'package:criterium/providers/app_provider.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
+// Archivo principal revisado y listo para produccióngit add .
 
 /// Global notifier controlado desde el Switch de perfil.
 final ValueNotifier<ThemeMode> themeNotifier = ValueNotifier(ThemeMode.light);
