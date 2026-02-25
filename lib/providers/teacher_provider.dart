@@ -14,7 +14,7 @@ class TeacherProvider extends ChangeNotifier {
   // INTERRUPTOR DE BACKEND:
   // true = Usa datos de prueba (App funcional sin servidor)
   // false = Usa peticiones http reales al servidor Node/C#
-  final bool _useMockData = true;
+  final bool _useMockData = false;
 
   List<Map<String, dynamic>> get students => _students;
   List<Map<String, dynamic>> get classes => _classes;
