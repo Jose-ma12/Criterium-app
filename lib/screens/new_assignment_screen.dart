@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:criterium/theme/app_theme.dart';
-import 'package:criterium/screens/rubric_builder_screen.dart';
 import 'package:provider/provider.dart';
 import 'package:criterium/providers/teacher_provider.dart';
 import 'package:file_picker/file_picker.dart';
@@ -17,7 +16,7 @@ class _NewAssignmentScreenState extends State<NewAssignmentScreen> {
   final TextEditingController _titleController = TextEditingController();
   final TextEditingController _descController = TextEditingController();
   final TextEditingController _dateController = TextEditingController();
-  String _selectedClass = 'Seleccionar clase...';
+  String _selectedClass = 'Seleccionar categoría...';
 
   List<PlatformFile> _attachedFiles = [];
 
@@ -97,7 +96,7 @@ class _NewAssignmentScreenState extends State<NewAssignmentScreen> {
                   Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 24),
                     child: Text(
-                      'Selecciona una clase',
+                      'Selecciona una categoría',
                       style: TextStyle(
                         fontSize: 18,
                         fontWeight: FontWeight.bold,
@@ -116,7 +115,9 @@ class _NewAssignmentScreenState extends State<NewAssignmentScreen> {
                   else if (teacherProv.availableClasses.isEmpty)
                     const Padding(
                       padding: EdgeInsets.all(32.0),
-                      child: Center(child: Text('No hay clases disponibles')),
+                      child: Center(
+                        child: Text('No hay categorías disponibles'),
+                      ),
                     )
                   else
                     ListView.separated(
@@ -191,13 +192,13 @@ class _NewAssignmentScreenState extends State<NewAssignmentScreen> {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final cardColor = Theme.of(context).cardColor;
     final textColor = isDark ? Colors.white : AppTheme.navyBlue;
-    final hasClass = _selectedClass != 'Seleccionar clase...';
+    final hasClass = _selectedClass != 'Seleccionar categoría...';
 
     return Scaffold(
       backgroundColor: cardColor,
       appBar: AppBar(
         title: Text(
-          'Nueva Tarea',
+          'Subir Proyecto',
           style: TextStyle(color: textColor, fontWeight: FontWeight.bold),
         ),
         centerTitle: true,
@@ -254,7 +255,7 @@ class _NewAssignmentScreenState extends State<NewAssignmentScreen> {
               const SizedBox(height: 32),
 
               Text(
-                'Detalles de la tarea',
+                'Detalles del Proyecto',
                 style: TextStyle(
                   fontSize: 28,
                   fontWeight: FontWeight.bold,
@@ -263,7 +264,7 @@ class _NewAssignmentScreenState extends State<NewAssignmentScreen> {
               ),
               const SizedBox(height: 8),
               Text(
-                'Paso 1: Ingresa la información básica de la asignación para tus alumnos.',
+                'Ingresa la información detallada de tu videojuego o proyecto integrador.',
                 style: TextStyle(
                   color: isDark ? Colors.grey[400] : Colors.grey[600],
                   fontSize: 16,
@@ -273,7 +274,7 @@ class _NewAssignmentScreenState extends State<NewAssignmentScreen> {
               const SizedBox(height: 32),
 
               // Formulario
-              _buildLabel('Título de tarea'),
+              _buildLabel('Nombre del Proyecto / Videojuego'),
               const SizedBox(height: 8),
               TextFormField(
                 controller: _titleController,
@@ -281,14 +282,14 @@ class _NewAssignmentScreenState extends State<NewAssignmentScreen> {
                     ? 'Este campo es obligatorio'
                     : null,
                 decoration: const InputDecoration(
-                  hintText: 'Ej. Ensayo sobre la fotosíntesis',
+                  hintText: 'Ej. RPG de Fantasía 2D',
                   hintStyle: TextStyle(color: Colors.grey),
                 ),
               ),
 
               const SizedBox(height: 24),
 
-              _buildLabel('Descripción'),
+              _buildLabel('Descripción / Pitch Comercial'),
               const SizedBox(height: 8),
               TextFormField(
                 controller: _descController,
@@ -298,7 +299,7 @@ class _NewAssignmentScreenState extends State<NewAssignmentScreen> {
                     : null,
                 decoration: const InputDecoration(
                   hintText:
-                      'Describe los objetivos y requisitos de esta tarea...',
+                      'Describe de qué trata tu proyecto, por qué es innovador y tu público objetivo...',
                   hintStyle: TextStyle(color: Colors.grey),
                   alignLabelWithHint: true,
                 ),
@@ -306,7 +307,7 @@ class _NewAssignmentScreenState extends State<NewAssignmentScreen> {
 
               const SizedBox(height: 24),
 
-              _buildLabel('Fecha de entrega'),
+              _buildLabel('Fecha de Versión/Build'),
               const SizedBox(height: 8),
               TextFormField(
                 controller: _dateController,
@@ -346,7 +347,7 @@ class _NewAssignmentScreenState extends State<NewAssignmentScreen> {
 
               const SizedBox(height: 24),
 
-              _buildLabel('Asignar a clase'),
+              _buildLabel('Categoría'),
               const SizedBox(height: 8),
               Container(
                 decoration: BoxDecoration(
@@ -369,7 +370,7 @@ class _NewAssignmentScreenState extends State<NewAssignmentScreen> {
                       shape: BoxShape.circle,
                     ),
                     child: Icon(
-                      Icons.school,
+                      Icons.category,
                       color: hasClass ? AppTheme.navyBlue : Colors.grey,
                       size: 20,
                     ),
@@ -502,26 +503,28 @@ class _NewAssignmentScreenState extends State<NewAssignmentScreen> {
                 child: ElevatedButton(
                   onPressed: () {
                     if (_formKey.currentState?.validate() ?? false) {
-                      if (_selectedClass == 'Seleccionar clase...') {
+                      if (_selectedClass == 'Seleccionar categoría...') {
                         ScaffoldMessenger.of(context).showSnackBar(
                           const SnackBar(
-                            content: Text('Por favor, selecciona una clase'),
+                            content: Text(
+                              'Por favor, selecciona una categoría',
+                            ),
                             backgroundColor: Colors.red,
                           ),
                         );
                         return;
                       }
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => RubricBuilderScreen(
-                            title: _titleController.text,
-                            description: _descController.text,
-                            dueDate: _dateController.text,
-                            className: _selectedClass,
+
+                      // Simular guardado de proyecto
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(
+                          content: Text(
+                            '✅ Proyecto enviado a los evaluadores con éxito',
                           ),
+                          backgroundColor: Color(0xFF2ECC71),
                         ),
                       );
+                      Navigator.pop(context); // Regresa al Dashboard
                     }
                   },
                   style: ElevatedButton.styleFrom(
@@ -536,7 +539,7 @@ class _NewAssignmentScreenState extends State<NewAssignmentScreen> {
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       Text(
-                        'Siguiente: Definir rúbrica',
+                        'Enviar Proyecto para Evaluación',
                         style: TextStyle(
                           fontSize: 18,
                           fontWeight: FontWeight.bold,
@@ -544,7 +547,7 @@ class _NewAssignmentScreenState extends State<NewAssignmentScreen> {
                         ),
                       ),
                       SizedBox(width: 8),
-                      Icon(Icons.arrow_forward, color: Colors.white),
+                      Icon(Icons.rocket_launch, color: Colors.white),
                     ],
                   ),
                 ),

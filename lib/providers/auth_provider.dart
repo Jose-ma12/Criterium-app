@@ -22,12 +22,12 @@ class AuthProvider extends ChangeNotifier {
       if (isTeacher) {
         _currentUser = UserModel(
           id: 't-12345',
-          name: 'Prof. Alex Rivera',
+          name: 'Mentor Alex Rivera',
           email: email,
           role: 'teacher',
           avatar: 'https://i.pravatar.cc/150?img=11',
-          institution: 'Tecnológico de Monterrey',
-          bio: 'Profesor titular con 10 años de experiencia.',
+          institution: 'Comité Evaluador de Proyectos',
+          bio: 'Inversor y evaluador de proyectos tecnológicos.',
           phone: '+52 555 123 4567',
         );
       } else {
@@ -37,8 +37,8 @@ class AuthProvider extends ChangeNotifier {
           email: email,
           role: 'student',
           avatar: 'https://i.pravatar.cc/150?img=5',
-          institution: 'Tecnológico de Monterrey',
-          bio: 'Estudiante de 10mo grado.',
+          institution: 'Estudio Indie',
+          bio: 'Desarrollador de videojuegos indie.',
           phone: '+52 555 987 6543',
         );
       }

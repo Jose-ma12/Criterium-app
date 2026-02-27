@@ -29,7 +29,7 @@ class _EvaluationScreenState extends State<EvaluationScreen> {
       backgroundColor: bgColor,
       appBar: AppBar(
         title: Text(
-          'Evaluación de Compañeros',
+          'Evaluación de Equipo',
           style: TextStyle(
             color: textColor,
             fontWeight: FontWeight.bold,
@@ -60,7 +60,7 @@ class _EvaluationScreenState extends State<EvaluationScreen> {
                 ),
                 const SizedBox(height: 8),
                 Text(
-                  'Califica el desempeño de tus compañeros de forma anónima.',
+                  'Evalúa la contribución técnica y compromiso de los miembros del equipo.',
                   style: TextStyle(
                     fontSize: 14,
                     color: isDark ? Colors.grey[400] : Colors.grey[600],

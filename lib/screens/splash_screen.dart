@@ -48,7 +48,7 @@ class _SplashScreenState extends State<SplashScreen> {
               ).textTheme.displayLarge?.copyWith(color: textColor),
             ),
             Text(
-              'EDUCATION MANAGEMENT',
+              'PROJECT INCUBATOR',
               style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                 letterSpacing: 2.0,
                 color: Colors.grey,
@@ -66,7 +66,7 @@ class _SplashScreenState extends State<SplashScreen> {
             ),
             const SizedBox(height: 20),
             Text(
-              'Syncing classroom data...',
+              'Sincronizando proyectos...',
               style: TextStyle(color: textColor),
             ),
             const Spacer(),
@@ -75,7 +75,7 @@ class _SplashScreenState extends State<SplashScreen> {
               child: Column(
                 children: [
                   Text(
-                    'DESIGNED FOR EDUCATORS',
+                    'DESIGNED FOR MENTORS',
                     style: TextStyle(
                       fontSize: 10,
                       fontWeight: FontWeight.bold,

@@ -195,7 +195,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
 
               _buildField(
                 context,
-                label: 'Acerca de mí',
+                label: 'Perfil Profesional / Pitch',
                 controller: _bioController,
                 icon: Icons.info_outline,
                 maxLines: 3,
@@ -205,7 +205,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
               // ── Campos deshabilitados (institucionales) ──
               _buildDisabledField(
                 context,
-                label: 'Correo institucional',
+                label: 'Correo de contacto',
                 value: widget.email,
                 icon: Icons.email_outlined,
               ),

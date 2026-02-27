@@ -79,7 +79,7 @@ class _QRScannerScreenState extends State<QRScannerScreen> {
             right: 0,
             child: const Center(
               child: Text(
-                'Apunta al código QR del estudiante',
+                'Apunta al código QR del creador',
                 style: TextStyle(
                   color: Colors.white70,
                   fontSize: 14,

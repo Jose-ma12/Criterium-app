@@ -19,10 +19,10 @@ class _GradesSummaryScreenState extends State<GradesSummaryScreen> {
   }
 
   static final List<Map<String, dynamic>> _softSkills = [
-    {'name': 'Participación en clase', 'stars': 5},
-    {'name': 'Conducta', 'stars': 5},
-    {'name': 'Trabajo en equipo', 'stars': 4},
-    {'name': 'Puntualidad', 'stars': 4},
+    {'name': 'Escalabilidad del modelo', 'stars': 5},
+    {'name': 'Calidad del MVP', 'stars': 5},
+    {'name': 'Gestión del Equipo', 'stars': 4},
+    {'name': 'Cumplimiento de Roadmap', 'stars': 4},
   ];
 
   @override
@@ -34,7 +34,7 @@ class _GradesSummaryScreenState extends State<GradesSummaryScreen> {
         backgroundColor: Theme.of(context).scaffoldBackgroundColor,
         appBar: AppBar(
           title: Text(
-            'Boleta de Calificaciones',
+            'Resumen de Viabilidad Comercial',
             style: TextStyle(
               color: Theme.of(context).brightness == Brightness.dark
                   ? Colors.white
@@ -82,7 +82,7 @@ class _GradesSummaryScreenState extends State<GradesSummaryScreen> {
         backgroundColor: Theme.of(context).scaffoldBackgroundColor,
         appBar: AppBar(
           title: Text(
-            'Boleta de Calificaciones',
+            'Resumen de Viabilidad Comercial',
             style: TextStyle(
               color: Theme.of(context).brightness == Brightness.dark
                   ? Colors.white
@@ -119,7 +119,7 @@ class _GradesSummaryScreenState extends State<GradesSummaryScreen> {
       backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       appBar: AppBar(
         title: Text(
-          'Boleta de Calificaciones',
+          'Resumen de Viabilidad Comercial',
           style: TextStyle(
             color: Theme.of(context).brightness == Brightness.dark
                 ? Colors.white
@@ -190,7 +190,7 @@ class _GradesSummaryScreenState extends State<GradesSummaryScreen> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         const Text(
-                          'Promedio General',
+                          'Puntaje de Viabilidad',
                           style: TextStyle(
                             fontSize: 16,
                             fontWeight: FontWeight.w600,
@@ -199,7 +199,7 @@ class _GradesSummaryScreenState extends State<GradesSummaryScreen> {
                         ),
                         const SizedBox(height: 4),
                         const Text(
-                          'Semestre Ene–Jun 2026',
+                          'Batch de Incubación Ene-Jun 2026',
                           style: TextStyle(fontSize: 13, color: Colors.white38),
                         ),
                         const SizedBox(height: 12),
@@ -242,7 +242,7 @@ class _GradesSummaryScreenState extends State<GradesSummaryScreen> {
 
             // ── Lista de Materias ──
             const Text(
-              'Calificaciones por materia',
+              'Evaluación por Categoría',
               style: TextStyle(
                 fontSize: 18,
                 fontWeight: FontWeight.bold,

@@ -42,7 +42,7 @@ class _AssignmentHistoryScreenState extends State<AssignmentHistoryScreen> {
       backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       appBar: AppBar(
         title: Text(
-          'Mis Entregas',
+          'Mis Entregables',
           style: TextStyle(
             color: Theme.of(context).brightness == Brightness.dark
                 ? Colors.white
@@ -79,7 +79,7 @@ class _AssignmentHistoryScreenState extends State<AssignmentHistoryScreen> {
                   const SizedBox(width: 10),
                   _buildMiniStat(
                     '${provider.assignments.where((a) => a['status'] == 'graded').length}',
-                    'Calificadas',
+                    'Evaluadas',
                     const Color(0xFF2ECC71),
                   ),
                   const SizedBox(width: 10),
@@ -91,7 +91,7 @@ class _AssignmentHistoryScreenState extends State<AssignmentHistoryScreen> {
                   const SizedBox(width: 10),
                   _buildMiniStat(
                     '${provider.assignments.where((a) => a['status'] == 'late').length}',
-                    'Tardías',
+                    'Con Retraso',
                     const Color(0xFFE74C3C),
                   ),
                 ],
@@ -106,7 +106,7 @@ class _AssignmentHistoryScreenState extends State<AssignmentHistoryScreen> {
               children: [
                 _buildFilterChip('Todas', 0),
                 const SizedBox(width: 8),
-                _buildFilterChip('Calificadas', 1),
+                _buildFilterChip('Evaluadas', 1),
                 const SizedBox(width: 8),
                 _buildFilterChip('Pendientes', 2),
               ],
@@ -263,12 +263,12 @@ class _AssignmentHistoryScreenState extends State<AssignmentHistoryScreen> {
         break;
       case 'late':
         statusColor = const Color(0xFFE74C3C);
-        statusLabel = 'Tardía';
+        statusLabel = 'Con Retraso';
         statusIcon = Icons.warning_amber_rounded;
         break;
       default:
         statusColor = const Color(0xFFF39C12);
-        statusLabel = 'Por entregar';
+        statusLabel = 'Pendiente';
         statusIcon = Icons.schedule;
     }
 

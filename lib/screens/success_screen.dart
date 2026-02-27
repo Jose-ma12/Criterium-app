@@ -98,7 +98,7 @@ class SuccessScreen extends StatelessWidget {
               const SizedBox(height: 40),
 
               const Text(
-                'Evaluación Enviada',
+                'Veredicto Enviado',
                 textAlign: TextAlign.center,
                 style: TextStyle(
                   color: Color(0xFF2EC4B6),
@@ -110,7 +110,7 @@ class SuccessScreen extends StatelessWidget {
               const SizedBox(height: 16),
 
               Text(
-                'Tu evaluación ha sido encriptada. Tus respuestas son 100% anónimas para garantizar la justicia académica.',
+                'Tu evaluación técnica y comercial ha sido enviada. El creador recibirá el feedback para mejorar su proyecto.',
                 textAlign: TextAlign.center,
                 style: TextStyle(
                   color: isDark ? Colors.grey[400] : Colors.grey[600],
@@ -142,7 +142,7 @@ class SuccessScreen extends StatelessWidget {
                     ),
                     const SizedBox(width: 8),
                     Text(
-                      'Encriptación de extremo a extremo',
+                      'Feedback Profesional Asegurado',
                       style: TextStyle(
                         fontSize: 12,
                         fontWeight: FontWeight.bold,

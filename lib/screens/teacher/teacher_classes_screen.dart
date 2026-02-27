@@ -29,7 +29,7 @@ class _TeacherClassesScreenState extends State<TeacherClassesScreen> {
       backgroundColor: bgColor,
       appBar: AppBar(
         title: Text(
-          'Mis Clases',
+          'Panel de Mentoría',
           style: GoogleFonts.poppins(
             color: textColor,
             fontWeight: FontWeight.w700,
@@ -57,7 +57,8 @@ class _TeacherClassesScreenState extends State<TeacherClassesScreen> {
                   ),
                   const SizedBox(height: 16),
                   Text(
-                    provider.errorMessage!,
+                    provider.errorMessage ??
+                        'No hay categorías de proyectos asignadas',
                     style: TextStyle(color: Colors.grey[600]),
                   ),
                   const SizedBox(height: 16),
@@ -122,7 +123,7 @@ class _TeacherClassesScreenState extends State<TeacherClassesScreen> {
                 color: color.withOpacity(0.12),
                 borderRadius: BorderRadius.circular(16),
               ),
-              child: Icon(Icons.class_, color: color, size: 26),
+              child: Icon(Icons.rocket_launch_rounded, color: color, size: 26),
             ),
             const SizedBox(width: 16),
             Expanded(
@@ -143,7 +144,7 @@ class _TeacherClassesScreenState extends State<TeacherClassesScreen> {
                   Row(
                     children: [
                       Icon(
-                        Icons.room_outlined,
+                        Icons.business_center_rounded,
                         size: 14,
                         color: Colors.grey[500],
                       ),
@@ -158,7 +159,7 @@ class _TeacherClassesScreenState extends State<TeacherClassesScreen> {
                       ),
                       const SizedBox(width: 12),
                       Icon(
-                        Icons.access_time,
+                        Icons.update_rounded,
                         size: 14,
                         color: Colors.grey[500],
                       ),
@@ -189,7 +190,7 @@ class _TeacherClassesScreenState extends State<TeacherClassesScreen> {
               child: Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  Icon(Icons.people_alt_outlined, size: 14, color: color),
+                  Icon(Icons.lightbulb_outline_rounded, size: 14, color: color),
                   const SizedBox(width: 4),
                   Text(
                     cls['students']!,

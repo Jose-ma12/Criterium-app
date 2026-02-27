@@ -33,7 +33,7 @@ class _AttendanceScreenState extends State<AttendanceScreen> {
       backgroundColor: bgColor,
       appBar: AppBar(
         title: Text(
-          'Asistencia',
+          'Seguimiento de Mentorías',
           style: TextStyle(color: textColor, fontWeight: FontWeight.bold),
         ),
         centerTitle: true,
@@ -52,16 +52,11 @@ class _AttendanceScreenState extends State<AttendanceScreen> {
             // ── Resumen rápido ──
             Row(
               children: [
-                _buildSummaryCard(
-                  context,
-                  'Asistencia',
-                  '90%',
-                  _greenAttendance,
-                ),
+                _buildSummaryCard(context, 'Sesiones', '90%', _greenAttendance),
                 const SizedBox(width: 10),
-                _buildSummaryCard(context, 'Faltas', '0', _redAbsence),
+                _buildSummaryCard(context, 'Canceladas', '0', _redAbsence),
                 const SizedBox(width: 10),
-                _buildSummaryCard(context, 'Retardos', '2', _orangeTardy),
+                _buildSummaryCard(context, 'Reprogramadas', '2', _orangeTardy),
               ],
             ),
             const SizedBox(height: 24),
@@ -192,10 +187,10 @@ class _AttendanceScreenState extends State<AttendanceScreen> {
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceAround,
                 children: [
-                  _buildLegendDot('Asistencia', _greenAttendance),
-                  _buildLegendDot('Falta', _redAbsence),
-                  _buildLegendDot('Retardo', _orangeTardy),
-                  _buildLegendDot('Inhábil', _greyInactive),
+                  _buildLegendDot('Sesión exitosa', _greenAttendance),
+                  _buildLegendDot('Pendiente', _redAbsence),
+                  _buildLegendDot('Ajuste de hora', _orangeTardy),
+                  _buildLegendDot('Sin sesión', _greyInactive),
                 ],
               ),
             ),
@@ -203,7 +198,7 @@ class _AttendanceScreenState extends State<AttendanceScreen> {
 
             // ── Incidentes recientes ──
             Text(
-              'Incidentes recientes',
+              'Bitácora de Mentorías',
               style: TextStyle(
                 fontSize: 18,
                 fontWeight: FontWeight.bold,
@@ -213,8 +208,8 @@ class _AttendanceScreenState extends State<AttendanceScreen> {
             const SizedBox(height: 12),
             _buildIncidentTile(
               '05 Feb',
-              'Retardo',
-              'Matemáticas',
+              'Reprogramada',
+              'Mentoría Técnica',
               _orangeTardy,
               Icons.access_time,
               context,
@@ -222,8 +217,8 @@ class _AttendanceScreenState extends State<AttendanceScreen> {
             const SizedBox(height: 10),
             _buildIncidentTile(
               '12 Feb',
-              'Retardo',
-              'Historia',
+              'Cancelada',
+              'Revisión de Pitch',
               _orangeTardy,
               Icons.access_time,
               context,

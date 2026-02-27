@@ -40,9 +40,9 @@ class AppProvider extends ChangeNotifier {
         _notifications = [
           {
             'type': 'urgent',
-            'title': 'Alerta de faltas',
+            'title': 'Feedback Prioritario',
             'body':
-                'Elena Soto ha acumulado 3 faltas consecutivas sin justificante.',
+                'Tienes un nuevo feedback crítico de tu mentor sobre el Pitch Deck.',
             'time': 'Hace 15 min',
             'read': false,
             'icon': Icons.warning_amber_rounded,
@@ -50,72 +50,33 @@ class AppProvider extends ChangeNotifier {
           },
           {
             'type': 'academic',
-            'title': 'Entrega tardía',
+            'title': 'Veredicto de Proyecto',
             'body':
-                'Juan Pérez entregó la tarea "Ensayo de Biología" fuera de tiempo.',
+                'El MVP de tu E-Commerce fue marcado como "Altamente Vendible".',
             'time': 'Hace 1h',
             'read': false,
-            'icon': Icons.assignment_late,
+            'icon': Icons.diamond,
             'color': const Color(0xFFF39C12),
           },
           {
             'type': 'academic',
-            'title': 'Nueva entrega',
+            'title': 'Nueva Build enviada',
             'body':
-                'María García envió su tarea de Álgebra Lineal para revisión.',
+                'Sofía subió una nueva versión de su juego indie para revisión.',
             'time': 'Hace 2h',
             'read': false,
-            'icon': Icons.assignment_turned_in,
+            'icon': Icons.new_releases,
             'color': const Color(0xFF2EC4B6),
           },
           {
             'type': 'system',
-            'title': 'Mantenimiento programado',
+            'title': 'Cierre de ciclo de Incubación',
             'body':
-                'El sistema estará en mantenimiento el domingo de 2:00 a 5:00 AM.',
+                'El sistema cerrará evaluaciones el domingo de 2:00 a 5:00 AM.',
             'time': 'Hace 4h',
             'read': true,
             'icon': Icons.build_circle_outlined,
             'color': const Color(0xFF3B82F6),
-          },
-          {
-            'type': 'academic',
-            'title': 'Calificación publicada',
-            'body':
-                'Se publicaron las calificaciones del examen parcial de Cálculo.',
-            'time': 'Ayer',
-            'read': true,
-            'icon': Icons.grading,
-            'color': const Color(0xFF8B5CF6),
-          },
-          {
-            'type': 'urgent',
-            'title': 'Baja de promedio',
-            'body':
-                'Andrés López Mora bajó su promedio a 5.8. Se requiere atención.',
-            'time': 'Ayer',
-            'read': true,
-            'icon': Icons.trending_down,
-            'color': const Color(0xFFE74C3C),
-          },
-          {
-            'type': 'system',
-            'title': 'Nueva función disponible',
-            'body':
-                'Ya puedes exportar reportes de calificaciones a Excel desde el panel.',
-            'time': 'Hace 2 días',
-            'read': true,
-            'icon': Icons.new_releases_outlined,
-            'color': const Color(0xFF70C635),
-          },
-          {
-            'type': 'academic',
-            'title': 'Recordatorio de entrega',
-            'body': '5 alumnos aún no entregan la tarea de Historia Universal.',
-            'time': 'Hace 3 días',
-            'read': true,
-            'icon': Icons.timer_outlined,
-            'color': const Color(0xFFF39C12),
           },
         ];
 
@@ -124,13 +85,13 @@ class AppProvider extends ChangeNotifier {
           'Ana García Martínez': [
             {
               'text':
-                  'Hola, noté que no entregaste la última tarea. ¿Todo bien?',
+                  'Hola, revisé tu avance del MVP. ¿Podemos agendar mentoría?',
               'isMe': true,
               'time': '10:30 AM',
             },
             {
               'text':
-                  'Hola profe, tuve problemas con el internet. La subo hoy mismo, disculpe la demora.',
+                  'Hola, tuve un contratiempo con el internet. Claro, ya subí la nueva build con las correcciones.',
               'isMe': false,
               'time': '10:32 AM',
             },
@@ -146,7 +107,7 @@ class AppProvider extends ChangeNotifier {
         _evaluationTeam = [
           {
             'name': 'Andrea Ruiz',
-            'role': 'DESARROLLO FRONTEND',
+            'role': 'BACKEND DEVELOPER',
             'avatar': 'https://i.pravatar.cc/100?img=5',
             'responsibility': 85.0,
             'technical': 92.0,
@@ -154,7 +115,7 @@ class AppProvider extends ChangeNotifier {
           },
           {
             'name': 'Carlos Sosa',
-            'role': 'DISEÑO UX/UI',
+            'role': 'DISEÑO DE NIVELES',
             'avatar': 'https://i.pravatar.cc/100?img=11',
             'responsibility': 60.0,
             'technical': 75.0,
@@ -162,7 +123,7 @@ class AppProvider extends ChangeNotifier {
           },
           {
             'name': 'Elena Méndez',
-            'role': 'GESTIÓN DE PROYECTOS',
+            'role': 'MARKETING',
             'avatar': 'https://i.pravatar.cc/100?img=9',
             'responsibility': 100.0,
             'technical': 88.0,
