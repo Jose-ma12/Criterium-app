@@ -421,53 +421,43 @@ class _DashboardScreenState extends State<DashboardScreen> {
 
             const SizedBox(height: 16),
 
-            // Main Project Card (E-Commerce)
-            _buildClassCard(
-              context,
-              title: 'E-Commerce\nApp',
-              subtitle: 'Tech Startup',
-              progress: 0.65,
-              status: 'EN PROGRESO',
-              statusColor: Colors.green,
-              iconData: Icons.calculate_outlined,
-              participants: 24,
-              timeLeft: '45 min restantes',
-              backgroundColor: AppTheme.navyBlue,
-              isDark: true,
-              onTap: () {
-                if (widget.isTeacher) {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => SubmissionsScreen(
-                        className: 'E-Commerce App',
-                        isTeacher: widget.isTeacher,
-                      ),
-                    ),
-                  );
-                } else {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => const EvaluationScreen(),
-                    ),
-                  );
-                }
-              },
-            ),
-
-            const SizedBox(height: 16),
-
-            // Secondary Project Card (RPG 2D)
-            _buildClassCard(
-              context,
-              title: 'Juego RPG\n2D',
-              subtitle: 'Indie Studio',
-              status: 'SIGUIENTE',
-              statusColor: Colors.orange,
-              iconData: Icons.science_outlined,
-              backgroundColor: Colors.white,
-              isDark: false,
+            ...dashboardProv.activeProjects.map(
+              (proj) => Padding(
+                padding: const EdgeInsets.only(bottom: 16),
+                child: _buildClassCard(
+                  context,
+                  title: proj['title'],
+                  subtitle: proj['subtitle'],
+                  progress: proj['progress'],
+                  status: proj['status'],
+                  statusColor: proj['statusColor'],
+                  iconData: proj['iconData'],
+                  participants: proj['participants'],
+                  timeLeft: proj['timeLeft'],
+                  backgroundColor: proj['backgroundColor'],
+                  isDark: proj['isDark'],
+                  onTap: () {
+                    if (widget.isTeacher) {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => SubmissionsScreen(
+                            className: proj['title'].replaceAll('\n', ' '),
+                            isTeacher: widget.isTeacher,
+                          ),
+                        ),
+                      );
+                    } else {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => const EvaluationScreen(),
+                        ),
+                      );
+                    }
+                  },
+                ),
+              ),
             ),
 
             const SizedBox(height: 16),

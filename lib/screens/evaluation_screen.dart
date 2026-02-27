@@ -226,32 +226,49 @@ class _EvaluationScreenState extends State<EvaluationScreen> {
 
           const SizedBox(height: 24),
 
-          // Slider Responsabilidad
-          _buildSliderSection(
-            context,
-            'Responsabilidad',
-            member['responsibility'],
-            (val) {
+          // Caja de Comentarios / Feedback
+          Text(
+            'FEEDBACK Y RECOMENDACIONES',
+            style: TextStyle(
+              fontSize: 10,
+              fontWeight: FontWeight.bold,
+              color: isDark ? Colors.grey[500] : Colors.grey[400],
+              letterSpacing: 1.0,
+            ),
+          ),
+          const SizedBox(height: 12),
+          TextField(
+            maxLines: 3,
+            style: TextStyle(color: textColor, fontSize: 14),
+            decoration: InputDecoration(
+              hintText:
+                  'Ej: Te recomiendo usar Firebase para la base de datos y optimizar tus consultas...',
+              hintStyle: TextStyle(color: Colors.grey[500], fontSize: 13),
+              filled: true,
+              fillColor: isDark
+                  ? const Color(0xFF334155)
+                  : const Color(0xFFF8F9FA),
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(16),
+                borderSide: BorderSide(
+                  color: isDark ? Colors.transparent : Colors.grey[200]!,
+                ),
+              ),
+              enabledBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(16),
+                borderSide: BorderSide(
+                  color: isDark ? Colors.transparent : Colors.grey[200]!,
+                ),
+              ),
+            ),
+            onChanged: (text) {
               context.read<AppProvider>().updateEvaluation(
                 index,
-                'responsibility',
-                val,
+                'comments',
+                text,
               );
             },
           ),
-
-          const SizedBox(height: 16),
-
-          // Slider Aporte Técnico
-          _buildSliderSection(context, 'Aporte Técnico', member['technical'], (
-            val,
-          ) {
-            context.read<AppProvider>().updateEvaluation(
-              index,
-              'technical',
-              val,
-            );
-          }),
 
           const SizedBox(height: 24),
 

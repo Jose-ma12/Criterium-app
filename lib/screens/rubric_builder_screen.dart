@@ -158,6 +158,40 @@ class _RubricBuilderScreenState extends State<RubricBuilderScreen> {
                   ),
                   const SizedBox(height: 24),
 
+                  // --- NUEVA SECCIÓN DE ARCHIVOS ---
+                  Text(
+                    'Archivos Adjuntos',
+                    style: TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                      color: textColor,
+                    ),
+                  ),
+                  const SizedBox(height: 12),
+                  _buildAttachedFile(
+                    context,
+                    'Pitch_Deck_Final.pdf',
+                    '2.4 MB',
+                    Icons.picture_as_pdf,
+                    const Color(0xFFE74C3C),
+                  ),
+                  _buildAttachedFile(
+                    context,
+                    'Demo_Gameplay_v2.mp4',
+                    '45.1 MB',
+                    Icons.video_file,
+                    const Color(0xFF8B5CF6),
+                  ),
+                  _buildAttachedFile(
+                    context,
+                    'Build_Android.apk',
+                    '68.3 MB',
+                    Icons.android,
+                    const Color(0xFF2ECC71),
+                  ),
+                  const SizedBox(height: 32),
+
+                  // ---------------------------------
                   Text(
                     'Veredicto Comercial',
                     style: TextStyle(
@@ -275,6 +309,62 @@ class _RubricBuilderScreenState extends State<RubricBuilderScreen> {
             ),
           ),
         ],
+      ),
+    );
+  }
+
+  Widget _buildAttachedFile(
+    BuildContext context,
+    String fileName,
+    String size,
+    IconData icon,
+    Color color,
+  ) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    return Container(
+      margin: const EdgeInsets.only(bottom: 8),
+      decoration: BoxDecoration(
+        color: isDark ? const Color(0xFF334155) : Colors.grey[100],
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(
+          color: isDark ? Colors.transparent : Colors.grey[200]!,
+        ),
+      ),
+      child: ListTile(
+        leading: Container(
+          padding: const EdgeInsets.all(8),
+          decoration: BoxDecoration(
+            color: color.withOpacity(0.1),
+            borderRadius: BorderRadius.circular(8),
+          ),
+          child: Icon(icon, color: color, size: 24),
+        ),
+        title: Text(
+          fileName,
+          style: TextStyle(
+            fontWeight: FontWeight.bold,
+            fontSize: 14,
+            color: isDark ? Colors.white : const Color(0xFF0F172A),
+          ),
+          maxLines: 1,
+          overflow: TextOverflow.ellipsis,
+        ),
+        subtitle: Text(
+          size,
+          style: TextStyle(fontSize: 12, color: Colors.grey[500]),
+        ),
+        trailing: IconButton(
+          icon: const Icon(Icons.download_rounded, color: Color(0xFF3B82F6)),
+          onPressed: () {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text('Descargando $fileName...'),
+                behavior: SnackBarBehavior.floating,
+                backgroundColor: const Color(0xFF3B82F6),
+              ),
+            );
+          },
+        ),
       ),
     );
   }
