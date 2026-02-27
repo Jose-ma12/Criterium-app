@@ -93,8 +93,8 @@ class ReportsScreen extends StatelessWidget {
             // ── Título de sección ──
             Text(
               isTeacher
-                  ? 'Viabilidad por Categoría'
-                  : 'Historial de Evaluaciones',
+                  ? 'Últimos Comentarios Emitidos'
+                  : 'Feedback Reciente de Mentores',
               style: GoogleFonts.poppins(
                 fontSize: 18,
                 fontWeight: FontWeight.w700,
@@ -103,9 +103,7 @@ class ReportsScreen extends StatelessWidget {
             ),
             const SizedBox(height: 4),
             Text(
-              isTeacher
-                  ? 'Viabilidad promedio del mercado'
-                  : 'Feedback reciente de tus proyectos',
+              'Recomendaciones técnicas y de negocio',
               style: TextStyle(
                 fontSize: 13,
                 color: isDark ? Colors.grey[400] : Colors.grey[500],
@@ -144,14 +142,17 @@ class ReportsScreen extends StatelessWidget {
                 ),
               )
             else
-              ...dashboardProv.reportBars.map(
-                (bar) => _buildProgressRow(
-                  context,
-                  bar['name'] as String,
-                  bar['value'] as double,
-                  bar['pct'] as String,
-                  bar['color'] as Color,
-                ),
+              Column(
+                children: dashboardProv.feedbackList.map((fb) {
+                  return _buildFeedbackCard(
+                    context,
+                    mentorName: fb['mentorName']!,
+                    projectName: fb['projectName']!,
+                    feedback: fb['feedback']!,
+                    time: fb['time']!,
+                    iconColor: Color(int.parse(fb['color']!)),
+                  );
+                }).toList(),
               ),
 
             const SizedBox(height: 28),
@@ -229,66 +230,97 @@ class ReportsScreen extends StatelessWidget {
     );
   }
 
-  // ── Fila individual con barra de progreso ──
-  Widget _buildProgressRow(
-    BuildContext context,
-    String label,
-    double value,
-    String pct,
-    Color color,
-  ) {
+  Widget _buildFeedbackCard(
+    BuildContext context, {
+    required String mentorName,
+    required String projectName,
+    required String feedback,
+    required String time,
+    required Color iconColor,
+  }) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    final textColor = isDark ? Colors.white : AppTheme.navyBlue;
-
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 18),
+    return Container(
+      margin: const EdgeInsets.only(bottom: 16),
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: Theme.of(context).cardColor,
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: iconColor.withOpacity(0.3), width: 1),
+        boxShadow: [
+          BoxShadow(
+            color: isDark ? Colors.transparent : Colors.grey.withOpacity(0.06),
+            blurRadius: 10,
+            offset: const Offset(0, 4),
+          ),
+        ],
+      ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Flexible(
-                child: Text(
-                  label,
-                  style: TextStyle(
-                    fontSize: 14,
-                    fontWeight: FontWeight.w600,
-                    color: textColor,
-                  ),
-                  overflow: TextOverflow.ellipsis,
+              CircleAvatar(
+                radius: 16,
+                backgroundColor: iconColor.withOpacity(0.1),
+                child: Icon(Icons.person, size: 18, color: iconColor),
+              ),
+              const SizedBox(width: 10),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      mentorName,
+                      style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 14,
+                        color: isDark ? Colors.white : AppTheme.navyBlue,
+                      ),
+                    ),
+                    Text(
+                      'En proyecto: $projectName',
+                      style: TextStyle(
+                        fontSize: 11,
+                        color: isDark ? Colors.grey[400] : Colors.grey[600],
+                      ),
+                    ),
+                  ],
                 ),
               ),
-              Container(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 10,
-                  vertical: 4,
-                ),
-                decoration: BoxDecoration(
-                  color: color.withOpacity(0.1),
-                  borderRadius: BorderRadius.circular(10),
-                ),
-                child: Text(
-                  pct,
-                  style: TextStyle(
-                    fontSize: 13,
-                    fontWeight: FontWeight.bold,
-                    color: color,
-                  ),
-                ),
+              Text(
+                time,
+                style: TextStyle(fontSize: 11, color: Colors.grey[500]),
               ),
             ],
           ),
-          const SizedBox(height: 8),
-          ClipRRect(
-            borderRadius: BorderRadius.circular(6),
-            child: LinearProgressIndicator(
-              value: value,
-              minHeight: 8,
-              backgroundColor: isDark
-                  ? Colors.white.withOpacity(0.1)
-                  : Colors.grey[200],
-              valueColor: AlwaysStoppedAnimation<Color>(color),
+          const SizedBox(height: 12),
+          Container(
+            padding: const EdgeInsets.all(12),
+            decoration: BoxDecoration(
+              color: isDark ? const Color(0xFF334155) : const Color(0xFFF8F9FA),
+              borderRadius: BorderRadius.circular(12),
+            ),
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Icon(
+                  Icons.format_quote_rounded,
+                  size: 18,
+                  color: Colors.grey[400],
+                ),
+                const SizedBox(width: 8),
+                Expanded(
+                  child: Text(
+                    feedback,
+                    style: TextStyle(
+                      fontSize: 13,
+                      height: 1.5,
+                      fontStyle: FontStyle.italic,
+                      color: isDark ? Colors.grey[300] : Colors.grey[700],
+                    ),
+                  ),
+                ),
+              ],
             ),
           ),
         ],

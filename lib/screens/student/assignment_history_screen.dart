@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:criterium/theme/app_theme.dart';
 import 'package:provider/provider.dart';
 import 'package:criterium/providers/student_provider.dart';
+import 'package:criterium/screens/chat_screen.dart';
 
 class AssignmentHistoryScreen extends StatefulWidget {
   const AssignmentHistoryScreen({super.key});
@@ -376,23 +377,63 @@ class _AssignmentHistoryScreenState extends State<AssignmentHistoryScreen> {
                   color: const Color(0xFF2ECC71).withOpacity(0.2),
                 ),
               ),
-              child: Row(
+              child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Icon(
-                    Icons.chat_bubble_outline,
-                    size: 16,
-                    color: Colors.grey[500],
+                  Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Icon(
+                        Icons.chat_bubble_outline,
+                        size: 16,
+                        color: Colors.grey[500],
+                      ),
+                      const SizedBox(width: 8),
+                      Expanded(
+                        child: Text(
+                          assignment['feedback'],
+                          style: TextStyle(
+                            fontSize: 13,
+                            fontStyle: FontStyle.italic,
+                            color: Colors.grey[700],
+                            height: 1.4,
+                          ),
+                        ),
+                      ),
+                    ],
                   ),
-                  const SizedBox(width: 8),
-                  Expanded(
-                    child: Text(
-                      assignment['feedback'],
-                      style: TextStyle(
-                        fontSize: 13,
-                        fontStyle: FontStyle.italic,
-                        color: Colors.grey[700],
-                        height: 1.4,
+                  const SizedBox(height: 12),
+                  SizedBox(
+                    width: double.infinity,
+                    child: OutlinedButton.icon(
+                      onPressed: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => ChatScreen(
+                              studentName: 'Mentor de ${assignment['subject']}',
+                              studentAvatar: 'https://i.pravatar.cc/100?img=11',
+                            ),
+                          ),
+                        );
+                      },
+                      icon: const Icon(
+                        Icons.forum_outlined,
+                        size: 16,
+                        color: Color(0xFF2ECC71),
+                      ),
+                      label: const Text(
+                        'Discutir con Evaluador',
+                        style: TextStyle(
+                          color: Color(0xFF2ECC71),
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      style: OutlinedButton.styleFrom(
+                        side: const BorderSide(color: Color(0xFF2ECC71)),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(10),
+                        ),
                       ),
                     ),
                   ),

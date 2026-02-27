@@ -10,7 +10,8 @@ class DashboardProvider extends ChangeNotifier {
   List<Map<String, String>> _stat1List = [];
   List<Map<String, String>> _stat2List = [];
   List<Map<String, String>> _stat3List = [];
-  List<Map<String, dynamic>> _reportBars = [];
+  List<Map<String, String>> _feedbackList = [];
+  List<Map<String, dynamic>> _activeProjects = [];
 
   // INTERRUPTOR DE BACKEND:
   // true = Usa datos de prueba (App funcional sin servidor)
@@ -22,7 +23,8 @@ class DashboardProvider extends ChangeNotifier {
   List<Map<String, String>> get stat1List => _stat1List;
   List<Map<String, String>> get stat2List => _stat2List;
   List<Map<String, String>> get stat3List => _stat3List;
-  List<Map<String, dynamic>> get reportBars => _reportBars;
+  List<Map<String, String>> get feedbackList => _feedbackList;
+  List<Map<String, dynamic>> get activeProjects => _activeProjects;
 
   Future<void> fetchDashboardData(bool isTeacher) async {
     _isLoading = true;
@@ -74,44 +76,6 @@ class DashboardProvider extends ChangeNotifier {
               'detail': 'Proyecto Estancado - Viabilidad: 4.9',
             },
           ];
-          _reportBars = [
-            {
-              'name': 'Fintech',
-              'value': 0.85,
-              'pct': '85%',
-              'color': const Color(0xFF2EC4B6),
-            },
-            {
-              'name': 'E-commerce',
-              'value': 0.78,
-              'pct': '78%',
-              'color': const Color(0xFF3B82F6),
-            },
-            {
-              'name': 'Videojuegos',
-              'value': 0.92,
-              'pct': '92%',
-              'color': const Color(0xFF8B5CF6),
-            },
-            {
-              'name': 'Inteligencia Artificial',
-              'value': 0.74,
-              'pct': '74%',
-              'color': const Color(0xFFF39C12),
-            },
-            {
-              'name': 'Healthtech',
-              'value': 0.88,
-              'pct': '88%',
-              'color': const Color(0xFFE74C3C),
-            },
-            {
-              'name': 'SaaS B2B',
-              'value': 0.95,
-              'pct': '95%',
-              'color': const Color(0xFF70C635),
-            },
-          ];
         } else {
           _stat1List = [
             {'name': 'Estudio de Mercado', 'detail': '10/10'},
@@ -144,45 +108,61 @@ class DashboardProvider extends ChangeNotifier {
               'detail': '6.0/10 - 2 entregables sin subir',
             },
           ];
-          _reportBars = [
-            {
-              'name': 'MVP - Fase 1',
-              'value': 0.98,
-              'pct': '9.8',
-              'color': const Color(0xFF2EC4B6),
-            },
-            {
-              'name': 'Pitch Deck',
-              'value': 1.0,
-              'pct': '10.0',
-              'color': const Color(0xFF70C635),
-            },
-            {
-              'name': 'Demo Técnica',
-              'value': 0.92,
-              'pct': '9.2',
-              'color': const Color(0xFF3B82F6),
-            },
-            {
-              'name': 'Plan de Negocios',
-              'value': 0.85,
-              'pct': '8.5',
-              'color': const Color(0xFFF39C12),
-            },
-            {
-              'name': 'Go-to-Market',
-              'value': 0.97,
-              'pct': '9.7',
-              'color': const Color(0xFF8B5CF6),
-            },
-            {
-              'name': 'Análisis TAM',
-              'value': 0.76,
-              'pct': '7.6',
-              'color': const Color(0xFFE74C3C),
-            },
-          ];
         }
+
+        _feedbackList = [
+          {
+            'mentorName': isTeacher ? 'Tú (Mentor)' : 'Mentor Alex Rivera',
+            'projectName': 'E-Commerce App',
+            'feedback':
+                'Te recomiendo migrar la base de datos a Firebase Firestore. Tus consultas actuales van a generar cuellos de botella cuando superes los 10k usuarios concurrentes.',
+            'time': 'Hace 2 horas',
+            'color': '0xFF2EC4B6',
+          },
+          {
+            'mentorName': isTeacher ? 'Tú (Mentor)' : 'Mentora Ana Vega',
+            'projectName': 'Juego RPG 2D',
+            'feedback':
+                'Excelente narrativa. Sin embargo, el esquema de monetización es débil. Sugiero implementar pases de batalla cosméticos en lugar de anuncios invasivos.',
+            'time': 'Ayer',
+            'color': '0xFFF39C12',
+          },
+          {
+            'mentorName': isTeacher ? 'Tú (Mentor)' : 'Mentor Daniel Ortiz',
+            'projectName': 'Plataforma SaaS B2B',
+            'feedback':
+                'El Pitch Deck es sólido, pero falta definir mejor el Costo de Adquisición de Clientes (CAC). Revisemos esto en la próxima mentoría 1 a 1.',
+            'time': 'Hace 3 días',
+            'color': '0xFF8B5CF6',
+          },
+        ];
+
+        _activeProjects = [
+          {
+            'title': 'E-Commerce\nApp',
+            'subtitle': 'Tech Startup',
+            'progress': 0.65,
+            'status': 'EN PROGRESO',
+            'statusColor': const Color(0xFF4CAF50), // Verde
+            'iconData': Icons.calculate_outlined,
+            'participants': 24,
+            'timeLeft': '45 min restantes',
+            'backgroundColor': const Color(0xFF0F172A), // AppTheme.navyBlue
+            'isDark': true,
+          },
+          {
+            'title': 'Juego RPG\n2D',
+            'subtitle': 'Indie Studio',
+            'progress': null,
+            'status': 'SIGUIENTE',
+            'statusColor': const Color(0xFFFF9800), // Naranja
+            'iconData': Icons.science_outlined,
+            'participants': null,
+            'timeLeft': null,
+            'backgroundColor': Colors.white,
+            'isDark': false,
+          },
+        ];
       } else {
         // ==========================================
         // 🟢 MODO PRODUCCIÓN: CONEXIÓN REAL AL API
@@ -213,7 +193,8 @@ class DashboardProvider extends ChangeNotifier {
     _stat1List.clear();
     _stat2List.clear();
     _stat3List.clear();
-    _reportBars.clear();
+    _feedbackList.clear();
+    _activeProjects.clear();
     _errorMessage = null;
     notifyListeners();
   }
