@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:cached_network_image/cached_network_image.dart';
-import 'package:criterium/screens/grade_success_screen.dart';
 import 'package:criterium/theme/app_theme.dart';
 import 'package:criterium/utils/pdf_generator.dart';
 import 'package:provider/provider.dart';
 import 'package:criterium/providers/teacher_provider.dart';
+import 'package:criterium/screens/rubric_builder_screen.dart';
 
 class SubmissionsScreen extends StatefulWidget {
   final String className;
@@ -40,7 +40,7 @@ class _SubmissionsScreenState extends State<SubmissionsScreen> {
     List<Map<String, dynamic>> result;
 
     switch (_selectedFilter) {
-      case 'Pendientes':
+      case 'En Desarrollo':
         result = submissions
             .where(
               (s) =>
@@ -48,10 +48,10 @@ class _SubmissionsScreenState extends State<SubmissionsScreen> {
             )
             .toList();
         break;
-      case 'Calificadas':
+      case 'Evaluadas':
         result = submissions.where((s) => s['status'] == 'Calificado').toList();
         break;
-      case 'Tardías':
+      case 'Con Retraso':
         result = submissions.where((s) => s['status'] == 'Tardía').toList();
         break;
       default:
@@ -81,7 +81,7 @@ class _SubmissionsScreenState extends State<SubmissionsScreen> {
       backgroundColor: bgColor,
       appBar: AppBar(
         title: Text(
-          widget.isTeacher ? 'Entregas: ${widget.className}' : 'Mis Tareas',
+          widget.isTeacher ? 'Proyectos: ${widget.className}' : 'Mis Proyectos',
           style: TextStyle(
             color: textColor,
             fontWeight: FontWeight.bold,
@@ -118,7 +118,7 @@ class _SubmissionsScreenState extends State<SubmissionsScreen> {
                   },
                   style: TextStyle(color: textColor),
                   decoration: InputDecoration(
-                    hintText: 'Buscar estudiantes o estados',
+                    hintText: 'Buscar proyecto o creador...',
                     hintStyle: TextStyle(
                       color: isDark ? Colors.grey[500] : Colors.grey,
                     ),
@@ -142,13 +142,13 @@ class _SubmissionsScreenState extends State<SubmissionsScreen> {
                   scrollDirection: Axis.horizontal,
                   child: Row(
                     children: [
-                      _buildFilterChip(context, 'Todos'),
+                      _buildFilterChip(context, 'Todos los creadores'),
                       const SizedBox(width: 12),
-                      _buildFilterChip(context, 'Pendientes'),
+                      _buildFilterChip(context, 'En Desarrollo'),
                       const SizedBox(width: 12),
-                      _buildFilterChip(context, 'Calificadas'),
+                      _buildFilterChip(context, 'Evaluadas'),
                       const SizedBox(width: 12),
-                      _buildFilterChip(context, 'Tardías'),
+                      _buildFilterChip(context, 'Con Retraso'),
                     ],
                   ),
                 ),
@@ -241,7 +241,7 @@ class _SubmissionsScreenState extends State<SubmissionsScreen> {
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 24),
                 child: Text(
-                  'Editar Tarea',
+                  'Editar Proyecto',
                   style: TextStyle(
                     fontSize: 18,
                     fontWeight: FontWeight.bold,
@@ -253,13 +253,13 @@ class _SubmissionsScreenState extends State<SubmissionsScreen> {
               _buildSheetOption(
                 ctx,
                 Icons.description_outlined,
-                'Editar descripción de la tarea',
+                'Editar descripción del proyecto',
                 const Color(0xFF3B82F6),
               ),
               _buildSheetOption(
                 ctx,
                 Icons.calendar_month,
-                'Cambiar fecha de entrega',
+                'Modificar fecha límite de revisión',
                 const Color(0xFFF39C12),
                 onTap: () {
                   Navigator.pop(ctx);
@@ -299,7 +299,7 @@ class _SubmissionsScreenState extends State<SubmissionsScreen> {
               _buildSheetOption(
                 ctx,
                 Icons.grading,
-                'Modificar Rúbrica',
+                'Modificar Criterios de Evaluación',
                 const Color(0xFF8B5CF6),
               ),
               const SizedBox(height: 20),
@@ -409,7 +409,7 @@ class _SubmissionsScreenState extends State<SubmissionsScreen> {
               _buildSheetOption(
                 ctx,
                 Icons.archive_outlined,
-                'Archivar tarea',
+                'Archivar proyecto',
                 const Color(0xFFE74C3C),
               ),
               const SizedBox(height: 20),
@@ -527,11 +527,17 @@ class _SubmissionsScreenState extends State<SubmissionsScreen> {
 
     return GestureDetector(
       onTap: () {
-        if (isPending || isLate) {
-          showDialog(
-            context: context,
-            builder: (context) =>
-                GradeSuccessScreen(studentName: student['name']),
+        if (widget.isTeacher && (isPending || isLate)) {
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => RubricBuilderScreen(
+                title: 'Proyecto de ${student['name']}',
+                description: 'Revisión técnica y comercial.',
+                dueDate: student['time'] ?? 'Sin fecha',
+                className: widget.className,
+              ),
+            ),
           );
         }
       },
@@ -605,10 +611,12 @@ class _SubmissionsScreenState extends State<SubmissionsScreen> {
                           const SizedBox(width: 4),
                           Text(
                             isPending
-                                ? 'Pendiente de Revisión'
+                                ? 'Pendiente'
                                 : isLate
-                                ? 'Entregada tarde'
-                                : student['status'],
+                                ? 'Con retraso'
+                                : (student['status'] == 'Calificado'
+                                      ? 'Evaluada'
+                                      : student['status']),
                             style: TextStyle(
                               color: statusColor,
                               fontWeight: FontWeight.bold,

@@ -58,7 +58,7 @@ class _LoginScreenState extends State<LoginScreen> {
               ),
               const SizedBox(height: 10),
               Text(
-                'Gestiona tus clases de forma eficiente',
+                'Evalúa y descubre proyectos con potencial',
                 textAlign: TextAlign.center,
                 style: TextStyle(
                   color: isDark ? Colors.grey[400] : Colors.grey,
@@ -100,7 +100,7 @@ class _LoginScreenState extends State<LoginScreen> {
                                 : [],
                           ),
                           child: Text(
-                            'Soy Maestro',
+                            'Soy Evaluador',
                             textAlign: TextAlign.center,
                             style: TextStyle(
                               fontWeight: FontWeight.bold,
@@ -133,7 +133,7 @@ class _LoginScreenState extends State<LoginScreen> {
                                 : [],
                           ),
                           child: Text(
-                            'Soy Alumno',
+                            'Soy Creador',
                             textAlign: TextAlign.center,
                             style: TextStyle(
                               fontWeight: FontWeight.bold,
@@ -271,7 +271,7 @@ class _LoginScreenState extends State<LoginScreen> {
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
                             Text(
-                              'Entrar como ${_isStudent ? "Alumno" : "Maestro"}',
+                              'Entrar como ${_isStudent ? "Creador" : "Evaluador"}',
                               style: const TextStyle(
                                 fontSize: 18,
                                 fontWeight: FontWeight.bold,
@@ -342,7 +342,7 @@ class _LoginScreenState extends State<LoginScreen> {
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
         title: const Row(
           children: [
-            Icon(Icons.school, color: AppTheme.navyBlue),
+            Icon(Icons.domain, color: AppTheme.navyBlue),
             SizedBox(width: 8),
             Text(
               'Acceso Institucional',
@@ -355,7 +355,7 @@ class _LoginScreenState extends State<LoginScreen> {
           ],
         ),
         content: const Text(
-          'Esta aplicación es de uso exclusivo para la institución. '
+          'Esta plataforma es de uso exclusivo para el programa de incubación. '
           'Contacta a tu administrador para gestionar tu cuenta.',
           style: TextStyle(fontSize: 14, height: 1.5),
         ),

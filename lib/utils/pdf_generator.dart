@@ -1,5 +1,4 @@
 import 'dart:io';
-import 'package:flutter/material.dart' show Color;
 import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
 import 'package:path_provider/path_provider.dart';
@@ -58,7 +57,7 @@ class PdfGenerator {
                     ),
                     pw.SizedBox(height: 4),
                     pw.Text(
-                      'Reporte de Calificaciones',
+                      'Reporte de Viabilidad',
                       style: pw.TextStyle(
                         fontSize: 22,
                         fontWeight: pw.FontWeight.bold,
@@ -112,9 +111,9 @@ class PdfGenerator {
                   pw.TableRow(
                     decoration: const pw.BoxDecoration(color: navyBlue),
                     children: [
-                      _tableCell('Alumno', isHeader: true),
+                      _tableCell('Líder de Proyecto / Creador', isHeader: true),
                       _tableCell('Estado', isHeader: true),
-                      _tableCell('Calificación', isHeader: true),
+                      _tableCell('Viabilidad', isHeader: true),
                     ],
                   ),
                   // Filas de datos
@@ -150,12 +149,12 @@ class PdfGenerator {
                   mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
                   children: [
                     _summaryItem(
-                      'Total alumnos',
+                      'Total de Proyectos',
                       '${students.length}',
                       turquoise,
                     ),
                     _summaryItem(
-                      'Calificados',
+                      'Evaluados',
                       '${students.where((s) => s['grade'] != null).length}',
                       PdfColor.fromInt(0xFF2ECC71),
                     ),
@@ -187,13 +186,13 @@ class PdfGenerator {
 
     // ── Guardar en directorio temporal ───────────────────────────────────────
     final tmpDir = await getTemporaryDirectory();
-    final file = File('${tmpDir.path}/reporte_calificaciones.pdf');
+    final file = File('${tmpDir.path}/reporte_viabilidad_proyectos.pdf');
     await file.writeAsBytes(await pdf.save());
 
     // ── Compartir ────────────────────────────────────────────────────────────
     await Share.shareXFiles([
       XFile(file.path),
-    ], subject: 'Reporte de Calificaciones – $className');
+    ], subject: 'Reporte de Viabilidad – $className');
   }
 
   // ── Helpers ────────────────────────────────────────────────────────────────

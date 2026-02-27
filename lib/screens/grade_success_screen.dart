@@ -54,7 +54,7 @@ class GradeSuccessScreen extends StatelessWidget {
             const SizedBox(height: 24),
 
             Text(
-              'Calificación enviada a\n$studentName',
+              'Veredicto enviado a\n$studentName',
               textAlign: TextAlign.center,
               style: TextStyle(
                 fontSize: 22,
@@ -67,7 +67,7 @@ class GradeSuccessScreen extends StatelessWidget {
             const SizedBox(height: 12),
 
             Text(
-              'El estudiante recibirá una notificación en su panel de Criterium en breve.',
+              'El creador recibirá una notificación con los detalles de viabilidad y feedback en su panel.',
               textAlign: TextAlign.center,
               style: TextStyle(
                 color: isDark ? Colors.grey[400] : Colors.grey[600],
@@ -89,7 +89,7 @@ class GradeSuccessScreen extends StatelessWidget {
                   ),
                   padding: const EdgeInsets.symmetric(vertical: 16),
                 ),
-                child: const Text('Ver resumen de entrega'),
+                child: const Text('Ver detalles del veredicto'),
               ),
             ),
 
@@ -110,7 +110,7 @@ class GradeSuccessScreen extends StatelessWidget {
                   padding: const EdgeInsets.symmetric(vertical: 16),
                 ),
                 child: const Text(
-                  'Volver a la lista',
+                  'Volver al Directorio',
                   style: TextStyle(fontWeight: FontWeight.bold),
                 ),
               ),

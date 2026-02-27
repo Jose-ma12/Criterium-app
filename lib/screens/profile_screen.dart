@@ -38,8 +38,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
           currentPhone: user.phone, // <-- REEMPLAZAR MOCK
           email: user.email,
           role: user.role == 'teacher'
-              ? 'Instructor Senior'
-              : 'Estudiante - 10mo Grado',
+              ? 'Evaluador / Mentor'
+              : 'Desarrollador / Creador',
           currentAvatar: user.avatar,
         ),
       ),
@@ -118,7 +118,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     border: Border.all(color: cardColor, width: 2),
                   ),
                   child: Icon(
-                    widget.isTeacher ? Icons.verified_user : Icons.school,
+                    widget.isTeacher
+                        ? Icons.verified_user
+                        : Icons.rocket_launch,
                     color: Colors.white,
                     size: 20,
                   ),
@@ -137,8 +139,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
             const SizedBox(height: 4),
             Text(
               user.role == 'teacher'
-                  ? 'Instructor Senior'
-                  : 'Estudiante - 10mo Grado',
+                  ? 'Inversor / Evaluador'
+                  : 'Desarrollador Indie',
               style: TextStyle(
                 fontSize: 14,
                 fontWeight: FontWeight.bold,
@@ -161,7 +163,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   ? [
                       _buildStatItem(
                         context,
-                        'CLASES',
+                        'CATEGORÍAS',
                         '6',
                         onTap: () {
                           Navigator.push(
@@ -192,7 +194,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       const SizedBox(width: 12),
                       _buildStatItem(
                         context,
-                        'ESTUDIANTES',
+                        'CREADORES',
                         '154',
                         onTap: () {
                           Navigator.push(
@@ -207,7 +209,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   : [
                       _buildStatItem(
                         context,
-                        'PROMEDIO',
+                        'VIABILIDAD',
                         '9.8',
                         onTap: () {
                           Navigator.push(
@@ -364,8 +366,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       content:
                           'En Criterium nos tomamos tu privacidad en serio. '
                           'Tus datos están encriptados de extremo a extremo y '
-                          'solo son visibles para tu institución académica según '
-                          'la Ley de Protección de Datos Educativos.',
+                          'solo son visibles para tu programa de incubación según '
+                          'las políticas de confidencialidad.',
                     ),
                   ),
                 );
@@ -385,7 +387,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       title: 'Centro de Ayuda',
                       content:
                           '¿Necesitas asistencia?\n\n'
-                          'Contacta al soporte técnico de tu escuela o '
+                          'Contacta al soporte técnico de la incubadora o '
                           'escríbenos a soporte@criterium.app.\n\n'
                           'Versión de la App: 2.4.0 (Build 2023)',
                     ),
@@ -422,7 +424,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       title: 'Términos Legales',
                       content:
                           'El uso de esta aplicación está sujeto a las '
-                          'normativas de conducta de la institución. El usuario '
+                          'normativas de conducta de la incubadora. El usuario '
                           'se compromete a realizar evaluaciones objetivas y '
                           'respetuosas.\n\n'
                           'Criterium se reserva el derecho de modificar estos '

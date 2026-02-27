@@ -52,7 +52,7 @@ class _StudentDirectoryScreenState extends State<StudentDirectoryScreen> {
       backgroundColor: bgColor,
       appBar: AppBar(
         title: Text(
-          'Directorio de Alumnos',
+          'Líderes de Proyecto',
           style: GoogleFonts.poppins(
             color: textColor,
             fontWeight: FontWeight.w700,
@@ -74,7 +74,7 @@ class _StudentDirectoryScreenState extends State<StudentDirectoryScreen> {
             child: TextField(
               onChanged: (v) => setState(() => _searchQuery = v),
               decoration: InputDecoration(
-                hintText: 'Buscar alumno...',
+                hintText: 'Buscar creador o ID...',
                 hintStyle: TextStyle(color: Colors.grey[400], fontSize: 14),
                 prefixIcon: Icon(Icons.search, color: Colors.grey[400]),
                 filled: true,
@@ -103,7 +103,7 @@ class _StudentDirectoryScreenState extends State<StudentDirectoryScreen> {
               child: Align(
                 alignment: Alignment.centerLeft,
                 child: Text(
-                  '${filteredList.length} alumnos',
+                  '${filteredList.length} creadores activos',
                   style: TextStyle(
                     fontSize: 13,
                     fontWeight: FontWeight.w600,
@@ -165,7 +165,7 @@ class _StudentDirectoryScreenState extends State<StudentDirectoryScreen> {
   Widget _buildStudentTile(Map<String, dynamic> student, int index) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final double avgValue = double.tryParse(student['avg'].toString()) ?? 0;
-    final Color avgColor = avgValue >= 9.0
+    final Color viabilityColor = avgValue >= 9.0
         ? const Color(0xFF2EC4B6)
         : avgValue >= 7.0
         ? const Color(0xFFF39C12)
@@ -232,7 +232,7 @@ class _StudentDirectoryScreenState extends State<StudentDirectoryScreen> {
                         borderRadius: BorderRadius.circular(8),
                       ),
                       child: Text(
-                        student['grade']!,
+                        student['grade']!, // Lógicamente ahora representa la 'Categoría' del proyecto
                         style: const TextStyle(
                           fontSize: 11,
                           fontWeight: FontWeight.bold,
@@ -250,7 +250,7 @@ class _StudentDirectoryScreenState extends State<StudentDirectoryScreen> {
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
             decoration: BoxDecoration(
-              color: avgColor.withOpacity(0.1),
+              color: viabilityColor.withOpacity(0.1),
               borderRadius: BorderRadius.circular(12),
             ),
             child: Text(
@@ -258,7 +258,7 @@ class _StudentDirectoryScreenState extends State<StudentDirectoryScreen> {
               style: TextStyle(
                 fontSize: 14,
                 fontWeight: FontWeight.bold,
-                color: avgColor,
+                color: viabilityColor,
               ),
             ),
           ),
@@ -285,7 +285,7 @@ class _StudentDirectoryScreenState extends State<StudentDirectoryScreen> {
                 borderRadius: BorderRadius.circular(12),
               ),
               child: const Icon(
-                Icons.chat_bubble_outline,
+                Icons.tips_and_updates_outlined,
                 size: 18,
                 color: AppTheme.navyBlue,
               ),

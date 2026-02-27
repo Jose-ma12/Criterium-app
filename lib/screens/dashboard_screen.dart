@@ -83,19 +83,21 @@ class _DashboardScreenState extends State<DashboardScreen> {
             items: <BottomNavigationBarItem>[
               const BottomNavigationBarItem(
                 icon: Icon(Icons.grid_view_rounded),
-                label: 'Home',
+                label: 'Inicio',
               ),
               BottomNavigationBarItem(
-                icon: Icon(widget.isTeacher ? Icons.school : Icons.people),
-                label: widget.isTeacher ? 'Classes' : 'Students',
+                icon: Icon(
+                  widget.isTeacher ? Icons.folder_special : Icons.rocket_launch,
+                ),
+                label: widget.isTeacher ? 'Proyectos' : 'Mis Juegos',
               ),
               const BottomNavigationBarItem(
                 icon: Icon(Icons.assessment),
-                label: 'Reports',
+                label: 'Reportes',
               ),
               const BottomNavigationBarItem(
                 icon: Icon(Icons.person),
-                label: 'Profile',
+                label: 'Perfil',
               ),
             ],
             currentIndex: _selectedIndex,
@@ -109,8 +111,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
           ),
         ),
       ),
-      floatingActionButton: widget.isTeacher && _selectedIndex == 0
-          ? FloatingActionButton(
+      floatingActionButton: !widget.isTeacher && _selectedIndex == 0
+          ? FloatingActionButton.extended(
               onPressed: () {
                 Navigator.push(
                   context,
@@ -120,7 +122,14 @@ class _DashboardScreenState extends State<DashboardScreen> {
                 );
               },
               backgroundColor: AppTheme.navyBlue,
-              child: const Icon(Icons.add, color: Colors.white),
+              icon: const Icon(Icons.cloud_upload, color: Colors.white),
+              label: const Text(
+                'Subir Proyecto',
+                style: TextStyle(
+                  color: Colors.white,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
             )
           : null,
     );
@@ -183,7 +192,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
     final user = authProv.currentUser;
 
     // Configuración de textos según rol leyendo del usuario real
-    String rawName = user?.name ?? (widget.isTeacher ? 'Profesor' : 'Alumno');
+    String rawName = user?.name ?? (widget.isTeacher ? 'Mentor' : 'Creador');
     String userName;
 
     // Formatear el nombre para mantener el diseño de dos líneas
@@ -194,17 +203,17 @@ class _DashboardScreenState extends State<DashboardScreen> {
       userName = 'Hola,\n$rawName';
     }
 
-    String userRoleSubtitle = widget.isTeacher ? 'Instructor Senior' : '';
+    String userRoleSubtitle = widget.isTeacher ? 'Mentor / Evaluador' : '';
 
     // Stats
-    String stat1Val = widget.isTeacher ? '6' : '12';
-    String stat1Label = widget.isTeacher ? 'CLASES' : 'ALTO';
+    String stat1Val = widget.isTeacher ? '12' : '2';
+    String stat1Label = widget.isTeacher ? 'POR EVALUAR' : 'PROYECTOS';
 
-    String stat2Val = widget.isTeacher ? '12' : '5';
-    String stat2Label = widget.isTeacher ? 'PENDIENTES' : 'MEDIO';
+    String stat2Val = widget.isTeacher ? '5' : '1';
+    String stat2Label = widget.isTeacher ? 'VENDIBLES' : 'EVALUADOS';
 
-    String stat3Val = widget.isTeacher ? '4' : '2';
-    String stat3Label = widget.isTeacher ? 'ATENCIÓN' : 'RIESGO';
+    String stat3Val = widget.isTeacher ? '3' : '1';
+    String stat3Label = widget.isTeacher ? 'A MEJORAR' : 'EN DESARROLLO';
 
     return SafeArea(
       child: SingleChildScrollView(
@@ -318,8 +327,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
                   onTap: () {
                     _showStatDetails(
                       title: widget.isTeacher
-                          ? 'Cuadro de Honor'
-                          : 'Materias Excelentes',
+                          ? 'Proyectos Destacados'
+                          : 'Categorías Top',
                       color: const Color(0xFF2EC4B6),
                       icon: widget.isTeacher ? Icons.emoji_events : Icons.star,
                       items: dashboardProv.stat1List,
@@ -336,8 +345,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
                   onTap: () {
                     _showStatDetails(
                       title: widget.isTeacher
-                          ? 'Rendimiento Regular'
-                          : 'Materias Regulares',
+                          ? 'Proyectos Promedio'
+                          : 'Categorías Regulares',
                       color: const Color(0xFFF39C12),
                       icon: widget.isTeacher
                           ? Icons.trending_flat
@@ -356,8 +365,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
                   onTap: () {
                     _showStatDetails(
                       title: widget.isTeacher
-                          ? 'Riesgo Académico'
-                          : 'Materias en Riesgo',
+                          ? 'Proyectos en Riesgo'
+                          : 'Categorías con Baja Viabilidad',
                       color: const Color(0xFFE74C3C),
                       icon: widget.isTeacher
                           ? Icons.warning_amber_rounded
@@ -376,7 +385,9 @@ class _DashboardScreenState extends State<DashboardScreen> {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Text(
-                  widget.isTeacher ? 'Mis Clases' : 'Clases Activas',
+                  widget.isTeacher
+                      ? 'Proyectos Recientes'
+                      : 'Mis Proyectos Activos',
                   style: GoogleFonts.poppins(
                     fontSize: 20,
                     fontWeight: FontWeight.w600,
@@ -410,11 +421,11 @@ class _DashboardScreenState extends State<DashboardScreen> {
 
             const SizedBox(height: 16),
 
-            // Main Class Card (Matemáticas)
+            // Main Project Card (E-Commerce)
             _buildClassCard(
               context,
-              title: 'Matemáticas\n101',
-              subtitle: 'Aula 3B',
+              title: 'E-Commerce\nApp',
+              subtitle: 'Tech Startup',
               progress: 0.65,
               status: 'EN PROGRESO',
               statusColor: Colors.green,
@@ -429,7 +440,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                     context,
                     MaterialPageRoute(
                       builder: (context) => SubmissionsScreen(
-                        className: 'Matemáticas 101',
+                        className: 'E-Commerce App',
                         isTeacher: widget.isTeacher,
                       ),
                     ),
@@ -447,11 +458,11 @@ class _DashboardScreenState extends State<DashboardScreen> {
 
             const SizedBox(height: 16),
 
-            // Secondary Class Card (Ciencias)
+            // Secondary Project Card (RPG 2D)
             _buildClassCard(
               context,
-              title: 'Ciencias\nNaturales',
-              subtitle: 'Laboratorio 2',
+              title: 'Juego RPG\n2D',
+              subtitle: 'Indie Studio',
               status: 'SIGUIENTE',
               statusColor: Colors.orange,
               iconData: Icons.science_outlined,
@@ -461,7 +472,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
 
             const SizedBox(height: 16),
 
-            // Completed Class Card (Historia)
+            // Completed Project Card (SaaS)
             Container(
               width: double.infinity,
               padding: const EdgeInsets.all(20),
@@ -495,7 +506,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                         ),
                         const SizedBox(height: 4),
                         Text(
-                          'Historia Universal',
+                          'Plataforma SaaS',
                           style: GoogleFonts.poppins(
                             color: isDark ? Colors.grey[500] : Colors.grey,
                             fontSize: 18,
@@ -541,7 +552,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                                   ),
                                   const SizedBox(height: 20),
                                   Text(
-                                    'Asistencia Registrada',
+                                    'Sesión Registrada',
                                     style: GoogleFonts.poppins(
                                       fontSize: 20,
                                       fontWeight: FontWeight.w700,
@@ -552,7 +563,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                                   ),
                                   const SizedBox(height: 12),
                                   Text(
-                                    'Se ha registrado la asistencia correctamente.',
+                                    'Se ha registrado la sesión de mentoría correctamente.',
                                     textAlign: TextAlign.center,
                                     style: TextStyle(
                                       fontSize: 14,
@@ -764,7 +775,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                             ),
                           ),
                           Text(
-                            '${items.length} ${widget.isTeacher ? "estudiantes" : "materias"}',
+                            '${items.length} ${widget.isTeacher ? "creadores" : "categorías"}',
                             style: TextStyle(
                               fontSize: 13,
                               color: isDark

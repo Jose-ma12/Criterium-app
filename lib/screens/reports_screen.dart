@@ -20,7 +20,7 @@ class ReportsScreen extends StatelessWidget {
       appBar: AppBar(
         automaticallyImplyLeading: false,
         title: Text(
-          'Reportes Académicos',
+          'Reportes de Viabilidad',
           style: GoogleFonts.poppins(
             color: textColor,
             fontWeight: FontWeight.w700,
@@ -55,7 +55,7 @@ class ReportsScreen extends StatelessWidget {
                   ? [
                       _buildMetricCard(
                         context,
-                        'Promedio del Grupo',
+                        'Viabilidad Promedio',
                         '8.5',
                         Icons.groups,
                         const Color(0xFF2EC4B6),
@@ -63,7 +63,7 @@ class ReportsScreen extends StatelessWidget {
                       const SizedBox(width: 14),
                       _buildMetricCard(
                         context,
-                        'Tasa de Entrega',
+                        'Tasa de Aprobación',
                         '92%',
                         Icons.check_circle_outline,
                         const Color(0xFF70C635),
@@ -72,7 +72,7 @@ class ReportsScreen extends StatelessWidget {
                   : [
                       _buildMetricCard(
                         context,
-                        'Mi Promedio',
+                        'Mi Viabilidad',
                         '9.8',
                         Icons.emoji_events,
                         const Color(0xFF2EC4B6),
@@ -80,7 +80,7 @@ class ReportsScreen extends StatelessWidget {
                       const SizedBox(width: 14),
                       _buildMetricCard(
                         context,
-                        'Posición en Clase',
+                        'Top Creadores',
                         '3ro',
                         Icons.leaderboard,
                         const Color(0xFFF39C12),
@@ -93,8 +93,8 @@ class ReportsScreen extends StatelessWidget {
             // ── Título de sección ──
             Text(
               isTeacher
-                  ? 'Rendimiento por Clase'
-                  : 'Progresión de Evaluaciones',
+                  ? 'Viabilidad por Categoría'
+                  : 'Historial de Evaluaciones',
               style: GoogleFonts.poppins(
                 fontSize: 18,
                 fontWeight: FontWeight.w700,
@@ -104,8 +104,8 @@ class ReportsScreen extends StatelessWidget {
             const SizedBox(height: 4),
             Text(
               isTeacher
-                  ? 'Promedio general de cada materia'
-                  : 'Tus últimas calificaciones',
+                  ? 'Viabilidad promedio del mercado'
+                  : 'Feedback reciente de tus proyectos',
               style: TextStyle(
                 fontSize: 13,
                 color: isDark ? Colors.grey[400] : Colors.grey[500],
@@ -315,7 +315,7 @@ class ReportsScreen extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  isTeacher ? 'Resumen del Periodo' : 'Tu Resumen',
+                  isTeacher ? 'Resumen de Incubación' : 'Tu Resumen',
                   style: GoogleFonts.poppins(
                     fontSize: 16,
                     fontWeight: FontWeight.w700,
@@ -325,8 +325,8 @@ class ReportsScreen extends StatelessWidget {
                 const SizedBox(height: 8),
                 Text(
                   isTeacher
-                      ? '154 alumnos activos\n6 materias en curso\n92% tasa de entrega promedio'
-                      : '12 materias activas\n0 faltas acumuladas\nTop 3 de la clase',
+                      ? '154 creadores activos\n6 categorías evaluadas\n85% proyectos viables'
+                      : '2 proyectos activos\nFeedback positivo\nTop 3 en tu categoría',
                   style: const TextStyle(
                     fontSize: 13,
                     color: Colors.white70,
