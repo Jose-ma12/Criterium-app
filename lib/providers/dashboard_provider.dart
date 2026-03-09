@@ -13,6 +13,12 @@ class DashboardProvider extends ChangeNotifier {
   List<Map<String, String>> _feedbackList = [];
   List<Map<String, dynamic>> _activeProjects = [];
 
+  Map<String, String> _summaryStats = {};
+  Map<String, String> get summaryStats => _summaryStats;
+
+  Map<String, String> _topCardsStats = {};
+  Map<String, String> get topCardsStats => _topCardsStats;
+
   // INTERRUPTOR DE BACKEND:
   // true = Usa datos de prueba (App funcional sin servidor)
   // false = Usa peticiones http reales al servidor
@@ -44,22 +50,11 @@ class DashboardProvider extends ChangeNotifier {
             {'name': 'Luis Mendoza', 'detail': 'Viabilidad: 9.7'},
             {'name': 'Sofía Hernández', 'detail': 'Viabilidad: 9.6'},
             {'name': 'Marco Torres', 'detail': 'Viabilidad: 9.5'},
-            {'name': 'Valentina Díaz', 'detail': 'Viabilidad: 9.5'},
-            {'name': 'Diego Ramírez', 'detail': 'Viabilidad: 9.4'},
           ];
           _stat2List = [
             {'name': 'Carlos Ruiz', 'detail': 'Viabilidad: 8.0'},
             {'name': 'María López', 'detail': 'Viabilidad: 7.8'},
             {'name': 'Jorge Vargas', 'detail': 'Viabilidad: 7.5'},
-            {'name': 'Lucía Romero', 'detail': 'Viabilidad: 7.3'},
-            {'name': 'Pablo Moreno', 'detail': 'Viabilidad: 7.2'},
-            {'name': 'Camila Ríos', 'detail': 'Viabilidad: 7.1'},
-            {'name': 'Tomás Herrera', 'detail': 'Viabilidad: 7.0'},
-            {'name': 'Isabella Cruz', 'detail': 'Viabilidad: 7.0'},
-            {'name': 'Mateo Salazar', 'detail': 'Viabilidad: 6.9'},
-            {'name': 'Renata Flores', 'detail': 'Viabilidad: 6.8'},
-            {'name': 'Emilio Ortega', 'detail': 'Viabilidad: 6.7'},
-            {'name': 'Daniela Peña', 'detail': 'Viabilidad: 6.5'},
           ];
           _stat3List = [
             {'name': 'Elena Soto', 'detail': 'Riesgo Alto - Viabilidad: 6.2'},
@@ -67,48 +62,63 @@ class DashboardProvider extends ChangeNotifier {
               'name': 'Andrés López',
               'detail': 'Riesgo Crítico - Viabilidad: 5.8',
             },
-            {
-              'name': 'Fernanda Mora',
-              'detail': 'Riesgo Alto - Viabilidad: 5.5',
-            },
-            {
-              'name': 'Ricardo Navarro',
-              'detail': 'Proyecto Estancado - Viabilidad: 4.9',
-            },
           ];
         } else {
           _stat1List = [
-            {'name': 'Estudio de Mercado', 'detail': '10/10'},
-            {'name': 'UX/UI Design', 'detail': '9.8/10'},
-            {'name': 'Desarrollo Backend', 'detail': '9.7/10'},
-            {'name': 'Plan Financiero', 'detail': '9.5/10'},
-            {'name': 'Estrategia GTM', 'detail': '9.5/10'},
-            {'name': 'Pitch Deck', 'detail': '9.4/10'},
-            {'name': 'Desarrollo Frontend', 'detail': '9.4/10'},
-            {'name': 'Métricas de Usuario', 'detail': '9.3/10'},
-            {'name': 'Monetización', 'detail': '9.3/10'},
-            {'name': 'Legal y Compliance', 'detail': '9.2/10'},
-            {'name': 'Branding', 'detail': '9.1/10'},
-            {'name': 'QA y Testing', 'detail': '9.0/10'},
+            {'name': 'E-Commerce App', 'detail': 'En Progreso'},
+            {'name': 'Plataforma SaaS', 'detail': 'Completada'},
+            {'name': 'Juego RPG 2D', 'detail': 'Siguiente'},
           ];
           _stat2List = [
-            {'name': 'Prototipo Funcional', 'detail': '8.0/10'},
-            {'name': 'Adquisición de Usuarios', 'detail': '7.8/10'},
-            {
-              'name': 'Arquitectura de Software',
-              'detail': 'Revisión técnica pendiente',
-            },
-            {'name': 'Análisis de Competencia', 'detail': '7.5/10'},
-            {'name': 'Retención de Usuarios', 'detail': 'Evaluación pendiente'},
+            {'name': 'Plataforma SaaS', 'detail': 'Evaluación: 9.5/10'},
           ];
           _stat3List = [
-            {'name': 'Levantamiento de Capital', 'detail': '6.5/10'},
-            {
-              'name': 'Campañas de Marketing',
-              'detail': '6.0/10 - 2 entregables sin subir',
-            },
+            {'name': 'E-Commerce App', 'detail': 'Fase de Pruebas'},
+            {'name': 'Juego RPG 2D', 'detail': 'Diseño de Niveles'},
           ];
         }
+
+        _summaryStats = isTeacher
+            ? {
+                'metric1Label': 'Viabilidad Promedio',
+                'metric1Value': '8.5',
+                'metric2Label': 'Tasa de Aprobación',
+                'metric2Value': '92%',
+                'summaryText':
+                    '154 creadores activos\n6 categorías evaluadas\n85% proyectos viables', // <-- RESTAURADO
+                'gamification1': '154 horas de mentoría',
+                'gamification2': '85% de asistencia',
+                'gamification3': '12 evaluaciones hoy',
+              }
+            : {
+                'metric1Label': 'Mi Viabilidad',
+                'metric1Value': '9.8',
+                'metric2Label': 'Top Creadores',
+                'metric2Value': '3ro',
+                'summaryText':
+                    '3 proyectos activos\nFeedback positivo\nTop 3 en tu categoría', // <-- RESTAURADO
+                'gamification1': '120 hrs invertidas',
+                'gamification2': '15 días de racha 🔥',
+                'gamification3': '5 proyectos totales',
+              };
+
+        _topCardsStats = isTeacher
+            ? {
+                'stat1Val': _stat1List.length.toString(),
+                'stat1Label': 'POR EVALUAR',
+                'stat2Val': _stat2List.length.toString(),
+                'stat2Label': 'VENDIBLES',
+                'stat3Val': _stat3List.length.toString(),
+                'stat3Label': 'A MEJORAR',
+              }
+            : {
+                'stat1Val': _stat1List.length.toString(),
+                'stat1Label': 'PROYECTOS',
+                'stat2Val': _stat2List.length.toString(),
+                'stat2Label': 'EVALUADOS',
+                'stat3Val': _stat3List.length.toString(),
+                'stat3Label': 'EN DESARROLLO',
+              };
 
         _feedbackList = [
           {
@@ -147,8 +157,10 @@ class DashboardProvider extends ChangeNotifier {
             'iconData': Icons.calculate_outlined,
             'participants': 24,
             'timeLeft': '45 min restantes',
-            'backgroundColor': const Color(0xFF0F172A), // AppTheme.navyBlue
-            'isDark': true,
+            'backgroundColor': const Color(
+              0xFFF1F5F9,
+            ), // Gris Pizarra muy suave (Premium)
+            'isDark': false, // <-- Cambiado a false
           },
           {
             'title': 'Juego RPG\n2D',
@@ -159,8 +171,23 @@ class DashboardProvider extends ChangeNotifier {
             'iconData': Icons.science_outlined,
             'participants': null,
             'timeLeft': null,
-            'backgroundColor': Colors.white,
+            'backgroundColor': Colors.white, // Blanco puro
             'isDark': false,
+          },
+          {
+            'title': 'Plataforma\nSaaS',
+            'subtitle': 'B2B Enterprise',
+            'progress': 1.0,
+            'status': 'COMPLETADA',
+            'statusColor': const Color(0xFF70C635),
+            'iconData': Icons.check_circle_outline,
+            'participants': null,
+            'timeLeft': 'Finalizado',
+            'backgroundColor': const Color(
+              0xFFF0FDF4,
+            ), // Verde menta ultra suave
+            'isDark': false, // <-- Cambiado a false
+            'hasScanner': true,
           },
         ];
       } else {
@@ -195,6 +222,8 @@ class DashboardProvider extends ChangeNotifier {
     _stat3List.clear();
     _feedbackList.clear();
     _activeProjects.clear();
+    _summaryStats.clear();
+    _topCardsStats.clear();
     _errorMessage = null;
     notifyListeners();
   }

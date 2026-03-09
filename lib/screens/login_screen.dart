@@ -244,6 +244,33 @@ class _LoginScreenState extends State<LoginScreen> {
                                   DashboardScreen(isTeacher: !_isStudent),
                             ),
                           );
+                        } else if (!success && mounted) {
+                          // Leer el mensaje de error del Provider
+                          final errorMsg =
+                              context.read<AuthProvider>().errorMessage ??
+                              'Error al iniciar sesión. Verifica tus credenciales.';
+
+                          // Mostrar el feedback visual de error
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(
+                              content: Row(
+                                children: [
+                                  const Icon(
+                                    Icons.error_outline,
+                                    color: Colors.white,
+                                  ),
+                                  const SizedBox(width: 8),
+                                  Expanded(child: Text(errorMsg)),
+                                ],
+                              ),
+                              backgroundColor: Colors.red.shade600,
+                              behavior: SnackBarBehavior.floating,
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                              margin: const EdgeInsets.all(16),
+                            ),
+                          );
                         }
                       } finally {
                         if (mounted) setState(() => _isLoading = false);

@@ -23,6 +23,15 @@ class _ChatScreenState extends State<ChatScreen> {
   final TextEditingController _msgController = TextEditingController();
   final ScrollController _scrollController = ScrollController();
 
+  bool _isAvailable() {
+    final now = DateTime.now();
+    // Disponible de Lunes (1) a Viernes (5), entre 9:00 AM y 6:00 PM (18:00)
+    return now.weekday >= 1 &&
+        now.weekday <= 5 &&
+        now.hour >= 9 &&
+        now.hour < 18;
+  }
+
   @override
   void initState() {
     super.initState();
@@ -97,11 +106,15 @@ class _ChatScreenState extends State<ChatScreen> {
                     ),
                     overflow: TextOverflow.ellipsis,
                   ),
-                  const Text(
-                    'En línea',
+                  Text(
+                    _isAvailable()
+                        ? 'En línea'
+                        : 'Fuera de horario (9am - 6pm)',
                     style: TextStyle(
                       fontSize: 12,
-                      color: Color(0xFF2ECC71),
+                      color: _isAvailable()
+                          ? const Color(0xFF2ECC71)
+                          : (isDark ? Colors.grey[400] : Colors.grey[600]),
                       fontWeight: FontWeight.w500,
                     ),
                   ),
@@ -111,9 +124,35 @@ class _ChatScreenState extends State<ChatScreen> {
           ],
         ),
         actions: [
-          IconButton(
+          PopupMenuButton<String>(
             icon: Icon(Icons.more_vert, color: textColor),
-            onPressed: () {},
+            color: cardColor,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(16),
+            ),
+            onSelected: (value) {
+              if (value == 'clear') {
+                context.read<AppProvider>().clearChat(widget.studentName);
+              }
+            },
+            itemBuilder: (BuildContext context) => [
+              const PopupMenuItem(
+                value: 'clear',
+                child: Row(
+                  children: [
+                    Icon(Icons.delete_outline, color: Colors.red, size: 20),
+                    SizedBox(width: 8),
+                    Text(
+                      'Vaciar historial',
+                      style: TextStyle(
+                        color: Colors.red,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
           ),
         ],
       ),
@@ -172,6 +211,36 @@ class _ChatScreenState extends State<ChatScreen> {
                     },
                   ),
           ),
+
+          // ── Banner de Fuera de Horario ──
+          if (!_isAvailable())
+            Container(
+              width: double.infinity,
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+              color: const Color(0xFFF39C12).withOpacity(0.1),
+              child: Row(
+                children: [
+                  const Icon(
+                    Icons.access_time_filled,
+                    color: Color(0xFFF39C12),
+                    size: 18,
+                  ),
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: Text(
+                      'El mentor no está disponible ahora. Te responderá en su próximo horario hábil.',
+                      style: TextStyle(
+                        fontSize: 12,
+                        color: isDark
+                            ? Colors.orange[200]
+                            : const Color(0xFFD68910),
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
 
           // Input
           Container(

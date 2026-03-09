@@ -148,6 +148,28 @@ class _StudentDirectoryScreenState extends State<StudentDirectoryScreen> {
                       ],
                     ),
                   )
+                : filteredList.isEmpty
+                ? Center(
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Icon(
+                          Icons.search_off_rounded,
+                          size: 64,
+                          color: isDark ? Colors.grey[700] : Colors.grey[400],
+                        ),
+                        const SizedBox(height: 16),
+                        Text(
+                          'No se encontraron creadores\ncon "$_searchQuery"',
+                          textAlign: TextAlign.center,
+                          style: TextStyle(
+                            color: isDark ? Colors.grey[500] : Colors.grey[600],
+                            fontSize: 16,
+                          ),
+                        ),
+                      ],
+                    ),
+                  )
                 : ListView.builder(
                     padding: const EdgeInsets.symmetric(horizontal: 20),
                     itemCount: filteredList.length,
@@ -232,7 +254,7 @@ class _StudentDirectoryScreenState extends State<StudentDirectoryScreen> {
                         borderRadius: BorderRadius.circular(8),
                       ),
                       child: Text(
-                        student['grade']!, // Lógicamente ahora representa la 'Categoría' del proyecto
+                        student['category']!, // <-- Clave corregida
                         style: const TextStyle(
                           fontSize: 11,
                           fontWeight: FontWeight.bold,

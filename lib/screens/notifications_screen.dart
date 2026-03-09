@@ -45,10 +45,21 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
         actions: [
           TextButton(
             onPressed: () {
+              // 1. Ejecutar la lógica en el Provider
+              context.read<AppProvider>().markAllNotificationsAsRead();
+
+              // 2. Mostrar el feedback visual
               ScaffoldMessenger.of(context).showSnackBar(
                 SnackBar(
-                  content: const Text('Todas marcadas como leídas'),
+                  content: const Row(
+                    children: [
+                      Icon(Icons.done_all, color: Colors.white, size: 20),
+                      SizedBox(width: 8),
+                      Text('Todas marcadas como leídas'),
+                    ],
+                  ),
                   behavior: SnackBarBehavior.floating,
+                  backgroundColor: const Color(0xFF2ECC71), // Verde de éxito
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(12),
                   ),

@@ -51,41 +51,23 @@ class ReportsScreen extends StatelessWidget {
           children: [
             // ── Métricas principales ──
             Row(
-              children: isTeacher
-                  ? [
-                      _buildMetricCard(
-                        context,
-                        'Viabilidad Promedio',
-                        '8.5',
-                        Icons.groups,
-                        const Color(0xFF2EC4B6),
-                      ),
-                      const SizedBox(width: 14),
-                      _buildMetricCard(
-                        context,
-                        'Tasa de Aprobación',
-                        '92%',
-                        Icons.check_circle_outline,
-                        const Color(0xFF70C635),
-                      ),
-                    ]
-                  : [
-                      _buildMetricCard(
-                        context,
-                        'Mi Viabilidad',
-                        '9.8',
-                        Icons.emoji_events,
-                        const Color(0xFF2EC4B6),
-                      ),
-                      const SizedBox(width: 14),
-                      _buildMetricCard(
-                        context,
-                        'Top Creadores',
-                        '3ro',
-                        Icons.leaderboard,
-                        const Color(0xFFF39C12),
-                      ),
-                    ],
+              children: [
+                _buildMetricCard(
+                  context,
+                  dashboardProv.summaryStats['metric1Label'] ?? '',
+                  dashboardProv.summaryStats['metric1Value'] ?? '',
+                  isTeacher ? Icons.groups : Icons.emoji_events,
+                  const Color(0xFF2EC4B6),
+                ),
+                const SizedBox(width: 14),
+                _buildMetricCard(
+                  context,
+                  dashboardProv.summaryStats['metric2Label'] ?? '',
+                  dashboardProv.summaryStats['metric2Value'] ?? '',
+                  isTeacher ? Icons.check_circle_outline : Icons.leaderboard,
+                  const Color(0xFF70C635),
+                ),
+              ],
             ),
 
             const SizedBox(height: 28),
@@ -157,10 +139,10 @@ class ReportsScreen extends StatelessWidget {
 
             const SizedBox(height: 28),
 
-            // ── Resumen rápido ──
-            _buildSummaryCard(context),
+            // ── Resumen General ──
+            _buildSummaryCard(context, dashboardProv),
 
-            const SizedBox(height: 80), // espacio para bottom nav
+            const SizedBox(height: 100), // Espacio final
           ],
         ),
       ),
@@ -329,7 +311,10 @@ class ReportsScreen extends StatelessWidget {
   }
 
   // ── Tarjeta de resumen ──
-  Widget _buildSummaryCard(BuildContext context) {
+  Widget _buildSummaryCard(
+    BuildContext context,
+    DashboardProvider dashboardProv,
+  ) {
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
@@ -356,9 +341,7 @@ class ReportsScreen extends StatelessWidget {
                 ),
                 const SizedBox(height: 8),
                 Text(
-                  isTeacher
-                      ? '154 creadores activos\n6 categorías evaluadas\n85% proyectos viables'
-                      : '2 proyectos activos\nFeedback positivo\nTop 3 en tu categoría',
+                  dashboardProv.summaryStats['summaryText'] ?? '',
                   style: const TextStyle(
                     fontSize: 13,
                     color: Colors.white70,

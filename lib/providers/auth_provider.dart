@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:criterium/models/user_model.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class AuthProvider extends ChangeNotifier {
   UserModel? _currentUser;
@@ -43,6 +44,11 @@ class AuthProvider extends ChangeNotifier {
         );
       }
 
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setString('user_email', email);
+      await prefs.setBool('is_teacher', isTeacher);
+      await prefs.setBool('is_logged_in', true);
+
       notifyListeners();
       return true;
     } catch (e) {
@@ -55,9 +61,22 @@ class AuthProvider extends ChangeNotifier {
     }
   }
 
-  void logout() {
+  void logout() async {
     _currentUser = null;
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.remove('is_logged_in');
     notifyListeners();
+  }
+
+  Future<bool> tryAutoLogin() async {
+    final prefs = await SharedPreferences.getInstance();
+    if (!prefs.containsKey('is_logged_in')) return false;
+
+    final email = prefs.getString('user_email') ?? '';
+    final isTeacher = prefs.getBool('is_teacher') ?? false;
+
+    // Ejecutar login silencioso con los datos guardados
+    return await login(email, "password_placeholder", isTeacher);
   }
 
   void updateUser({

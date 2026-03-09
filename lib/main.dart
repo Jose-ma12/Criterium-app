@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:criterium/screens/splash_screen.dart';
+import 'package:criterium/screens/login_screen.dart';
+import 'package:criterium/screens/dashboard_screen.dart';
 import 'package:criterium/theme/app_theme.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:provider/provider.dart';
@@ -46,14 +48,36 @@ class MyApp extends StatelessWidget {
       ],
       child: ValueListenableBuilder<ThemeMode>(
         valueListenable: themeNotifier,
-        builder: (_, mode, __) {
+        // 1. Nombramos explícitamente este contexto que YA vive dentro del MultiProvider
+        builder: (contextBelowProvider, mode, __) {
           return MaterialApp(
             title: 'Criterium',
             debugShowCheckedModeBanner: false,
             theme: AppTheme.lightTheme,
             darkTheme: AppTheme.darkTheme,
             themeMode: mode,
-            home: const SplashScreen(),
+            home: FutureBuilder(
+              future: Provider.of<AuthProvider>(
+                contextBelowProvider, // 2. Usamos el contexto interno aquí
+                listen: false,
+              ).tryAutoLogin(),
+              // 3. Nombramos el contexto del builder para evitar choques
+              builder: (futureContext, snapshot) {
+                if (snapshot.connectionState == ConnectionState.waiting) {
+                  return const SplashScreen();
+                }
+                if (snapshot.data == true) {
+                  final isTeacher =
+                      Provider.of<AuthProvider>(
+                        futureContext, // 4. Usamos el contexto del FutureBuilder aquí
+                        listen: false,
+                      ).currentUser?.role ==
+                      'teacher';
+                  return DashboardScreen(isTeacher: isTeacher);
+                }
+                return const LoginScreen();
+              },
+            ),
           );
         },
       ),

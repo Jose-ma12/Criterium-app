@@ -18,13 +18,6 @@ class _GradesSummaryScreenState extends State<GradesSummaryScreen> {
     Future.microtask(() => context.read<StudentProvider>().fetchStudentData());
   }
 
-  static final List<Map<String, dynamic>> _softSkills = [
-    {'name': 'Escalabilidad del modelo', 'stars': 5},
-    {'name': 'Calidad del MVP', 'stars': 5},
-    {'name': 'Gestión del Equipo', 'stars': 4},
-    {'name': 'Cumplimiento de Roadmap', 'stars': 4},
-  ];
-
   @override
   Widget build(BuildContext context) {
     final provider = context.watch<StudentProvider>();
@@ -111,7 +104,7 @@ class _GradesSummaryScreenState extends State<GradesSummaryScreen> {
     final double average = provider.subjects.isEmpty
         ? 0
         : provider.subjects
-                  .map((s) => s['grade'] as double)
+                  .map((s) => (s['grade'] as num).toDouble())
                   .reduce((a, b) => a + b) /
               provider.subjects.length;
 
@@ -146,97 +139,107 @@ class _GradesSummaryScreenState extends State<GradesSummaryScreen> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             // ── Tarjeta Maestra — Promedio General ──
-            Container(
-              width: double.infinity,
-              padding: const EdgeInsets.all(24),
-              decoration: BoxDecoration(
-                gradient: const LinearGradient(
-                  colors: [Color(0xFF0F172A), Color(0xFF1E293B)],
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight,
-                ),
-                borderRadius: BorderRadius.circular(24),
-                boxShadow: [
-                  BoxShadow(
-                    color: AppTheme.navyBlue.withOpacity(0.25),
-                    blurRadius: 20,
-                    offset: const Offset(0, 10),
+            Builder(
+              builder: (context) {
+                final now = DateTime.now();
+                final batch = now.month <= 6 ? 'Ene-Jun' : 'Jul-Dic';
+
+                return Container(
+                  width: double.infinity,
+                  padding: const EdgeInsets.all(24),
+                  decoration: BoxDecoration(
+                    gradient: const LinearGradient(
+                      colors: [Color(0xFF0F172A), Color(0xFF1E293B)],
+                      begin: Alignment.topLeft,
+                      end: Alignment.bottomRight,
+                    ),
+                    borderRadius: BorderRadius.circular(24),
+                    boxShadow: [
+                      BoxShadow(
+                        color: AppTheme.navyBlue.withOpacity(0.25),
+                        blurRadius: 20,
+                        offset: const Offset(0, 10),
+                      ),
+                    ],
                   ),
-                ],
-              ),
-              child: Row(
-                children: [
-                  // Gráfico circular
-                  SizedBox(
-                    width: 100,
-                    height: 100,
-                    child: CustomPaint(
-                      painter: _CircularGradePainter(average / 10),
-                      child: Center(
-                        child: Text(
-                          average.toStringAsFixed(1),
-                          style: const TextStyle(
-                            fontSize: 28,
-                            fontWeight: FontWeight.bold,
-                            color: Colors.white,
+                  child: Row(
+                    children: [
+                      // Gráfico circular
+                      SizedBox(
+                        width: 100,
+                        height: 100,
+                        child: CustomPaint(
+                          painter: _CircularGradePainter(average / 10),
+                          child: Center(
+                            child: Text(
+                              average.toStringAsFixed(1),
+                              style: const TextStyle(
+                                fontSize: 28,
+                                fontWeight: FontWeight.bold,
+                                color: Colors.white,
+                              ),
+                            ),
                           ),
                         ),
                       ),
-                    ),
-                  ),
-                  const SizedBox(width: 24),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        const Text(
-                          'Puntaje de Viabilidad',
-                          style: TextStyle(
-                            fontSize: 16,
-                            fontWeight: FontWeight.w600,
-                            color: Colors.white70,
-                          ),
-                        ),
-                        const SizedBox(height: 4),
-                        const Text(
-                          'Batch de Incubación Ene-Jun 2026',
-                          style: TextStyle(fontSize: 13, color: Colors.white38),
-                        ),
-                        const SizedBox(height: 12),
-                        Container(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 12,
-                            vertical: 6,
-                          ),
-                          decoration: BoxDecoration(
-                            color: const Color(0xFF2ECC71).withOpacity(0.2),
-                            borderRadius: BorderRadius.circular(20),
-                          ),
-                          child: const Row(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              Icon(
-                                Icons.trending_up,
-                                color: Color(0xFF2ECC71),
-                                size: 16,
+                      const SizedBox(width: 24),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            const Text(
+                              'Puntaje de Viabilidad',
+                              style: TextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.w600,
+                                color: Colors.white70,
                               ),
-                              SizedBox(width: 4),
-                              Text(
-                                'Excelente',
-                                style: TextStyle(
-                                  fontSize: 12,
-                                  fontWeight: FontWeight.bold,
-                                  color: Color(0xFF2ECC71),
-                                ),
+                            ),
+                            const SizedBox(height: 4),
+                            Text(
+                              'Batch de Incubación $batch ${now.year}',
+                              style: const TextStyle(
+                                fontSize: 13,
+                                color: Colors.white38,
                               ),
-                            ],
-                          ),
+                            ),
+                            const SizedBox(height: 12),
+                            Container(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 12,
+                                vertical: 6,
+                              ),
+                              decoration: BoxDecoration(
+                                color: const Color(0xFF2ECC71).withOpacity(0.2),
+                                borderRadius: BorderRadius.circular(20),
+                              ),
+                              child: const Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  Icon(
+                                    Icons.trending_up,
+                                    color: Color(0xFF2ECC71),
+                                    size: 16,
+                                  ),
+                                  SizedBox(width: 4),
+                                  Text(
+                                    'Excelente',
+                                    style: TextStyle(
+                                      fontSize: 12,
+                                      fontWeight: FontWeight.bold,
+                                      color: Color(0xFF2ECC71),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ],
                         ),
-                      ],
-                    ),
+                      ),
+                    ],
                   ),
-                ],
-              ),
+                );
+              },
             ),
             const SizedBox(height: 28),
 
@@ -288,11 +291,11 @@ class _GradesSummaryScreenState extends State<GradesSummaryScreen> {
                 ],
               ),
               child: Column(
-                children: List.generate(_softSkills.length, (index) {
-                  final skill = _softSkills[index];
+                children: List.generate(provider.softSkills.length, (index) {
+                  final skill = provider.softSkills[index];
                   return Padding(
                     padding: EdgeInsets.only(
-                      bottom: index < _softSkills.length - 1 ? 16 : 0,
+                      bottom: index < provider.softSkills.length - 1 ? 16 : 0,
                     ),
                     child: _buildSoftSkillRow(
                       context,

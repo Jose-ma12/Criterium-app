@@ -89,7 +89,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                 icon: Icon(
                   widget.isTeacher ? Icons.folder_special : Icons.rocket_launch,
                 ),
-                label: widget.isTeacher ? 'Proyectos' : 'Mis Juegos',
+                label: widget.isTeacher ? 'Proyectos' : 'Mis Proyectos',
               ),
               const BottomNavigationBarItem(
                 icon: Icon(Icons.assessment),
@@ -111,27 +111,6 @@ class _DashboardScreenState extends State<DashboardScreen> {
           ),
         ),
       ),
-      floatingActionButton: !widget.isTeacher && _selectedIndex == 0
-          ? FloatingActionButton.extended(
-              onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => const NewAssignmentScreen(),
-                  ),
-                );
-              },
-              backgroundColor: AppTheme.navyBlue,
-              icon: const Icon(Icons.cloud_upload, color: Colors.white),
-              label: const Text(
-                'Subir Proyecto',
-                style: TextStyle(
-                  color: Colors.white,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-            )
-          : null,
     );
   }
 
@@ -205,16 +184,6 @@ class _DashboardScreenState extends State<DashboardScreen> {
 
     String userRoleSubtitle = widget.isTeacher ? 'Mentor / Evaluador' : '';
 
-    // Stats
-    String stat1Val = widget.isTeacher ? '12' : '2';
-    String stat1Label = widget.isTeacher ? 'POR EVALUAR' : 'PROYECTOS';
-
-    String stat2Val = widget.isTeacher ? '5' : '1';
-    String stat2Label = widget.isTeacher ? 'VENDIBLES' : 'EVALUADOS';
-
-    String stat3Val = widget.isTeacher ? '3' : '1';
-    String stat3Label = widget.isTeacher ? 'A MEJORAR' : 'EN DESARROLLO';
-
     return SafeArea(
       child: SingleChildScrollView(
         padding: const EdgeInsets.all(24.0),
@@ -225,41 +194,43 @@ class _DashboardScreenState extends State<DashboardScreen> {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      'MARTES, 24 OCT',
-                      style: TextStyle(
-                        color: isDark ? Colors.grey[400] : Colors.grey[600],
-                        fontSize: 12,
-                        fontWeight: FontWeight.bold,
-                        letterSpacing: 1.0,
-                      ),
-                    ),
-                    const SizedBox(height: 4),
-                    Text(
-                      userName,
-                      style: GoogleFonts.poppins(
-                        color: textColor,
-                        fontSize: 28,
-                        fontWeight: FontWeight.w700,
-                        height: 1.1,
-                      ),
-                    ),
-                    if (widget.isTeacher)
-                      Padding(
-                        padding: const EdgeInsets.only(top: 4.0),
-                        child: Text(
-                          userRoleSubtitle,
-                          style: TextStyle(
-                            color: textColor.withOpacity(0.7),
-                            fontSize: 14,
-                            fontWeight: FontWeight.bold,
-                          ),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        'MARTES, 24 OCT',
+                        style: TextStyle(
+                          color: isDark ? Colors.grey[400] : Colors.grey[600],
+                          fontSize: 12,
+                          fontWeight: FontWeight.bold,
+                          letterSpacing: 1.0,
                         ),
                       ),
-                  ],
+                      const SizedBox(height: 4),
+                      Text(
+                        userName,
+                        style: GoogleFonts.poppins(
+                          color: textColor,
+                          fontSize: 28,
+                          fontWeight: FontWeight.w700,
+                          height: 1.1,
+                        ),
+                      ),
+                      if (widget.isTeacher)
+                        Padding(
+                          padding: const EdgeInsets.only(top: 4.0),
+                          child: Text(
+                            userRoleSubtitle,
+                            style: TextStyle(
+                              color: textColor.withOpacity(0.7),
+                              fontSize: 14,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ),
+                    ],
+                  ),
                 ),
                 Row(
                   children: [
@@ -320,8 +291,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
               children: [
                 _buildStatCard(
                   context,
-                  stat1Val,
-                  stat1Label,
+                  dashboardProv.topCardsStats['stat1Val'] ?? '0',
+                  dashboardProv.topCardsStats['stat1Label'] ?? '',
                   widget.isTeacher ? Icons.class_ : Icons.trending_up,
                   const Color(0xFF2EC4B6),
                   onTap: () {
@@ -338,8 +309,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
                 const SizedBox(width: 12),
                 _buildStatCard(
                   context,
-                  stat2Val,
-                  stat2Label,
+                  dashboardProv.topCardsStats['stat2Val'] ?? '0',
+                  dashboardProv.topCardsStats['stat2Label'] ?? '',
                   widget.isTeacher ? Icons.assignment_late : Icons.remove,
                   const Color(0xFFF39C12),
                   onTap: () {
@@ -358,8 +329,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
                 const SizedBox(width: 12),
                 _buildStatCard(
                   context,
-                  stat3Val,
-                  stat3Label,
+                  dashboardProv.topCardsStats['stat3Val'] ?? '0',
+                  dashboardProv.topCardsStats['stat3Label'] ?? '',
                   widget.isTeacher ? Icons.people : Icons.priority_high,
                   const Color(0xFFE74C3C),
                   onTap: () {
@@ -421,6 +392,41 @@ class _DashboardScreenState extends State<DashboardScreen> {
 
             const SizedBox(height: 16),
 
+            // ── NUEVO BOTÓN INTEGRADO PARA CREADORES ──
+            if (!widget.isTeacher) ...[
+              SizedBox(
+                width: double.infinity,
+                child: ElevatedButton.icon(
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => const NewAssignmentScreen(),
+                      ),
+                    );
+                  },
+                  icon: const Icon(Icons.cloud_upload, color: Colors.white),
+                  label: const Text(
+                    'Subir Nuevo Proyecto',
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontWeight: FontWeight.bold,
+                      fontSize: 16,
+                    ),
+                  ),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: AppTheme.navyBlue,
+                    padding: const EdgeInsets.symmetric(vertical: 16),
+                    elevation: 0,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(20),
+                    ),
+                  ),
+                ),
+              ),
+              const SizedBox(height: 24),
+            ],
+
             ...dashboardProv.activeProjects.map(
               (proj) => Padding(
                 padding: const EdgeInsets.only(bottom: 16),
@@ -436,6 +442,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                   timeLeft: proj['timeLeft'],
                   backgroundColor: proj['backgroundColor'],
                   isDark: proj['isDark'],
+                  hasScanner: proj['hasScanner'] ?? false,
                   onTap: () {
                     if (widget.isTeacher) {
                       Navigator.push(
@@ -460,184 +467,9 @@ class _DashboardScreenState extends State<DashboardScreen> {
               ),
             ),
 
-            const SizedBox(height: 16),
-
-            // Completed Project Card (SaaS)
-            Container(
-              width: double.infinity,
-              padding: const EdgeInsets.all(20),
-              decoration: BoxDecoration(
-                color: cardColor,
-                borderRadius: BorderRadius.circular(24),
-                boxShadow: [
-                  BoxShadow(
-                    color: isDark
-                        ? Colors.transparent
-                        : const Color(0xFF0F172A).withValues(alpha: 0.05),
-                    blurRadius: 12,
-                    offset: const Offset(0, 4),
-                  ),
-                ],
-              ),
-              child: Row(
-                children: [
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          'COMPLETADA',
-                          style: TextStyle(
-                            color: isDark ? Colors.grey[600] : Colors.grey[400],
-                            fontSize: 10,
-                            fontWeight: FontWeight.bold,
-                            letterSpacing: 1.0,
-                          ),
-                        ),
-                        const SizedBox(height: 4),
-                        Text(
-                          'Plataforma SaaS',
-                          style: GoogleFonts.poppins(
-                            color: isDark ? Colors.grey[500] : Colors.grey,
-                            fontSize: 18,
-                            fontWeight: FontWeight.w600,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                  ElevatedButton.icon(
-                    onPressed: () async {
-                      final scannedCode = await Navigator.push<String>(
-                        context,
-                        MaterialPageRoute(
-                          builder: (_) => const QRScannerScreen(),
-                        ),
-                      );
-                      if (scannedCode != null && mounted) {
-                        showDialog(
-                          context: context,
-                          builder: (ctx) => Dialog(
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(24),
-                            ),
-                            child: Padding(
-                              padding: const EdgeInsets.all(28),
-                              child: Column(
-                                mainAxisSize: MainAxisSize.min,
-                                children: [
-                                  Container(
-                                    padding: const EdgeInsets.all(16),
-                                    decoration: BoxDecoration(
-                                      color: const Color(
-                                        0xFF70C635,
-                                      ).withOpacity(0.1),
-                                      shape: BoxShape.circle,
-                                    ),
-                                    child: const Icon(
-                                      Icons.check_circle,
-                                      color: Color(0xFF70C635),
-                                      size: 56,
-                                    ),
-                                  ),
-                                  const SizedBox(height: 20),
-                                  Text(
-                                    'Sesión Registrada',
-                                    style: GoogleFonts.poppins(
-                                      fontSize: 20,
-                                      fontWeight: FontWeight.w700,
-                                      color: isDark
-                                          ? Colors.white
-                                          : AppTheme.navyBlue,
-                                    ),
-                                  ),
-                                  const SizedBox(height: 12),
-                                  Text(
-                                    'Se ha registrado la sesión de mentoría correctamente.',
-                                    textAlign: TextAlign.center,
-                                    style: TextStyle(
-                                      fontSize: 14,
-                                      color: isDark
-                                          ? Colors.grey[400]
-                                          : Colors.grey[600],
-                                    ),
-                                  ),
-                                  const SizedBox(height: 8),
-                                  Container(
-                                    padding: const EdgeInsets.symmetric(
-                                      horizontal: 16,
-                                      vertical: 10,
-                                    ),
-                                    decoration: BoxDecoration(
-                                      color: isDark
-                                          ? const Color(0xFF334155)
-                                          : Colors.grey[100],
-                                      borderRadius: BorderRadius.circular(12),
-                                    ),
-                                    child: Text(
-                                      'Código: $scannedCode',
-                                      style: TextStyle(
-                                        fontSize: 13,
-                                        fontWeight: FontWeight.w600,
-                                        color: isDark
-                                            ? Colors.white
-                                            : AppTheme.navyBlue,
-                                      ),
-                                    ),
-                                  ),
-                                  const SizedBox(height: 24),
-                                  SizedBox(
-                                    width: double.infinity,
-                                    child: ElevatedButton(
-                                      onPressed: () => Navigator.pop(ctx),
-                                      style: ElevatedButton.styleFrom(
-                                        backgroundColor: AppTheme.navyBlue,
-                                        foregroundColor: Colors.white,
-                                        padding: const EdgeInsets.symmetric(
-                                          vertical: 14,
-                                        ),
-                                        shape: RoundedRectangleBorder(
-                                          borderRadius: BorderRadius.circular(
-                                            14,
-                                          ),
-                                        ),
-                                      ),
-                                      child: const Text(
-                                        'Aceptar',
-                                        style: TextStyle(
-                                          fontSize: 16,
-                                          fontWeight: FontWeight.bold,
-                                        ),
-                                      ),
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ),
-                        );
-                      }
-                    },
-                    icon: const Icon(Icons.qr_code_scanner, size: 18),
-                    label: const Text('Escanear'),
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: const Color(0xFF70C635),
-                      foregroundColor: Colors.white,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 16,
-                        vertical: 12,
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-
-            // Espaciado extra si hay FAB
-            if (widget.isTeacher) const SizedBox(height: 80),
+            const SizedBox(
+              height: 120,
+            ), // <-- Padding extra para el navbar flotante
           ],
         ),
       ),
@@ -656,8 +488,13 @@ class _DashboardScreenState extends State<DashboardScreen> {
       child: GestureDetector(
         onTap: onTap,
         child: Container(
-          height: 140,
-          padding: const EdgeInsets.all(16),
+          constraints: const BoxConstraints(
+            minHeight: 140,
+          ), // <-- Altura mínima, permite crecer
+          padding: const EdgeInsets.symmetric(
+            vertical: 16,
+            horizontal: 8,
+          ), // <-- Menos padding lateral
           decoration: BoxDecoration(
             color: color,
             borderRadius: BorderRadius.circular(20),
@@ -684,6 +521,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
               ),
               Text(
                 label,
+                textAlign: TextAlign.center, // <-- NUEVA LÍNEA
                 style: const TextStyle(
                   color: Colors.white70,
                   fontSize: 10,
@@ -848,15 +686,16 @@ class _DashboardScreenState extends State<DashboardScreen> {
     BuildContext context, {
     required String title,
     required String subtitle,
+    double? progress,
     required String status,
     required Color statusColor,
     required IconData iconData,
-    required Color backgroundColor,
-    required bool isDark,
-    double? progress,
     int? participants,
     String? timeLeft,
-    VoidCallback? onTap,
+    required Color backgroundColor,
+    required bool isDark,
+    bool hasScanner = false,
+    required VoidCallback onTap,
   }) {
     return GestureDetector(
       onTap: onTap,
@@ -1017,6 +856,43 @@ class _DashboardScreenState extends State<DashboardScreen> {
                     ),
                   ),
                 ],
+              ),
+            ],
+
+            if (hasScanner) ...[
+              const SizedBox(height: 20),
+              SizedBox(
+                width: double.infinity,
+                child: ElevatedButton.icon(
+                  onPressed: () async {
+                    final scannedCode = await Navigator.push<String>(
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) => const QRScannerScreen(),
+                      ),
+                    );
+                    if (scannedCode != null && context.mounted) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                          content: Text(
+                            '✅ Sesión registrada. Código: $scannedCode',
+                          ),
+                          backgroundColor: const Color(0xFF2ECC71),
+                          behavior: SnackBarBehavior.floating,
+                        ),
+                      );
+                    }
+                  },
+                  icon: const Icon(Icons.qr_code_scanner, size: 18),
+                  label: const Text('Escanear QR de Proyecto'),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: const Color(0xFF70C635),
+                    foregroundColor: Colors.white,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(16),
+                    ),
+                  ),
+                ),
               ),
             ],
           ],

@@ -65,7 +65,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
 
   void _save() {
     if (_formKey.currentState?.validate() ?? false) {
-      Navigator.pop(context, {
+      Navigator.pop(context, <String, dynamic>{
         'name': _nameController.text.trim(),
         'bio': _bioController.text.trim(),
         'phone': _phoneController.text.trim(),

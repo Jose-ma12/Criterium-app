@@ -13,6 +13,8 @@ class EvaluationScreen extends StatefulWidget {
 }
 
 class _EvaluationScreenState extends State<EvaluationScreen> {
+  bool _isLoading = false;
+
   @override
   void initState() {
     super.initState();
@@ -95,6 +97,31 @@ class _EvaluationScreenState extends State<EvaluationScreen> {
                       ],
                     ),
                   )
+                else if (appProv.evaluationTeam.isEmpty)
+                  Center(
+                    child: Padding(
+                      padding: const EdgeInsets.only(top: 40.0),
+                      child: Column(
+                        children: [
+                          Icon(
+                            Icons.check_circle_outline,
+                            size: 64,
+                            color: Colors.green[400],
+                          ),
+                          const SizedBox(height: 16),
+                          Text(
+                            'Ya evaluaste a todo tu equipo.',
+                            style: TextStyle(
+                              color: isDark
+                                  ? Colors.grey[400]
+                                  : Colors.grey[600],
+                              fontSize: 16,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  )
                 else
                   ...appProv.evaluationTeam
                       .asMap()
@@ -131,14 +158,26 @@ class _EvaluationScreenState extends State<EvaluationScreen> {
                 ),
               ),
               child: ElevatedButton(
-                onPressed: () {
-                  Navigator.pushReplacement(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => const SuccessScreen(),
-                    ),
-                  );
-                },
+                onPressed: _isLoading || appProv.evaluationTeam.isEmpty
+                    ? null
+                    : () async {
+                        setState(() => _isLoading = true);
+
+                        // Mutamos el estado global
+                        await context
+                            .read<AppProvider>()
+                            .submitTeamEvaluation();
+
+                        if (!mounted) return;
+
+                        // Navegamos a la pantalla de éxito
+                        Navigator.pushReplacement(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => const SuccessScreen(),
+                          ),
+                        );
+                      },
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Colors.transparent,
                   shadowColor: Colors.transparent,
@@ -147,21 +186,30 @@ class _EvaluationScreenState extends State<EvaluationScreen> {
                     borderRadius: BorderRadius.circular(30),
                   ),
                 ),
-                child: const Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Text(
-                      'Enviar Evaluación',
-                      style: TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.white,
+                child: _isLoading
+                    ? const SizedBox(
+                        width: 24,
+                        height: 24,
+                        child: CircularProgressIndicator(
+                          color: Colors.white,
+                          strokeWidth: 2,
+                        ),
+                      )
+                    : const Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Text(
+                            'Enviar Evaluación',
+                            style: TextStyle(
+                              fontSize: 18,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.white,
+                            ),
+                          ),
+                          SizedBox(width: 8),
+                          Icon(Icons.send, color: Colors.white, size: 20),
+                        ],
                       ),
-                    ),
-                    SizedBox(width: 8),
-                    Icon(Icons.send, color: Colors.white, size: 20),
-                  ],
-                ),
               ),
             ),
           ),

@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:criterium/theme/app_theme.dart';
+import 'package:provider/provider.dart';
+import 'package:criterium/providers/teacher_provider.dart';
 
 class RubricBuilderScreen extends StatefulWidget {
   final String title;
@@ -36,15 +38,37 @@ class _RubricBuilderScreenState extends State<RubricBuilderScreen> {
       return;
     }
 
+    final feedbackText = _feedbackCtrl.text.trim();
+    if (feedbackText.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Por favor, escribe un feedback técnico y comercial.'),
+          backgroundColor: Colors.red,
+          behavior: SnackBarBehavior.floating,
+        ),
+      );
+      return;
+    }
+
     setState(() => _isLoading = true);
-    // Simular el envío al servidor
-    await Future.delayed(const Duration(seconds: 2));
+
+    // Calculamos la calificación basada en el veredicto
+    int finalGrade = 80;
+    if (_verdict == 'vendible') finalGrade = 100;
+    if (_verdict == 'noviable') finalGrade = 60;
+
+    // Mutamos el estado global
+    context.read<TeacherProvider>().evaluateProject(widget.title, finalGrade);
+
+    await Future.delayed(const Duration(milliseconds: 600)); // Breve animación
+
     if (!mounted) return;
 
     ScaffoldMessenger.of(context).showSnackBar(
       const SnackBar(
         content: Text('✅ Evaluación y feedback enviados al creador'),
         backgroundColor: Color(0xFF2ECC71),
+        behavior: SnackBarBehavior.floating,
       ),
     );
     Navigator.pop(context);

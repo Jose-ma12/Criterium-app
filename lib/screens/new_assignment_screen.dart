@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:criterium/theme/app_theme.dart';
 import 'package:provider/provider.dart';
-import 'package:criterium/providers/teacher_provider.dart';
+import 'package:criterium/providers/app_provider.dart';
+import 'package:criterium/providers/student_provider.dart';
 import 'package:file_picker/file_picker.dart';
 
 class NewAssignmentScreen extends StatefulWidget {
@@ -54,9 +55,9 @@ class _NewAssignmentScreenState extends State<NewAssignmentScreen> {
   void initState() {
     super.initState();
     Future.microtask(() {
-      final provider = context.read<TeacherProvider>();
-      if (provider.availableClasses.isEmpty) {
-        provider.fetchTeacherData();
+      final provider = context.read<AppProvider>();
+      if (provider.availableCategories.isEmpty) {
+        provider.fetchAppData();
       }
     });
   }
@@ -66,8 +67,8 @@ class _NewAssignmentScreenState extends State<NewAssignmentScreen> {
       context: context,
       backgroundColor: Colors.transparent,
       builder: (ctx) {
-        return Consumer<TeacherProvider>(
-          builder: (context, teacherProv, child) {
+        return Consumer<AppProvider>(
+          builder: (context, appProv, child) {
             final isDark = Theme.of(ctx).brightness == Brightness.dark;
             final cardColor = Theme.of(ctx).cardColor;
             final textColor = isDark ? Colors.white : AppTheme.navyBlue;
@@ -107,12 +108,12 @@ class _NewAssignmentScreenState extends State<NewAssignmentScreen> {
                   const SizedBox(height: 16),
 
                   // Manejo de estados de carga y datos
-                  if (teacherProv.isLoading)
+                  if (appProv.isLoading)
                     const Padding(
                       padding: EdgeInsets.all(32.0),
                       child: Center(child: CircularProgressIndicator()),
                     )
-                  else if (teacherProv.availableClasses.isEmpty)
+                  else if (appProv.availableCategories.isEmpty)
                     const Padding(
                       padding: EdgeInsets.all(32.0),
                       child: Center(
@@ -124,10 +125,10 @@ class _NewAssignmentScreenState extends State<NewAssignmentScreen> {
                       shrinkWrap: true,
                       physics: const NeverScrollableScrollPhysics(),
                       padding: const EdgeInsets.symmetric(horizontal: 16),
-                      itemCount: teacherProv.availableClasses.length,
+                      itemCount: appProv.availableCategories.length,
                       separatorBuilder: (_, __) => const SizedBox(height: 4),
                       itemBuilder: (ctxList, index) {
-                        final cls = teacherProv.availableClasses[index];
+                        final cls = appProv.availableCategories[index];
                         final isSelected = _selectedClass == cls['name'];
                         return ListTile(
                           leading: Container(
@@ -515,7 +516,11 @@ class _NewAssignmentScreenState extends State<NewAssignmentScreen> {
                         return;
                       }
 
-                      // Simular guardado de proyecto
+                      // Actualizar el estado global del alumno
+                      context.read<StudentProvider>().submitAssignment(
+                        _titleController.text.trim(),
+                        _selectedClass,
+                      );
                       ScaffoldMessenger.of(context).showSnackBar(
                         const SnackBar(
                           content: Text(

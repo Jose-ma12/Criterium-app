@@ -11,6 +11,9 @@ class AppProvider extends ChangeNotifier {
   Map<String, List<Map<String, dynamic>>> _chatSessions = {};
   List<Map<String, dynamic>> _evaluationTeam = [];
 
+  List<Map<String, String>> _availableCategories = [];
+  List<Map<String, String>> get availableCategories => _availableCategories;
+
   // INTERRUPTOR DE BACKEND:
   // true = Usa datos de prueba (App funcional sin servidor)
   // false = Usa peticiones http reales al servidor
@@ -22,7 +25,17 @@ class AppProvider extends ChangeNotifier {
   List<Map<String, dynamic>> get evaluationTeam => _evaluationTeam;
 
   List<Map<String, dynamic>> getChatFor(String studentName) {
-    return _chatSessions[studentName] ?? [];
+    if (!_chatSessions.containsKey(studentName)) {
+      _chatSessions[studentName] = [
+        {
+          'text':
+              'Hola, este es el inicio de tu conversación con $studentName. ¡Escribe un mensaje para empezar la mentoría!',
+          'isMe': false,
+          'time': 'Ahora',
+        },
+      ];
+    }
+    return _chatSessions[studentName]!;
   }
 
   Future<void> fetchAppData() async {
@@ -36,6 +49,15 @@ class AppProvider extends ChangeNotifier {
         // 🛑 MODO OFFLINE: DATOS DE PRUEBA (MOCKS)
         // ==========================================
         await Future.delayed(const Duration(seconds: 1));
+
+        _availableCategories = [
+          {'id': '1', 'name': 'VR/AR', 'icon': '🥽'},
+          {'id': '2', 'name': 'E-commerce', 'icon': '🛒'},
+          {'id': '3', 'name': 'IA/Machine Learning', 'icon': '🤖'},
+          {'id': '4', 'name': 'App Móvil', 'icon': '📱'},
+          {'id': '5', 'name': 'SaaS B2B', 'icon': '🏢'},
+          {'id': '6', 'name': 'Juego Indie', 'icon': '🎮'},
+        ];
 
         _notifications = [
           {
@@ -153,6 +175,13 @@ class AppProvider extends ChangeNotifier {
     }
   }
 
+  void markAllNotificationsAsRead() {
+    for (var i = 0; i < _notifications.length; i++) {
+      _notifications[i]['read'] = true;
+    }
+    notifyListeners();
+  }
+
   void sendMessage(String studentName, String text, String time) {
     if (!_chatSessions.containsKey(studentName)) {
       _chatSessions[studentName] = [];
@@ -166,10 +195,29 @@ class AppProvider extends ChangeNotifier {
     notifyListeners();
   }
 
+  Future<void> submitTeamEvaluation() async {
+    _isLoading = true;
+    notifyListeners();
+
+    // Simulamos el envío de datos al servidor
+    await Future.delayed(const Duration(seconds: 2));
+
+    // Limpiamos la lista para simular que ya no hay compañeros por evaluar
+    _evaluationTeam.clear();
+    _isLoading = false;
+    notifyListeners();
+  }
+
+  void clearChat(String studentName) {
+    _chatSessions[studentName] = [];
+    notifyListeners();
+  }
+
   void clearData() {
     _notifications.clear();
     _chatSessions.clear();
     _evaluationTeam.clear();
+    _availableCategories.clear();
     _errorMessage = null;
     notifyListeners();
   }

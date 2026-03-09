@@ -7,6 +7,8 @@ class StudentProvider extends ChangeNotifier {
   List<Map<String, dynamic>> _subjects = [];
   List<Map<String, dynamic>> _assignments = [];
   Map<int, int> _attendanceRecords = {};
+  List<Map<String, dynamic>> _incidentLogs = [];
+  List<Map<String, dynamic>> _softSkills = [];
   bool _isLoading = false;
   String? _errorMessage;
 
@@ -18,6 +20,8 @@ class StudentProvider extends ChangeNotifier {
   List<Map<String, dynamic>> get subjects => _subjects;
   List<Map<String, dynamic>> get assignments => _assignments;
   Map<int, int> get attendanceRecords => _attendanceRecords;
+  List<Map<String, dynamic>> get incidentLogs => _incidentLogs;
+  List<Map<String, dynamic>> get softSkills => _softSkills;
   bool get isLoading => _isLoading;
   String? get errorMessage => _errorMessage;
 
@@ -96,6 +100,28 @@ class StudentProvider extends ChangeNotifier {
           23: 0, 24: 0, 25: 0, 26: 0, 27: 0, // semana 4
           28: 3, // Sáb
         };
+
+        _softSkills = [
+          {'name': 'Escalabilidad del modelo', 'stars': 5},
+          {'name': 'Calidad del MVP', 'stars': 5},
+          {'name': 'Gestión del Equipo', 'stars': 4},
+          {'name': 'Cumplimiento de Roadmap', 'stars': 4},
+        ];
+
+        _incidentLogs = [
+          {
+            'date': '05 Feb',
+            'type': 'Reprogramada',
+            'subject': 'Mentoría Técnica',
+            'status': 'tardy',
+          },
+          {
+            'date': '12 Feb',
+            'type': 'Cancelada',
+            'subject': 'Revisión de Pitch',
+            'status': 'absence',
+          },
+        ];
       } else {
         // ==========================================
         // 🟢 MODO PRODUCCIÓN: CONEXIÓN REAL AL API
@@ -125,10 +151,26 @@ class StudentProvider extends ChangeNotifier {
     }
   }
 
+  void submitAssignment(String title, String category) {
+    final newAssignment = {
+      'name': title,
+      'subject': category,
+      'icon': Icons.new_releases,
+      'date': 'Hoy',
+      'status': 'pending',
+      'grade': null,
+      'feedback': null,
+    };
+    _assignments.insert(0, newAssignment);
+    notifyListeners(); // Refresca la lista del alumno
+  }
+
   void clearData() {
     _subjects.clear();
     _assignments.clear();
     _attendanceRecords.clear();
+    _incidentLogs.clear();
+    _softSkills.clear();
     _errorMessage = null;
     notifyListeners();
   }

@@ -29,13 +29,13 @@ class ProfileScreen extends StatefulWidget {
 
 class _ProfileScreenState extends State<ProfileScreen> {
   Future<void> _openEditProfile(BuildContext context, user) async {
-    final result = await Navigator.push<Map<String, String>>(
+    final result = await Navigator.push<Map<String, dynamic>>(
       context,
       MaterialPageRoute(
         builder: (_) => EditProfileScreen(
           currentName: user.name,
-          currentBio: user.bio, // <-- REEMPLAZAR MOCK
-          currentPhone: user.phone, // <-- REEMPLAZAR MOCK
+          currentBio: user.bio,
+          currentPhone: user.phone,
           email: user.email,
           role: user.role == 'teacher'
               ? 'Evaluador / Mentor'
@@ -69,6 +69,35 @@ class _ProfileScreenState extends State<ProfileScreen> {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final cardColor = Theme.of(context).cardColor;
     final textColor = isDark ? Colors.white : AppTheme.navyBlue;
+
+    final teacherProv = context.watch<TeacherProvider>();
+    final studentProv = context.watch<StudentProvider>();
+
+    // Cálculos para el Mentor
+    final String catCount = teacherProv.classes.length.toString();
+    final String pendingCount = teacherProv.submissions
+        .where(
+          (s) =>
+              s['status'] == 'Pendiente' ||
+              s['status'] == 'Sin Entregar' ||
+              s['status'] == 'Tardía',
+        )
+        .length
+        .toString();
+    final String creatorsCount = teacherProv.students.length.toString();
+
+    // Cálculos para el Creador
+    final String viabilidad = studentProv.subjects.isEmpty
+        ? '0.0'
+        : (studentProv.subjects
+                      .map((s) => (s['grade'] as num).toDouble())
+                      .reduce((a, b) => a + b) /
+                  studentProv.subjects.length)
+              .toStringAsFixed(1);
+    final String entregasCount = studentProv.assignments.length.toString();
+    // Contamos los días de sesiones exitosas o con retardo (1 y 2 en el mapa) o el total
+    final String sesionesCount = studentProv.attendanceRecords.length
+        .toString();
 
     return Scaffold(
       backgroundColor: cardColor,
@@ -139,8 +168,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
             const SizedBox(height: 4),
             Text(
               user.role == 'teacher'
-                  ? 'Inversor / Evaluador'
-                  : 'Desarrollador Indie',
+                  ? 'Mentor / Evaluador'
+                  : 'Creador / Desarrollador',
               style: TextStyle(
                 fontSize: 14,
                 fontWeight: FontWeight.bold,
@@ -164,7 +193,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       _buildStatItem(
                         context,
                         'CATEGORÍAS',
-                        '6',
+                        catCount,
                         onTap: () {
                           Navigator.push(
                             context,
@@ -178,12 +207,12 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       _buildStatItem(
                         context,
                         'PENDIENTES',
-                        '12',
+                        pendingCount,
                         onTap: () {
                           Navigator.push(
                             context,
                             MaterialPageRoute(
-                              builder: (_) => SubmissionsScreen(
+                              builder: (_) => const SubmissionsScreen(
                                 className: 'Todas',
                                 isTeacher: true,
                               ),
@@ -195,7 +224,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       _buildStatItem(
                         context,
                         'CREADORES',
-                        '154',
+                        creatorsCount,
                         onTap: () {
                           Navigator.push(
                             context,
@@ -210,7 +239,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       _buildStatItem(
                         context,
                         'VIABILIDAD',
-                        '9.8',
+                        viabilidad,
                         onTap: () {
                           Navigator.push(
                             context,
@@ -224,7 +253,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       _buildStatItem(
                         context,
                         'ENTREGAS',
-                        '12',
+                        entregasCount,
                         onTap: () {
                           Navigator.push(
                             context,
@@ -237,8 +266,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       const SizedBox(width: 12),
                       _buildStatItem(
                         context,
-                        'FALTAS',
-                        '0',
+                        'SESIONES',
+                        sesionesCount,
                         onTap: () {
                           Navigator.push(
                             context,

@@ -39,31 +39,31 @@ class TeacherProvider extends ChangeNotifier {
           {
             'name': 'Ana García (Líder de Proyecto)',
             'id': 'PRY-2024-001',
-            'grade': 'App Móvil',
+            'category': 'App Móvil', // <-- Estandarizado
             'avg': '9.8',
           },
           {
             'name': 'Luis Mendoza (Líder de Proyecto)',
             'id': 'PRY-2024-002',
-            'grade': 'SaaS B2B',
+            'category': 'SaaS B2B', // <-- Estandarizado
             'avg': '9.7',
           },
           {
             'name': 'Sofía Hernández (Líder de Proyecto)',
             'id': 'PRY-2024-003',
-            'grade': 'Juego Indie',
+            'category': 'Juego Indie', // <-- Estandarizado
             'avg': '9.6',
           },
           {
             'name': 'Marco Torres (Líder de Proyecto)',
             'id': 'PRY-2024-004',
-            'grade': 'E-Commerce',
+            'category': 'E-Commerce', // <-- Estandarizado
             'avg': '9.5',
           },
           {
             'name': 'Diego Ramírez (Líder de Proyecto)',
             'id': 'PRY-2024-005',
-            'grade': 'IA y Datos',
+            'category': 'IA y Datos', // <-- Estandarizado
             'avg': '8.0',
           },
         ];
@@ -180,6 +180,17 @@ class TeacherProvider extends ChangeNotifier {
     required List<Map<String, dynamic>> rubric,
   }) async {
     try {
+      if (_useMockData) {
+        // ==========================================
+        // 🛑 MODO OFFLINE: SIMULAR CREACIÓN
+        // ==========================================
+        await Future.delayed(const Duration(seconds: 2));
+        return true; // Simula que el servidor respondió 201 Created
+      }
+
+      // ==========================================
+      // 🟢 MODO PRODUCCIÓN: PETICIÓN REAL
+      // ==========================================
       final classObj = _availableClasses.firstWhere(
         (c) => c['name'] == className,
         orElse: () => {
@@ -207,6 +218,18 @@ class TeacherProvider extends ChangeNotifier {
     } catch (e) {
       debugPrint("Error de conexión: $e");
       return false;
+    }
+  }
+
+  void evaluateProject(String projectName, int grade) {
+    // Buscamos el proyecto que coincida con el nombre
+    final index = _submissions.indexWhere(
+      (s) => projectName.contains(s['name']),
+    );
+    if (index != -1) {
+      _submissions[index]['status'] = 'Calificado';
+      _submissions[index]['grade'] = grade;
+      notifyListeners(); // Actualiza la UI automáticamente
     }
   }
 

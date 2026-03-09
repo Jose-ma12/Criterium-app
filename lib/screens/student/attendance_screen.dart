@@ -29,6 +29,24 @@ class _AttendanceScreenState extends State<AttendanceScreen> {
     final bgColor = Theme.of(context).scaffoldBackgroundColor;
     final cardColor = Theme.of(context).cardColor;
     final textColor = isDark ? Colors.white : AppTheme.navyBlue;
+
+    final now = DateTime.now();
+    final monthNames = [
+      'Enero',
+      'Febrero',
+      'Marzo',
+      'Abril',
+      'Mayo',
+      'Junio',
+      'Julio',
+      'Agosto',
+      'Septiembre',
+      'Octubre',
+      'Noviembre',
+      'Diciembre',
+    ];
+    final currentMonth = monthNames[now.month - 1];
+
     return Scaffold(
       backgroundColor: bgColor,
       appBar: AppBar(
@@ -89,7 +107,7 @@ class _AttendanceScreenState extends State<AttendanceScreen> {
                       ),
                       const SizedBox(width: 16),
                       Text(
-                        'Febrero 2026',
+                        '$currentMonth ${now.year}',
                         style: TextStyle(
                           fontSize: 18,
                           fontWeight: FontWeight.bold,
@@ -171,6 +189,8 @@ class _AttendanceScreenState extends State<AttendanceScreen> {
             // ── Leyenda ──
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
+              width: double
+                  .infinity, // <-- Añadir para asegurar que el Wrap tome todo el ancho
               decoration: BoxDecoration(
                 color: cardColor,
                 borderRadius: BorderRadius.circular(16),
@@ -184,8 +204,11 @@ class _AttendanceScreenState extends State<AttendanceScreen> {
                   ),
                 ],
               ),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceAround,
+              child: Wrap(
+                // <-- CAMBIADO DE Row A Wrap
+                alignment: WrapAlignment.center,
+                spacing: 16.0, // Espacio horizontal entre elementos
+                runSpacing: 12.0, // Espacio vertical cuando saltan de línea
                 children: [
                   _buildLegendDot('Sesión exitosa', _greenAttendance),
                   _buildLegendDot('Pendiente', _redAbsence),
@@ -206,23 +229,35 @@ class _AttendanceScreenState extends State<AttendanceScreen> {
               ),
             ),
             const SizedBox(height: 12),
-            _buildIncidentTile(
-              '05 Feb',
-              'Reprogramada',
-              'Mentoría Técnica',
-              _orangeTardy,
-              Icons.access_time,
-              context,
-            ),
-            const SizedBox(height: 10),
-            _buildIncidentTile(
-              '12 Feb',
-              'Cancelada',
-              'Revisión de Pitch',
-              _orangeTardy,
-              Icons.access_time,
-              context,
-            ),
+
+            if (context.watch<StudentProvider>().incidentLogs.isEmpty)
+              Padding(
+                padding: const EdgeInsets.symmetric(vertical: 20),
+                child: Center(
+                  child: Text(
+                    'No hay incidentes registrados',
+                    style: TextStyle(color: Colors.grey[500]),
+                  ),
+                ),
+              )
+            else
+              ...context.watch<StudentProvider>().incidentLogs.map((log) {
+                final color = log['status'] == 'tardy'
+                    ? _orangeTardy
+                    : _redAbsence;
+                return Padding(
+                  padding: const EdgeInsets.only(bottom: 10),
+                  child: _buildIncidentTile(
+                    log['date'],
+                    log['type'],
+                    log['subject'],
+                    color,
+                    Icons.access_time,
+                    context,
+                  ),
+                );
+              }),
+
             const SizedBox(height: 24),
           ],
         ),
@@ -282,9 +317,10 @@ class _AttendanceScreenState extends State<AttendanceScreen> {
   // ── Calendar Grid ──
   // Febrero 2026: empieza Domingo (offset 6 en lun-dom), 28 días
   Widget _buildCalendarGrid(Color textColor, Map<int, int> attendance) {
-    // Febrero 2026 empieza Domingo → offset = 6 (6 celdas vacías antes del día 1 en grid Lun-Dom)
-    const int offset = 6;
-    const int daysInMonth = 28;
+    final now = DateTime.now();
+    final firstDay = DateTime(now.year, now.month, 1);
+    final int offset = firstDay.weekday - 1; // 0 Lunes, 6 Domingo
+    final int daysInMonth = DateUtils.getDaysInMonth(now.year, now.month);
 
     final List<Widget> cells = [];
 
@@ -311,7 +347,7 @@ class _AttendanceScreenState extends State<AttendanceScreen> {
           dotColor = _greenAttendance;
       }
 
-      final bool isToday = day == 18; // Simular hoy = 18 Feb
+      final bool isToday = day == now.day; // <-- HOY REAL
 
       cells.add(
         Column(

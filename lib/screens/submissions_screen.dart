@@ -20,7 +20,7 @@ class SubmissionsScreen extends StatefulWidget {
 }
 
 class _SubmissionsScreenState extends State<SubmissionsScreen> {
-  String _selectedFilter = 'Todos';
+  String _selectedFilter = 'Todos los creadores';
   String _searchQuery = '';
 
   @override
@@ -41,11 +41,16 @@ class _SubmissionsScreenState extends State<SubmissionsScreen> {
 
     switch (_selectedFilter) {
       case 'En Desarrollo':
+        result = submissions.where((s) => s['status'] == 'Pendiente').toList();
+        break;
+      case 'Sin Entregar':
         result = submissions
-            .where(
-              (s) =>
-                  s['status'] == 'Pendiente' || s['status'] == 'Sin Entregar',
-            )
+            .where((s) => s['status'] == 'Sin Entregar')
+            .toList();
+        break;
+      case 'Entregados': // <-- NUEVO FILTRO
+        result = submissions
+            .where((s) => s['status'] != 'Sin Entregar')
             .toList();
         break;
       case 'Evaluadas':
@@ -72,6 +77,9 @@ class _SubmissionsScreenState extends State<SubmissionsScreen> {
   @override
   Widget build(BuildContext context) {
     final teacherProv = context.watch<TeacherProvider>();
+    // OPTIMIZACIÓN: Calculamos la lista filtrada una sola vez
+    final filteredList = _filteredStudents(teacherProv.submissions);
+
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final bgColor = Theme.of(context).scaffoldBackgroundColor;
     final cardColor = Theme.of(context).cardColor;
@@ -81,7 +89,11 @@ class _SubmissionsScreenState extends State<SubmissionsScreen> {
       backgroundColor: bgColor,
       appBar: AppBar(
         title: Text(
-          widget.isTeacher ? 'Proyectos: ${widget.className}' : 'Mis Proyectos',
+          _selectedFilter == 'Todos los creadores'
+              ? (widget.isTeacher
+                    ? 'Proyectos: ${widget.className}'
+                    : 'Mis Proyectos')
+              : 'Proyectos: $_selectedFilter', // <-- Título dinámico
           style: TextStyle(
             color: textColor,
             fontWeight: FontWeight.bold,
@@ -144,7 +156,14 @@ class _SubmissionsScreenState extends State<SubmissionsScreen> {
                     children: [
                       _buildFilterChip(context, 'Todos los creadores'),
                       const SizedBox(width: 12),
+                      _buildFilterChip(
+                        context,
+                        'Entregados',
+                      ), // <-- NUEVO BOTÓN
+                      const SizedBox(width: 12),
                       _buildFilterChip(context, 'En Desarrollo'),
+                      const SizedBox(width: 12),
+                      _buildFilterChip(context, 'Sin Entregar'),
                       const SizedBox(width: 12),
                       _buildFilterChip(context, 'Evaluadas'),
                       const SizedBox(width: 12),
@@ -158,7 +177,12 @@ class _SubmissionsScreenState extends State<SubmissionsScreen> {
 
           Expanded(
             child: teacherProv.isLoading
-                ? const Center(child: CircularProgressIndicator())
+                ? ListView.builder(
+                    padding: const EdgeInsets.all(16),
+                    itemCount: 6,
+                    itemBuilder: (context, index) =>
+                        _buildSkeletonCard(context),
+                  )
                 : teacherProv.errorMessage != null
                 ? Center(
                     child: Column(
@@ -184,15 +208,35 @@ class _SubmissionsScreenState extends State<SubmissionsScreen> {
                       ],
                     ),
                   )
+                : filteredList.isEmpty
+                ? Center(
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Icon(
+                          Icons.folder_off_outlined,
+                          size: 72,
+                          color: isDark ? Colors.grey[700] : Colors.grey[300],
+                        ),
+                        const SizedBox(height: 16),
+                        Text(
+                          _selectedFilter == 'Entregados'
+                              ? 'Aún no hay proyectos entregados'
+                              : 'No hay proyectos en el filtro: $_selectedFilter',
+                          style: TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.w600,
+                            color: isDark ? Colors.grey[500] : Colors.grey[500],
+                          ),
+                        ),
+                      ],
+                    ),
+                  )
                 : ListView.builder(
                     padding: const EdgeInsets.all(16),
-                    itemCount: _filteredStudents(
-                      teacherProv.submissions,
-                    ).length,
+                    itemCount: filteredList.length,
                     itemBuilder: (context, index) {
-                      final student = _filteredStudents(
-                        teacherProv.submissions,
-                      )[index];
+                      final student = filteredList[index];
                       return _buildStudentCard(context, student);
                     },
                   ),
@@ -527,7 +571,9 @@ class _SubmissionsScreenState extends State<SubmissionsScreen> {
 
     return GestureDetector(
       onTap: () {
-        if (widget.isTeacher && (isPending || isLate)) {
+        // Permitimos entrar si está pendiente, con retraso, evaluado o sin entregar
+        if (widget.isTeacher &&
+            (isPending || isLate || isGraded || isMissing)) {
           Navigator.push(
             context,
             MaterialPageRoute(
@@ -578,25 +624,32 @@ class _SubmissionsScreenState extends State<SubmissionsScreen> {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Text(
-                        student['name'],
-                        style: TextStyle(
-                          fontWeight: FontWeight.bold,
-                          fontSize: 16,
-                          color: textColor,
+                      Expanded(
+                        child: Text(
+                          student['name'],
+                          style: TextStyle(
+                            fontWeight: FontWeight.bold,
+                            fontSize: 16,
+                            color: textColor,
+                          ),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
                         ),
                       ),
                       if ((isPending || isLate) && student['time'] != null)
-                        Text(
-                          student['time'],
-                          style: TextStyle(
-                            fontSize: 12,
-                            color: isLate
-                                ? Colors.purple[300]
-                                : (isDark
-                                      ? Colors.grey[400]
-                                      : Colors.grey[500]),
-                            fontWeight: FontWeight.bold,
+                        Padding(
+                          padding: const EdgeInsets.only(left: 8.0),
+                          child: Text(
+                            student['time'],
+                            style: TextStyle(
+                              fontSize: 12,
+                              color: isLate
+                                  ? Colors.purple[300]
+                                  : (isDark
+                                        ? Colors.grey[400]
+                                        : Colors.grey[500]),
+                              fontWeight: FontWeight.bold,
+                            ),
                           ),
                         ),
                     ],
@@ -648,6 +701,54 @@ class _SubmissionsScreenState extends State<SubmissionsScreen> {
             ),
           ],
         ),
+      ),
+    );
+  }
+
+  Widget _buildSkeletonCard(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final baseColor = isDark ? Colors.grey[800]! : Colors.grey[300]!;
+
+    return Container(
+      margin: const EdgeInsets.only(bottom: 12),
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: Theme.of(context).cardColor,
+        borderRadius: BorderRadius.circular(16),
+      ),
+      child: Row(
+        children: [
+          Container(
+            width: 56,
+            height: 56,
+            decoration: BoxDecoration(color: baseColor, shape: BoxShape.circle),
+          ),
+          const SizedBox(width: 16),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Container(
+                  width: double.infinity,
+                  height: 14,
+                  decoration: BoxDecoration(
+                    color: baseColor,
+                    borderRadius: BorderRadius.circular(4),
+                  ),
+                ),
+                const SizedBox(height: 8),
+                Container(
+                  width: 100,
+                  height: 10,
+                  decoration: BoxDecoration(
+                    color: baseColor.withOpacity(0.5),
+                    borderRadius: BorderRadius.circular(4),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
       ),
     );
   }
